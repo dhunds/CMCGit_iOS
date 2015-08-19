@@ -14,6 +14,7 @@
 		D5E5609A1B84560200CCDC12 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5E560991B84560200CCDC12 /* Images.xcassets */; };
 		D5E5609D1B84560200CCDC12 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D5E5609B1B84560200CCDC12 /* LaunchScreen.xib */; };
 		D5E560A91B84560300CCDC12 /* ClubMyCabTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E560A81B84560300CCDC12 /* ClubMyCabTests.m */; };
+		D5E560B41B84570A00CCDC12 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E560B31B84570A00CCDC12 /* LoginViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,8 @@
 		D5E560A21B84560200CCDC12 /* ClubMyCabTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClubMyCabTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5E560A71B84560300CCDC12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5E560A81B84560300CCDC12 /* ClubMyCabTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ClubMyCabTests.m; sourceTree = "<group>"; };
+		D5E560B21B84570A00CCDC12 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		D5E560B31B84570A00CCDC12 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +92,8 @@
 				D5E560991B84560200CCDC12 /* Images.xcassets */,
 				D5E5609B1B84560200CCDC12 /* LaunchScreen.xib */,
 				D5E5608C1B84560200CCDC12 /* Supporting Files */,
+				D5E560B21B84570A00CCDC12 /* LoginViewController.h */,
+				D5E560B31B84570A00CCDC12 /* LoginViewController.m */,
 			);
 			path = ClubMyCab;
 			sourceTree = "<group>";
@@ -219,6 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5E560B41B84570A00CCDC12 /* LoginViewController.m in Sources */,
 				D5E560951B84560200CCDC12 /* ViewController.m in Sources */,
 				D5E560921B84560200CCDC12 /* AppDelegate.m in Sources */,
 				D5E5608F1B84560200CCDC12 /* main.m in Sources */,
