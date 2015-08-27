@@ -1,0 +1,48 @@
+//
+//  PrefixHeader.pch
+//  ClubMyCab
+//
+//  Created by Rohit Dhundele on 20/08/15.
+//  Copyright (c) 2015 ClubMyCab. All rights reserved.
+//
+
+#ifndef ClubMyCab_PrefixHeader_pch
+#define ClubMyCab_PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#define LOGGING_ENABLED                                 1
+
+#define TOAST_DELAY                                     1.5
+
+#define KEY_USER_DEFAULT_NAME                           @"UserDefaultName"
+#define KEY_USER_DEFAULT_MOBILE                         @"UserDefaultMobile"
+#define KEY_USER_DEFAULT_EMAIL                          @"UserDefaultEmail"
+#define KEY_USER_DEFAULT_VERIFY_OTP                     @"UserDefaultVerifyOTP"
+#define KEY_USER_DEFAULT_LAST_APP_VERSION               @"UserDefaultLastAppVersion"
+
+#define TIMEOUT_SECONDS_NETWORK_QUERY                   30.0f
+
+#define NO_INTERNET_ERROR_MESSAGE                       @"No internet connection. Please check and try again!"
+#define GENERIC_ERROR_MESSAGE                           @"Something went wrong, please try again!"
+
+#define KEY_ERROR_ASYNC_REQUEST                         @"KeyErrorAsyncRequest"
+#define KEY_DATA_ASYNC_CONNECTION                       @"KeyDataAsyncRequest"
+#define KEY_ENDPOINT_ASYNC_CONNECTION                   @"KeyEndpointAsyncRequest"
+#define ERROR_CONNECTION_VALUE                          @"ConnectionErrorAsyncRequest"
+#define ERROR_DATA_NIL_VALUE                            @"DataNilErrorAsyncRequest"
+
+// chat IpAddress is same for both production & UAT
+
+//#define SERVER_ADDRESS                                  @"http://180.179.207.159/cmc/cmcservice"     //Production
+//#define SERVER_IP_ADDRESS                               @"180.179.207.159"                           //Production
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                 //Production
+
+#define SERVER_ADDRESS                                  @"http://180.179.208.23/cmc/cmcservice"     //UAT
+#define SERVER_IP_ADDRESS                               @"180.179.208.23"                           //UAT
+#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                 //UAT
+
+#define ENDPOINT_LOGIN                                  @"/login.php"
+
+#endif
