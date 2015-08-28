@@ -10,6 +10,9 @@
 #import "ToastLabel.h"
 #import "GlobalMethods.h"
 #import "Logger.h"
+#import "ActivityIndicatorView.h"
+#import "OTPViewController.h"
+#import "RegistrationViewController.h"
 
 @interface LoginViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -18,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *textFieldMobileNumber;
 
 @property (strong, nonatomic) ToastLabel *toastLabel;
+@property (strong, nonatomic) ActivityIndicatorView *activityIndicatorView;
 
 @end
 
@@ -32,6 +36,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [[self navigationController] setNavigationBarHidden:YES
+                                               animated:NO];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -49,11 +60,14 @@
     
     mobileNumber = [mobileNumber stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
-    if([mobileNumber length] == 0) {
+    if([mobileNumber length] <= 0) {
         [self makeToastWithMessage:@"Please enter mobile number"];
     } else if ([mobileNumber length] < 10) {
         [self makeToastWithMessage:@"Please enter valid mobile number"];
     } else {
+        
+        [self showActivityIndicatorView];
+        
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
         
         [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
@@ -63,30 +77,60 @@
     }
 }
 
-- (IBAction)registerPressed:(UIButton *)sender {
-}
-
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
 
 - (void)asyncRequestComplete:(GlobalMethods *)sender
                         data:(NSDictionary *)data {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [Logger logDebug:[self TAG]
-                 message:[NSString stringWithFormat:@" asyncRequestComplete loginResponse : %@", data]];
+        
+        [self hideActivityIndicatorView];
         
         NSString *error = [data valueForKey:KEY_ERROR_ASYNC_REQUEST];
         
         if([error isEqualToString:ERROR_CONNECTION_VALUE]) {
-            [Logger logDebug:[self TAG]
-                     message:@"here..."];
             [self makeToastWithMessage:NO_INTERNET_ERROR_MESSAGE];
         } else if ([error isEqualToString:ERROR_DATA_NIL_VALUE]) {
             [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
         } else {
             NSString *endPoint = [data valueForKey:KEY_ENDPOINT_ASYNC_CONNECTION];
             if ([endPoint isEqualToString:ENDPOINT_LOGIN]) {
-                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if([response isEqualToString:@"login error"]) {
+                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                        message:@"You are not registered, please click on Register"
+                                                                       delegate:nil
+                                                              cancelButtonTitle:@"OK"
+                                                              otherButtonTitles:nil];
+                    [alertView show];
+                } else {
+                    NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                    NSError *error = nil;
+                    NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                               options:NSJSONReadingMutableContainers
+                                                                                 error:&error];
+                    
+                    if(!error) {
+                        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                        [userDefaults setObject:[[parsedJson valueForKey:@"FullName"] objectAtIndex:0]
+                                         forKey:KEY_USER_DEFAULT_NAME];
+                        [userDefaults setObject:[[parsedJson valueForKey:@"MobileNumber"] objectAtIndex:0]
+                                         forKey:KEY_USER_DEFAULT_MOBILE];
+                        [userDefaults setObject:[[parsedJson valueForKey:@"Email"] objectAtIndex:0]
+                                         forKey:KEY_USER_DEFAULT_EMAIL];
+                        [userDefaults setBool:NO
+                                       forKey:KEY_USER_DEFAULT_VERIFY_OTP];
+                        
+                        [Logger logDebug:[self TAG]
+                                 message:[NSString stringWithFormat:@" %@ parsedJson : %@ value : %@", endPoint, [parsedJson description], [[parsedJson valueForKey:@"MobileNumber"] objectAtIndex:0]]];
+                        [self performSegueWithIdentifier:@"OTPSegue"
+                                                  sender:self];
+                    } else {
+                        [Logger logError:[self TAG]
+                                 message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                }
             }
         }
     });
@@ -98,6 +142,18 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
+    if([[segue identifier] isEqualToString:@"OTPSegue"]) {
+        if([[segue destinationViewController] isKindOfClass:[OTPViewController class]]) {
+            
+        }
+    } else if ([[segue identifier] isEqualToString:@"RegisterSegue"]) {
+        if([[segue destinationViewController] isKindOfClass:[RegistrationViewController class]]) {
+            if([[[self textFieldMobileNumber] text] length] > 0) {
+                [(RegistrationViewController *)[segue destinationViewController] setMobileNumber:[[self textFieldMobileNumber] text]];
+            }
+        }
+    }
 }
 
 #pragma mark - Private methods
@@ -133,6 +189,20 @@
                          }
                          
                      }];
+}
+
+- (void)showActivityIndicatorView {
+    
+    [self setActivityIndicatorView:[[ActivityIndicatorView alloc] initWithFrame:[[self view] bounds]
+                                                               messageToDisplay:PLEASE_WAIT_MESSAGE]];
+    [[self view] addSubview:[self activityIndicatorView]];
+}
+
+- (void)hideActivityIndicatorView {
+    
+    if ([self activityIndicatorView] != nil) {
+        [[self activityIndicatorView] removeFromSuperview];
+    }
 }
 
 @end
