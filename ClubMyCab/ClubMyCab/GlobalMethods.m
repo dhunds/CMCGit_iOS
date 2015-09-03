@@ -43,8 +43,8 @@
                                        NSString *returnValue = [[NSString alloc] initWithData:data
                                                                            encoding:NSUTF8StringEncoding];
                                        
-                                       [Logger logError:@"GlobalMethods"
-                                                message:[NSString stringWithFormat:@" %@ data : %@", endPoint, returnValue]];
+                                       [Logger logDebug:@"GlobalMethods"
+                                                message:[NSString stringWithFormat:@" %@ params : %@ data : %@", endPoint, postParam, returnValue]];
                                        
                                        [dictionary setObject:returnValue
                                                       forKey:KEY_DATA_ASYNC_CONNECTION];

@@ -11,6 +11,7 @@
 #import "ActivityIndicatorView.h"
 #import "Logger.h"
 #import "GlobalMethods.h"
+#import "OTPViewController.h"
 
 @interface RegistrationViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -62,6 +63,7 @@
     
     NSString *name = [[self textFieldFullName] text];
     NSString *number = [[self textFieldMobileNumber] text];
+    number = [number stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     NSString *email = [[self textFieldEmail] text];
     NSString *referralCode = [[self textFieldReferralCode] text];
     
@@ -82,7 +84,7 @@
         if([referralCode length] > 0) {
             params = [NSString stringWithFormat:@"FullName=%@&Password=&MobileNumber=0091%@&DeviceToken=%@&Email=%@&Gender=&DOB=&Platform=I&referralCode=%@", name, number, @"", email, referralCode];
         } else {
-            [NSString stringWithFormat:@"FullName=%@&Password=&MobileNumber=0091%@&DeviceToken=%@&Email=%@&Gender=&DOB=&Platform=I", name, number, @"", email];
+            params = [NSString stringWithFormat:@"FullName=%@&Password=&MobileNumber=0091%@&DeviceToken=%@&Email=%@&Gender=&DOB=&Platform=I", name, number, @"", email];
         }
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
         [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
@@ -124,8 +126,37 @@
                                                                            options:NSJSONReadingAllowFragments
                                                                              error:&error];
                 if(!error) {
+                    
+                    NSString *status = [parsedJson valueForKey:@"status"];
+                    NSString *message = [parsedJson valueForKey:@"message"];
+                    
                     [Logger logDebug:[self TAG]
-                             message:[NSString stringWithFormat:@" %@ parsedJson : %@", endPoint, [parsedJson description]]];
+                             message:[NSString stringWithFormat:@" %@ status : %@ message : %@", endPoint, status, message]];
+                    
+                    if (status && [status caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        
+                        NSString *name = [[self textFieldFullName] text];
+                        NSString *number = [[self textFieldMobileNumber] text];
+                        number = [NSString stringWithFormat:@"0091%@", [number stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+                        NSString *email = [[self textFieldEmail] text];
+                        
+                        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                        [userDefaults setObject:name
+                                         forKey:KEY_USER_DEFAULT_NAME];
+                        [userDefaults setObject:number
+                                         forKey:KEY_USER_DEFAULT_MOBILE];
+                        [userDefaults setObject:email
+                                         forKey:KEY_USER_DEFAULT_EMAIL];
+                        [userDefaults setBool:NO
+                                       forKey:KEY_USER_DEFAULT_VERIFY_OTP];
+                        [userDefaults setObject:[self currentAppVersion]
+                                         forKey:KEY_USER_DEFAULT_LAST_APP_VERSION];
+                        
+                        [self performSegueWithIdentifier:@"OTPRegisterSegue"
+                                                  sender:self];
+                    } else {
+                        [self makeToastWithMessage:message];
+                    }
                 } else {
                     [Logger logError:[self TAG]
                              message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
@@ -179,9 +210,18 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"OTPRegisterSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[OTPViewController class]]) {
+            [(OTPViewController *)[segue destinationViewController] setFromLoginOrRegistration:OTP_FROM_REGISTRATION];
+        }
+    }
 }
 
 #pragma mark - Private methods
+
+- (NSString *)currentAppVersion {
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+}
 
 - (void)makeToastWithMessage:(NSString *)message {
     

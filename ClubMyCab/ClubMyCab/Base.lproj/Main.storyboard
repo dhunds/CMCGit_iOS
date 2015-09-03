@@ -23,6 +23,7 @@
                     <navigationItem key="navigationItem" id="dTQ-E1-Hae"/>
                     <connections>
                         <segue destination="dvb-Tz-mDA" kind="show" identifier="ViewPagerSegue" id="Qao-h7-PyJ"/>
+                        <segue destination="Nhg-Js-k9d" kind="show" identifier="OTPSplashSegue" id="8FR-fd-i2E"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -251,7 +252,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wq7-4B-y3I" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4604" y="-266"/>
+            <point key="canvasLocation" x="4712" y="-266"/>
         </scene>
         <!--Registration View Controller-->
         <scene sceneID="Jxn-w4-vcj">
@@ -386,11 +387,12 @@
                         <outlet property="textFieldFullName" destination="hX0-Gs-8mf" id="ytO-hC-IGf"/>
                         <outlet property="textFieldMobileNumber" destination="ogy-ZZ-gyB" id="b0a-aM-kk1"/>
                         <outlet property="textFieldReferralCode" destination="hYF-2y-TBV" id="mZ5-Ld-E1w"/>
+                        <segue destination="Nhg-Js-k9d" kind="show" identifier="OTPRegisterSegue" id="1nD-ph-fmp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gVi-ea-reF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4604" y="507"/>
+            <point key="canvasLocation" x="3819" y="515"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="rV1-1h-kAS">
@@ -416,4 +418,7 @@
         <image name="login_banner" width="300" height="250"/>
         <image name="phone_icon" width="26" height="34"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="8FR-fd-i2E"/>
+    </inferredMetricsTieBreakers>
 </document>

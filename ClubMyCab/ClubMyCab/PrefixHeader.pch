@@ -26,10 +26,14 @@
 #define ENDPOINT_VERIFY_LOGIN_OTP                       @"/verifyloginotp.php"
 #define ENDPOINT_RESEND_OTP                             @"/resendotp.php"
 #define ENDPOINT_REGISTRATION                           @"/userregister.php"
+#define ENDPOINT_VERIFY_REGISTRATION_OTP                @"/verifyotp.php"
+#define ENDPOINT_CHANGE_USER_STATUS                     @"/changeuserstatus.php"
 
 #define LOGGING_ENABLED                                 1
 
 #define TOAST_DELAY                                     1.5
+
+#define TIMEOUT_SECONDS_NETWORK_QUERY                   30.0f
 
 #define KEY_USER_DEFAULT_NAME                           @"UserDefaultName"
 #define KEY_USER_DEFAULT_MOBILE                         @"UserDefaultMobile"
@@ -37,7 +41,8 @@
 #define KEY_USER_DEFAULT_VERIFY_OTP                     @"UserDefaultVerifyOTP"
 #define KEY_USER_DEFAULT_LAST_APP_VERSION               @"UserDefaultLastAppVersion"
 
-#define TIMEOUT_SECONDS_NETWORK_QUERY                   30.0f
+#define OTP_FROM_LOGIN                                  @"OTPFromLogin"
+#define OTP_FROM_REGISTRATION                           @"OTPFromRegistration"
 
 #define NO_INTERNET_ERROR_MESSAGE                       @"No internet connection. Please check and try again!"
 #define GENERIC_ERROR_MESSAGE                           @"Something went wrong, please try again!"

@@ -68,10 +68,19 @@
         NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
         
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
-        [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
-                                                           endPoint:ENDPOINT_VERIFY_LOGIN_OTP
-                                                         parameters:[NSString stringWithFormat:@"MobileNumber=%@&singleusepassword=%@&DeviceToken=%@&Platform=I", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE], [[self textFieldOTP] text], @""]
-                                                delegateForProtocol:self];
+        
+        if ([[self fromLoginOrRegistration] isEqualToString:OTP_FROM_LOGIN]) {
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_VERIFY_LOGIN_OTP
+                                                             parameters:[NSString stringWithFormat:@"MobileNumber=%@&singleusepassword=%@&DeviceToken=%@&Platform=I", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE], [[self textFieldOTP] text], @""]
+                                                    delegateForProtocol:self];
+        } else if ([[self fromLoginOrRegistration] isEqualToString:OTP_FROM_REGISTRATION]) {
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_VERIFY_REGISTRATION_OTP
+                                                             parameters:[NSString stringWithFormat:@"MobileNumber=%@&singleusepassword=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE], [[self textFieldOTP] text]]
+                                                    delegateForProtocol:self];
+        }
+        
 //        [Logger logDebug:[self TAG]
 //                 message:[NSString stringWithFormat:@" continuePressed params : %@", [NSString stringWithFormat:@"MobileNumber=%@&singleusepassword=%@&DeviceToken=%@&Platform=I", [userDefaults stringForKey:KEY_USER_DEFAULT_MOBILE], [[self textFieldOTP] text], @""]]];
     } else {
@@ -113,7 +122,7 @@
                     [userDefaults setBool:YES
                                    forKey:KEY_USER_DEFAULT_VERIFY_OTP];
                     
-                    // open home screen vc
+                    //TODO open home screen vc
                     
                 } else if (response && [response caseInsensitiveCompare:@"OTPEXPIRE"] == NSOrderedSame) {
                     [self makeToastWithMessage:@"Entered OTP has expired. Please click resend OTP"];
@@ -125,6 +134,14 @@
                 if(response && [response caseInsensitiveCompare:@"FAILURE"] == NSOrderedSame) {
                     [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
                 }
+            } else if ([endPoint isEqualToString:ENDPOINT_VERIFY_REGISTRATION_OTP]) {
+                
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setBool:YES
+                               forKey:KEY_USER_DEFAULT_VERIFY_OTP];
+                
+                //TODO open home screen vc
+                
             }
         }
     });

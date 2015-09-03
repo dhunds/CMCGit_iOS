@@ -10,4 +10,6 @@
 
 @interface OTPViewController : UIViewController
 
+@property (strong, nonatomic) NSString *fromLoginOrRegistration;
+
 @end

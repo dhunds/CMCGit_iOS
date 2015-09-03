@@ -145,7 +145,7 @@
     
     if([[segue identifier] isEqualToString:@"OTPSegue"]) {
         if([[segue destinationViewController] isKindOfClass:[OTPViewController class]]) {
-            
+            [(OTPViewController *)[segue destinationViewController] setFromLoginOrRegistration:OTP_FROM_LOGIN];
         }
     } else if ([[segue identifier] isEqualToString:@"RegisterSegue"]) {
         if([[segue destinationViewController] isKindOfClass:[RegistrationViewController class]]) {
