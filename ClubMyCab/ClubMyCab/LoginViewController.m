@@ -92,6 +92,8 @@
             [self makeToastWithMessage:NO_INTERNET_ERROR_MESSAGE];
         } else if ([error isEqualToString:ERROR_DATA_NIL_VALUE]) {
             [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+        } else if ([error isEqualToString:ERROR_UNAUTHORIZED_ACCESS]) {
+            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
         } else {
             NSString *endPoint = [data valueForKey:KEY_ENDPOINT_ASYNC_CONNECTION];
             if ([endPoint isEqualToString:ENDPOINT_LOGIN]) {

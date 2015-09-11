@@ -16,11 +16,13 @@
 
 //#define SERVER_ADDRESS                                  @"http://180.179.207.159/cmc/cmcservice"     //Production
 //#define SERVER_IP_ADDRESS                               @"180.179.207.159"                           //Production
-//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                 //Production
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
+//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
 
 #define SERVER_ADDRESS                                  @"http://180.179.208.23/cmc/cmcservice"     //UAT
 #define SERVER_IP_ADDRESS                               @"180.179.208.23"                           //UAT
 #define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                 //UAT
+#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"         //UAT
 
 #define ENDPOINT_LOGIN                                  @"/login.php"
 #define ENDPOINT_VERIFY_LOGIN_OTP                       @"/verifyloginotp.php"
@@ -53,5 +55,6 @@
 #define KEY_ENDPOINT_ASYNC_CONNECTION                   @"KeyEndpointAsyncRequest"
 #define ERROR_CONNECTION_VALUE                          @"ConnectionErrorAsyncRequest"
 #define ERROR_DATA_NIL_VALUE                            @"DataNilErrorAsyncRequest"
+#define ERROR_UNAUTHORIZED_ACCESS                       @"Unauthorized Access"
 
 #endif
