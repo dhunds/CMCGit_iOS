@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D52A41511BA2B113006FCDEA /* SWRevealViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41501BA2B113006FCDEA /* SWRevealViewController.m */; };
+		D52A41611BA2DCF1006FCDEA /* HomePageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41601BA2DCF1006FCDEA /* HomePageViewController.m */; };
+		D52A41641BA2EFD9006FCDEA /* MyClubsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */; };
+		D52A41671BA2EFFF006FCDEA /* MyRidesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41661BA2EFFF006FCDEA /* MyRidesViewController.m */; };
+		D52A416A1BA2F012006FCDEA /* WalletsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41691BA2F012006FCDEA /* WalletsViewController.m */; };
+		D52A416D1BA2F02C006FCDEA /* ShareLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A416C1BA2F02C006FCDEA /* ShareLocationViewController.m */; };
+		D52A41701BA2F03E006FCDEA /* MyProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A416F1BA2F03E006FCDEA /* MyProfileViewController.m */; };
+		D52A41731BA2F050006FCDEA /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41721BA2F050006FCDEA /* SettingsViewController.m */; };
+		D52A41761BA2F062006FCDEA /* ShareThisAppViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41751BA2F062006FCDEA /* ShareThisAppViewController.m */; };
+		D52A41791BA2F078006FCDEA /* HowToViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41781BA2F078006FCDEA /* HowToViewController.m */; };
+		D52A417C1BA2F087006FCDEA /* NeedSupportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A417B1BA2F087006FCDEA /* NeedSupportViewController.m */; };
 		D5352E321B8F39DE005F5A74 /* ActivityIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5352E311B8F39DE005F5A74 /* ActivityIndicatorView.m */; };
 		D54DA55D1B8AF5DC00294706 /* help_screen_4.png in Resources */ = {isa = PBXBuildFile; fileRef = D54DA55A1B8AF5DC00294706 /* help_screen_4.png */; };
 		D54DA55E1B8AF5DC00294706 /* help_screen_4@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D54DA55B1B8AF5DC00294706 /* help_screen_4@2x.png */; };
@@ -48,6 +59,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D52A414F1BA2B113006FCDEA /* SWRevealViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWRevealViewController.h; sourceTree = "<group>"; };
+		D52A41501BA2B113006FCDEA /* SWRevealViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWRevealViewController.m; sourceTree = "<group>"; };
+		D52A415F1BA2DCF1006FCDEA /* HomePageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomePageViewController.h; sourceTree = "<group>"; };
+		D52A41601BA2DCF1006FCDEA /* HomePageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HomePageViewController.m; sourceTree = "<group>"; };
+		D52A41621BA2EFD9006FCDEA /* MyClubsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyClubsViewController.h; sourceTree = "<group>"; };
+		D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyClubsViewController.m; sourceTree = "<group>"; };
+		D52A41651BA2EFFF006FCDEA /* MyRidesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRidesViewController.h; sourceTree = "<group>"; };
+		D52A41661BA2EFFF006FCDEA /* MyRidesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRidesViewController.m; sourceTree = "<group>"; };
+		D52A41681BA2F012006FCDEA /* WalletsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WalletsViewController.h; sourceTree = "<group>"; };
+		D52A41691BA2F012006FCDEA /* WalletsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WalletsViewController.m; sourceTree = "<group>"; };
+		D52A416B1BA2F02C006FCDEA /* ShareLocationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareLocationViewController.h; sourceTree = "<group>"; };
+		D52A416C1BA2F02C006FCDEA /* ShareLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareLocationViewController.m; sourceTree = "<group>"; };
+		D52A416E1BA2F03D006FCDEA /* MyProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyProfileViewController.h; sourceTree = "<group>"; };
+		D52A416F1BA2F03E006FCDEA /* MyProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyProfileViewController.m; sourceTree = "<group>"; };
+		D52A41711BA2F050006FCDEA /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		D52A41721BA2F050006FCDEA /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		D52A41741BA2F062006FCDEA /* ShareThisAppViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareThisAppViewController.h; sourceTree = "<group>"; };
+		D52A41751BA2F062006FCDEA /* ShareThisAppViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareThisAppViewController.m; sourceTree = "<group>"; };
+		D52A41771BA2F078006FCDEA /* HowToViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HowToViewController.h; sourceTree = "<group>"; };
+		D52A41781BA2F078006FCDEA /* HowToViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HowToViewController.m; sourceTree = "<group>"; };
+		D52A417A1BA2F087006FCDEA /* NeedSupportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NeedSupportViewController.h; sourceTree = "<group>"; };
+		D52A417B1BA2F087006FCDEA /* NeedSupportViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NeedSupportViewController.m; sourceTree = "<group>"; };
 		D5352E301B8F39DE005F5A74 /* ActivityIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityIndicatorView.h; sourceTree = "<group>"; };
 		D5352E311B8F39DE005F5A74 /* ActivityIndicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivityIndicatorView.m; sourceTree = "<group>"; };
 		D54DA55A1B8AF5DC00294706 /* help_screen_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = help_screen_4.png; sourceTree = "<group>"; };
@@ -112,6 +145,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D52A414E1BA2B0FA006FCDEA /* SWRevealViewController */ = {
+			isa = PBXGroup;
+			children = (
+				D52A414F1BA2B113006FCDEA /* SWRevealViewController.h */,
+				D52A41501BA2B113006FCDEA /* SWRevealViewController.m */,
+			);
+			name = SWRevealViewController;
+			sourceTree = "<group>";
+		};
 		D5E560801B84560200CCDC12 = {
 			isa = PBXGroup;
 			children = (
@@ -141,6 +183,10 @@
 				D5E560911B84560200CCDC12 /* AppDelegate.m */,
 				D5F2CD2F1B8DD6D3000D50FE /* GlobalMethods.h */,
 				D5F2CD301B8DD6D3000D50FE /* GlobalMethods.m */,
+				D52A415F1BA2DCF1006FCDEA /* HomePageViewController.h */,
+				D52A41601BA2DCF1006FCDEA /* HomePageViewController.m */,
+				D52A41771BA2F078006FCDEA /* HowToViewController.h */,
+				D52A41781BA2F078006FCDEA /* HowToViewController.m */,
 				D5E560B81B84AA4C00CCDC12 /* ImageFiles */,
 				D5E560991B84560200CCDC12 /* Images.xcassets */,
 				D55A20F61B85CD120048D819 /* IntroPageImageViewController.h */,
@@ -153,14 +199,31 @@
 				D5E560B21B84570A00CCDC12 /* LoginViewController.h */,
 				D5E560B31B84570A00CCDC12 /* LoginViewController.m */,
 				D5E560961B84560200CCDC12 /* Main.storyboard */,
+				D52A41621BA2EFD9006FCDEA /* MyClubsViewController.h */,
+				D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */,
+				D52A416E1BA2F03D006FCDEA /* MyProfileViewController.h */,
+				D52A416F1BA2F03E006FCDEA /* MyProfileViewController.m */,
+				D52A41651BA2EFFF006FCDEA /* MyRidesViewController.h */,
+				D52A41661BA2EFFF006FCDEA /* MyRidesViewController.m */,
+				D52A417A1BA2F087006FCDEA /* NeedSupportViewController.h */,
+				D52A417B1BA2F087006FCDEA /* NeedSupportViewController.m */,
 				D590C14A1B8F0E030076D251 /* OTPViewController.h */,
 				D590C14B1B8F0E030076D251 /* OTPViewController.m */,
 				D55A20EF1B85AA9C0048D819 /* PrefixHeader.pch */,
 				D58A39751B9062C1000D8F9F /* RegistrationViewController.h */,
 				D58A39761B9062C1000D8F9F /* RegistrationViewController.m */,
+				D52A41711BA2F050006FCDEA /* SettingsViewController.h */,
+				D52A41721BA2F050006FCDEA /* SettingsViewController.m */,
+				D52A416B1BA2F02C006FCDEA /* ShareLocationViewController.h */,
+				D52A416C1BA2F02C006FCDEA /* ShareLocationViewController.m */,
+				D52A41741BA2F062006FCDEA /* ShareThisAppViewController.h */,
+				D52A41751BA2F062006FCDEA /* ShareThisAppViewController.m */,
 				D5E5608C1B84560200CCDC12 /* Supporting Files */,
+				D52A414E1BA2B0FA006FCDEA /* SWRevealViewController */,
 				D5F2CD321B8DD914000D50FE /* ToastLabel.h */,
 				D5F2CD331B8DD914000D50FE /* ToastLabel.m */,
+				D52A41681BA2F012006FCDEA /* WalletsViewController.h */,
+				D52A41691BA2F012006FCDEA /* WalletsViewController.m */,
 			);
 			path = ClubMyCab;
 			sourceTree = "<group>";
@@ -322,17 +385,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D52A41511BA2B113006FCDEA /* SWRevealViewController.m in Sources */,
 				D5E560B41B84570A00CCDC12 /* LoginViewController.m in Sources */,
+				D52A41611BA2DCF1006FCDEA /* HomePageViewController.m in Sources */,
 				D58A39771B9062C1000D8F9F /* RegistrationViewController.m in Sources */,
+				D52A41791BA2F078006FCDEA /* HowToViewController.m in Sources */,
 				D5F2CD341B8DD914000D50FE /* ToastLabel.m in Sources */,
+				D52A417C1BA2F087006FCDEA /* NeedSupportViewController.m in Sources */,
 				D5E560921B84560200CCDC12 /* AppDelegate.m in Sources */,
 				D55A20F51B85BD540048D819 /* IntroPageViewController.m in Sources */,
+				D52A41731BA2F050006FCDEA /* SettingsViewController.m in Sources */,
 				D5E5608F1B84560200CCDC12 /* main.m in Sources */,
 				D55A20F21B85B8100048D819 /* AfterSplashViewController.m in Sources */,
+				D52A41701BA2F03E006FCDEA /* MyProfileViewController.m in Sources */,
+				D52A416D1BA2F02C006FCDEA /* ShareLocationViewController.m in Sources */,
 				D590C14C1B8F0E030076D251 /* OTPViewController.m in Sources */,
 				D55A20F81B85CD120048D819 /* IntroPageImageViewController.m in Sources */,
 				D55A20EE1B85A9370048D819 /* Logger.m in Sources */,
 				D5352E321B8F39DE005F5A74 /* ActivityIndicatorView.m in Sources */,
+				D52A41641BA2EFD9006FCDEA /* MyClubsViewController.m in Sources */,
+				D52A41761BA2F062006FCDEA /* ShareThisAppViewController.m in Sources */,
+				D52A416A1BA2F012006FCDEA /* WalletsViewController.m in Sources */,
+				D52A41671BA2EFFF006FCDEA /* MyRidesViewController.m in Sources */,
 				D5F2CD311B8DD6D4000D50FE /* GlobalMethods.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -32,7 +32,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *name = [userDefaults objectForKey:KEY_USER_DEFAULT_NAME];
     NSString *mobile = [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE];
@@ -64,8 +66,18 @@
             [self changeUserStatus];
         }
     } else {
+//        id viewController = nil;
+//        
+//        viewController = [[self storyboard] instantiateViewControllerWithIdentifier:@"MainIntroPageVC"];
+//        
+//        [(IntroPageViewController *)viewController initializeDatasource];
+//        
+//        [self presentViewController:viewController
+//                           animated:NO
+//                         completion:nil];
+        
         [self performSegueWithIdentifier:@"ViewPagerSegue"
-                                  sender:self];
+                                          sender:self];
     }
 }
 
@@ -103,6 +115,9 @@
                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                     if ([userDefaults boolForKey:KEY_USER_DEFAULT_VERIFY_OTP]) {
                         //TODO open home page vc
+                        
+                        [self performSegueWithIdentifier:@"SplashHomeSegue"
+                                                  sender:self];
                     } else {
                         [self performSegueWithIdentifier:@"OTPSplashSegue"
                                                   sender:self];
@@ -143,6 +158,8 @@
         if ([[segue destinationViewController] isKindOfClass:[OTPViewController class]]) {
             [(OTPViewController *)[segue destinationViewController] setFromLoginOrRegistration:OTP_FROM_LOGIN];
         }
+    } else if ([[segue identifier] isEqualToString:@"SplashHomeSegue"]) {
+        
     }
 }
 

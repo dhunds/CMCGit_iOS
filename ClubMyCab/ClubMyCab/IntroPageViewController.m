@@ -108,8 +108,8 @@
     [Logger logDebug:[self TAG]
              message:@" viewDidLoad"];
     
-    [[self navigationController] setNavigationBarHidden:YES
-                                               animated:NO];
+//    [[self navigationController] setNavigationBarHidden:YES
+//                                               animated:NO];
     
 //    [[self navigationItem] setTitle:@""];
 //    [[self navigationItem] setHidesBackButton:YES
