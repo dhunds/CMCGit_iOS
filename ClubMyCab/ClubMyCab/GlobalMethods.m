@@ -142,5 +142,48 @@
     
 }
 
+- (UIBarButtonItem *)getNotificationsBarButtonItemWithTarget:(id)target
+                                    unreadNotificationsCount:(int)count {
+    
+    UIButton *button =  [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setImage:[UIImage imageNamed:@"notifications_icon"]
+            forState:UIControlStateNormal];
+    if ([target respondsToSelector:@selector(notificationsBarButtonItemPressed)]) {
+        [button addTarget:target
+                   action:@selector(notificationsBarButtonItemPressed)
+         forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    [button setFrame:CGRectMake(0, 0, 30, 30)];
+    
+    if (count > 0) {
+        UILabel *lbl_card_count = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, 16, 16)];
+        lbl_card_count.textColor = [UIColor blackColor];
+        lbl_card_count.textAlignment = NSTextAlignmentCenter;
+        lbl_card_count.text = [NSString stringWithFormat:@"%d", count];
+        //    lbl_card_count.layer.borderWidth = 1;
+        lbl_card_count.layer.cornerRadius = 7;
+        lbl_card_count.layer.masksToBounds = YES;
+        //    lbl_card_count.layer.borderColor =[[UIColor clearColor] CGColor];
+        //    lbl_card_count.layer.shadowColor = [[UIColor clearColor] CGColor];
+        //    lbl_card_count.layer.shadowOffset = CGSizeMake(0.0, 0.0);
+        //    lbl_card_count.layer.shadowOpacity = 0.0;
+        lbl_card_count.backgroundColor = [UIColor colorWithRed:255.0/255.0
+                                                         green:249.0/255.0
+                                                          blue:79.0/255.0
+                                                         alpha:1.0];
+        lbl_card_count.font = [UIFont fontWithName:@"Arial" size:11];
+        [button addSubview:lbl_card_count];
+    }
+    
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:button];
+    
+    return barButton;
+}
+
+- (IBAction)notificationsBarButtonItemPressed {
+    //added only to suppress warnings, does nothing
+}
+
 
 @end

@@ -114,8 +114,6 @@
                 } else {
                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                     if ([userDefaults boolForKey:KEY_USER_DEFAULT_VERIFY_OTP]) {
-                        //TODO open home page vc
-                        
                         [self performSegueWithIdentifier:@"SplashHomeSegue"
                                                   sender:self];
                     } else {

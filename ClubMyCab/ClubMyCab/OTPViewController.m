@@ -122,7 +122,8 @@
                     [userDefaults setBool:YES
                                    forKey:KEY_USER_DEFAULT_VERIFY_OTP];
                     
-                    //TODO open home screen vc
+                    [self performSegueWithIdentifier:@"OTPHomeSegue"
+                                              sender:self];
                     
                 } else if (response && [response caseInsensitiveCompare:@"OTPEXPIRE"] == NSOrderedSame) {
                     [self makeToastWithMessage:@"Entered OTP has expired. Please click resend OTP"];
@@ -136,12 +137,20 @@
                 }
             } else if ([endPoint isEqualToString:ENDPOINT_VERIFY_REGISTRATION_OTP]) {
                 
-                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                [userDefaults setBool:YES
-                               forKey:KEY_USER_DEFAULT_VERIFY_OTP];
-                
-                //TODO open home screen vc
-                
+                if(response && [response caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                    
+                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                    [userDefaults setBool:YES
+                                   forKey:KEY_USER_DEFAULT_VERIFY_OTP];
+                    
+                    [self performSegueWithIdentifier:@"OTPHomeSegue"
+                                              sender:self];
+                    
+                } else if (response && [response caseInsensitiveCompare:@"OTPEXPIRE"] == NSOrderedSame) {
+                    [self makeToastWithMessage:@"Entered OTP has expired. Please click resend OTP"];
+                } else {
+                    [self makeToastWithMessage:@"Entered OTP is not valid"];
+                }
             }
         }
     });

@@ -30,6 +30,15 @@
 #define ENDPOINT_REGISTRATION                           @"/userregister.php"
 #define ENDPOINT_VERIFY_REGISTRATION_OTP                @"/verifyotp.php"
 #define ENDPOINT_CHANGE_USER_STATUS                     @"/changeuserstatus.php"
+#define ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT       @"/FetchUnreadNotificationCount.php"
+#define ENDPOINT_FETCH_ALL_NOTIFICATIONS                @"/FetchMyAllNotification.php"
+#define ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ        @"/UpdateNotificationStatusToRead.php"
+#define ENDPOINT_UPDATE_ALL_NOTIFICATIONS_READ          @"/changenotificationstatusasread.php"
+#define ENDPOINT_CLEAR_ALL_NOTIFICATIONS                @"/changenotificationstatus.php"
+#define ENDPOINT_DELETE_NOTIFICATION                    @"/swipetodeletenotification.php"
+#define ENDPOINT_FETCH_CLUBS                            @"/Fetch_Club.php"
+#define ENDPOINT_DELETE_CLUB                            @"/removeclub.php"
+#define ENDPOINT_LEAVE_CLUB                             @"/Leave_Club.php"
 
 #define LOGGING_ENABLED                                 1
 

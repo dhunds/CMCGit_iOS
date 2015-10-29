@@ -29,5 +29,8 @@
                                                 parameters:(NSString *)postParam
                                  delegateForProtocol:(id)delegate;
 
+- (UIBarButtonItem *)getNotificationsBarButtonItemWithTarget:(id)target
+                                    unreadNotificationsCount:(int)count;
+
 
 @end

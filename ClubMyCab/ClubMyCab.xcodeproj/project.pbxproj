@@ -35,8 +35,15 @@
 		D55A20F21B85B8100048D819 /* AfterSplashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D55A20F11B85B8100048D819 /* AfterSplashViewController.m */; };
 		D55A20F51B85BD540048D819 /* IntroPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D55A20F41B85BD540048D819 /* IntroPageViewController.m */; };
 		D55A20F81B85CD120048D819 /* IntroPageImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D55A20F71B85CD120048D819 /* IntroPageImageViewController.m */; };
+		D55FE5601BCBC2D100B0C46E /* ContactsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D55FE55F1BCBC2D100B0C46E /* ContactsTableViewCell.m */; settings = {ASSET_TAGS = (); }; };
+		D563F06A1BC6664A00283695 /* MyClubsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D563F0691BC6664900283695 /* MyClubsTableViewCell.m */; settings = {ASSET_TAGS = (); }; };
+		D563F06D1BC6666300283695 /* MemberOfClubsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D563F06C1BC6666300283695 /* MemberOfClubsTableViewCell.m */; settings = {ASSET_TAGS = (); }; };
 		D58A39771B9062C1000D8F9F /* RegistrationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D58A39761B9062C1000D8F9F /* RegistrationViewController.m */; };
 		D590C14C1B8F0E030076D251 /* OTPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D590C14B1B8F0E030076D251 /* OTPViewController.m */; };
+		D5D60D3A1BC78E58001CE4F9 /* GenericContactsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */; settings = {ASSET_TAGS = (); }; };
+		D5D60D3D1BC7D9D3001CE4F9 /* ClubDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */; settings = {ASSET_TAGS = (); }; };
+		D5DC3FC91BB5803F00FBDF34 /* NotificationsListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC3FC81BB5803F00FBDF34 /* NotificationsListViewController.m */; settings = {ASSET_TAGS = (); }; };
+		D5DE433E1BC3CBD0006C0BEF /* NotificationsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DE433D1BC3CBD0006C0BEF /* NotificationsTableViewCell.m */; settings = {ASSET_TAGS = (); }; };
 		D5E5608F1B84560200CCDC12 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E5608E1B84560200CCDC12 /* main.m */; };
 		D5E560921B84560200CCDC12 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E560911B84560200CCDC12 /* AppDelegate.m */; };
 		D5E560981B84560200CCDC12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D5E560961B84560200CCDC12 /* Main.storyboard */; };
@@ -104,10 +111,24 @@
 		D55A20F41B85BD540048D819 /* IntroPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntroPageViewController.m; sourceTree = "<group>"; };
 		D55A20F61B85CD120048D819 /* IntroPageImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntroPageImageViewController.h; sourceTree = "<group>"; };
 		D55A20F71B85CD120048D819 /* IntroPageImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntroPageImageViewController.m; sourceTree = "<group>"; };
+		D55FE55E1BCBC2D100B0C46E /* ContactsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsTableViewCell.h; sourceTree = "<group>"; };
+		D55FE55F1BCBC2D100B0C46E /* ContactsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsTableViewCell.m; sourceTree = "<group>"; };
+		D563F0681BC6664900283695 /* MyClubsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyClubsTableViewCell.h; sourceTree = "<group>"; };
+		D563F0691BC6664900283695 /* MyClubsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyClubsTableViewCell.m; sourceTree = "<group>"; };
+		D563F06B1BC6666300283695 /* MemberOfClubsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemberOfClubsTableViewCell.h; sourceTree = "<group>"; };
+		D563F06C1BC6666300283695 /* MemberOfClubsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemberOfClubsTableViewCell.m; sourceTree = "<group>"; };
 		D58A39751B9062C1000D8F9F /* RegistrationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistrationViewController.h; sourceTree = "<group>"; };
 		D58A39761B9062C1000D8F9F /* RegistrationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistrationViewController.m; sourceTree = "<group>"; };
 		D590C14A1B8F0E030076D251 /* OTPViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTPViewController.h; sourceTree = "<group>"; };
 		D590C14B1B8F0E030076D251 /* OTPViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTPViewController.m; sourceTree = "<group>"; };
+		D5D60D381BC78E58001CE4F9 /* GenericContactsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericContactsViewController.h; sourceTree = "<group>"; };
+		D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GenericContactsViewController.m; sourceTree = "<group>"; };
+		D5D60D3B1BC7D9D3001CE4F9 /* ClubDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClubDetailsViewController.h; sourceTree = "<group>"; };
+		D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClubDetailsViewController.m; sourceTree = "<group>"; };
+		D5DC3FC71BB5803F00FBDF34 /* NotificationsListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationsListViewController.h; sourceTree = "<group>"; };
+		D5DC3FC81BB5803F00FBDF34 /* NotificationsListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationsListViewController.m; sourceTree = "<group>"; };
+		D5DE433C1BC3CBD0006C0BEF /* NotificationsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationsTableViewCell.h; sourceTree = "<group>"; };
+		D5DE433D1BC3CBD0006C0BEF /* NotificationsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationsTableViewCell.m; sourceTree = "<group>"; };
 		D5E560891B84560200CCDC12 /* ClubMyCab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClubMyCab.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5E5608D1B84560200CCDC12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5E5608E1B84560200CCDC12 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -181,6 +202,10 @@
 				D55A20F11B85B8100048D819 /* AfterSplashViewController.m */,
 				D5E560901B84560200CCDC12 /* AppDelegate.h */,
 				D5E560911B84560200CCDC12 /* AppDelegate.m */,
+				D5D60D3B1BC7D9D3001CE4F9 /* ClubDetailsViewController.h */,
+				D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */,
+				D5D60D381BC78E58001CE4F9 /* GenericContactsViewController.h */,
+				D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */,
 				D5F2CD2F1B8DD6D3000D50FE /* GlobalMethods.h */,
 				D5F2CD301B8DD6D3000D50FE /* GlobalMethods.m */,
 				D52A415F1BA2DCF1006FCDEA /* HomePageViewController.h */,
@@ -199,6 +224,12 @@
 				D5E560B21B84570A00CCDC12 /* LoginViewController.h */,
 				D5E560B31B84570A00CCDC12 /* LoginViewController.m */,
 				D5E560961B84560200CCDC12 /* Main.storyboard */,
+				D563F06B1BC6666300283695 /* MemberOfClubsTableViewCell.h */,
+				D563F06C1BC6666300283695 /* MemberOfClubsTableViewCell.m */,
+				D563F0681BC6664900283695 /* MyClubsTableViewCell.h */,
+				D563F0691BC6664900283695 /* MyClubsTableViewCell.m */,
+				D55FE55E1BCBC2D100B0C46E /* ContactsTableViewCell.h */,
+				D55FE55F1BCBC2D100B0C46E /* ContactsTableViewCell.m */,
 				D52A41621BA2EFD9006FCDEA /* MyClubsViewController.h */,
 				D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */,
 				D52A416E1BA2F03D006FCDEA /* MyProfileViewController.h */,
@@ -207,6 +238,10 @@
 				D52A41661BA2EFFF006FCDEA /* MyRidesViewController.m */,
 				D52A417A1BA2F087006FCDEA /* NeedSupportViewController.h */,
 				D52A417B1BA2F087006FCDEA /* NeedSupportViewController.m */,
+				D5DC3FC71BB5803F00FBDF34 /* NotificationsListViewController.h */,
+				D5DC3FC81BB5803F00FBDF34 /* NotificationsListViewController.m */,
+				D5DE433C1BC3CBD0006C0BEF /* NotificationsTableViewCell.h */,
+				D5DE433D1BC3CBD0006C0BEF /* NotificationsTableViewCell.m */,
 				D590C14A1B8F0E030076D251 /* OTPViewController.h */,
 				D590C14B1B8F0E030076D251 /* OTPViewController.m */,
 				D55A20EF1B85AA9C0048D819 /* PrefixHeader.pch */,
@@ -385,13 +420,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5DE433E1BC3CBD0006C0BEF /* NotificationsTableViewCell.m in Sources */,
 				D52A41511BA2B113006FCDEA /* SWRevealViewController.m in Sources */,
 				D5E560B41B84570A00CCDC12 /* LoginViewController.m in Sources */,
 				D52A41611BA2DCF1006FCDEA /* HomePageViewController.m in Sources */,
+				D5DC3FC91BB5803F00FBDF34 /* NotificationsListViewController.m in Sources */,
 				D58A39771B9062C1000D8F9F /* RegistrationViewController.m in Sources */,
 				D52A41791BA2F078006FCDEA /* HowToViewController.m in Sources */,
+				D563F06D1BC6666300283695 /* MemberOfClubsTableViewCell.m in Sources */,
 				D5F2CD341B8DD914000D50FE /* ToastLabel.m in Sources */,
+				D5D60D3D1BC7D9D3001CE4F9 /* ClubDetailsViewController.m in Sources */,
+				D55FE5601BCBC2D100B0C46E /* ContactsTableViewCell.m in Sources */,
 				D52A417C1BA2F087006FCDEA /* NeedSupportViewController.m in Sources */,
+				D563F06A1BC6664A00283695 /* MyClubsTableViewCell.m in Sources */,
 				D5E560921B84560200CCDC12 /* AppDelegate.m in Sources */,
 				D55A20F51B85BD540048D819 /* IntroPageViewController.m in Sources */,
 				D52A41731BA2F050006FCDEA /* SettingsViewController.m in Sources */,
@@ -402,6 +443,7 @@
 				D590C14C1B8F0E030076D251 /* OTPViewController.m in Sources */,
 				D55A20F81B85CD120048D819 /* IntroPageImageViewController.m in Sources */,
 				D55A20EE1B85A9370048D819 /* Logger.m in Sources */,
+				D5D60D3A1BC78E58001CE4F9 /* GenericContactsViewController.m in Sources */,
 				D5352E321B8F39DE005F5A74 /* ActivityIndicatorView.m in Sources */,
 				D52A41641BA2EFD9006FCDEA /* MyClubsViewController.m in Sources */,
 				D52A41761BA2F062006FCDEA /* ShareThisAppViewController.m in Sources */,
