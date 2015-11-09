@@ -10,6 +10,10 @@
 
 @interface ClubDetailsViewController : UIViewController
 
+#define MY_CLUBS_SEGUE              @"MyClubsSegue"
+#define MEMBER_OF_CLUBS_SEGUE       @"MemberOfClubsSegue"
+
 @property (strong, nonatomic) NSDictionary *dictionaryClubDetails;
+@property (strong, nonatomic) NSString *segueType;
 
 @end

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D51B43431BE9E07C0036D554 /* ClubDetailsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D51B43421BE9E07C0036D554 /* ClubDetailsTableViewCell.m */; settings = {ASSET_TAGS = (); }; };
 		D52A41511BA2B113006FCDEA /* SWRevealViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41501BA2B113006FCDEA /* SWRevealViewController.m */; };
 		D52A41611BA2DCF1006FCDEA /* HomePageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41601BA2DCF1006FCDEA /* HomePageViewController.m */; };
 		D52A41641BA2EFD9006FCDEA /* MyClubsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */; };
@@ -66,6 +67,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D51B43411BE9E07C0036D554 /* ClubDetailsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClubDetailsTableViewCell.h; sourceTree = "<group>"; };
+		D51B43421BE9E07C0036D554 /* ClubDetailsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClubDetailsTableViewCell.m; sourceTree = "<group>"; };
 		D52A414F1BA2B113006FCDEA /* SWRevealViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWRevealViewController.h; sourceTree = "<group>"; };
 		D52A41501BA2B113006FCDEA /* SWRevealViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWRevealViewController.m; sourceTree = "<group>"; };
 		D52A415F1BA2DCF1006FCDEA /* HomePageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomePageViewController.h; sourceTree = "<group>"; };
@@ -202,8 +205,12 @@
 				D55A20F11B85B8100048D819 /* AfterSplashViewController.m */,
 				D5E560901B84560200CCDC12 /* AppDelegate.h */,
 				D5E560911B84560200CCDC12 /* AppDelegate.m */,
+				D51B43411BE9E07C0036D554 /* ClubDetailsTableViewCell.h */,
+				D51B43421BE9E07C0036D554 /* ClubDetailsTableViewCell.m */,
 				D5D60D3B1BC7D9D3001CE4F9 /* ClubDetailsViewController.h */,
 				D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */,
+				D55FE55E1BCBC2D100B0C46E /* ContactsTableViewCell.h */,
+				D55FE55F1BCBC2D100B0C46E /* ContactsTableViewCell.m */,
 				D5D60D381BC78E58001CE4F9 /* GenericContactsViewController.h */,
 				D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */,
 				D5F2CD2F1B8DD6D3000D50FE /* GlobalMethods.h */,
@@ -228,8 +235,6 @@
 				D563F06C1BC6666300283695 /* MemberOfClubsTableViewCell.m */,
 				D563F0681BC6664900283695 /* MyClubsTableViewCell.h */,
 				D563F0691BC6664900283695 /* MyClubsTableViewCell.m */,
-				D55FE55E1BCBC2D100B0C46E /* ContactsTableViewCell.h */,
-				D55FE55F1BCBC2D100B0C46E /* ContactsTableViewCell.m */,
 				D52A41621BA2EFD9006FCDEA /* MyClubsViewController.h */,
 				D52A41631BA2EFD9006FCDEA /* MyClubsViewController.m */,
 				D52A416E1BA2F03D006FCDEA /* MyProfileViewController.h */,
@@ -426,6 +431,7 @@
 				D52A41611BA2DCF1006FCDEA /* HomePageViewController.m in Sources */,
 				D5DC3FC91BB5803F00FBDF34 /* NotificationsListViewController.m in Sources */,
 				D58A39771B9062C1000D8F9F /* RegistrationViewController.m in Sources */,
+				D51B43431BE9E07C0036D554 /* ClubDetailsTableViewCell.m in Sources */,
 				D52A41791BA2F078006FCDEA /* HowToViewController.m in Sources */,
 				D563F06D1BC6666300283695 /* MemberOfClubsTableViewCell.m in Sources */,
 				D5F2CD341B8DD914000D50FE /* ToastLabel.m in Sources */,
@@ -579,7 +585,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ClubMyCab/PrefixHeader.pch";
 				INFOPLIST_FILE = ClubMyCab/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -593,7 +599,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ClubMyCab/PrefixHeader.pch";
 				INFOPLIST_FILE = ClubMyCab/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

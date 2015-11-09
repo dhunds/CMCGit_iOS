@@ -39,6 +39,14 @@
 #define ENDPOINT_FETCH_CLUBS                            @"/Fetch_Club.php"
 #define ENDPOINT_DELETE_CLUB                            @"/removeclub.php"
 #define ENDPOINT_LEAVE_CLUB                             @"/Leave_Club.php"
+#define ENDPOINT_STORE_CLUB                             @"/Store_Club.php"
+#define ENDPOINT_REMOVE_USER_CLUB                       @"/removeuserfromclub.php"
+#define ENDPOINT_ADD_USERS_CLUB                         @"/addmoreuserstoclub.php"
+#define ENDPOINT_REFER_USERS_CLUB                       @"/referFriendStepOne.php"
+#define ENDPOINT_CUSTOMER_QUERY                         @"/customerQuery.php"
+#define ENDPOINT_FETCH_PROFILE                          @"/fetchmyprofile.php"
+#define ENDPOINT_UPDATE_PROFILE                         @"/updatemyprofile.php"
+#define ENDPOINT_UPDATE_PUSH_NOTIF_STATUS               @"/updatepushnotificationstatus.php"
 
 #define LOGGING_ENABLED                                 1
 
@@ -51,6 +59,12 @@
 #define KEY_USER_DEFAULT_EMAIL                          @"UserDefaultEmail"
 #define KEY_USER_DEFAULT_VERIFY_OTP                     @"UserDefaultVerifyOTP"
 #define KEY_USER_DEFAULT_LAST_APP_VERSION               @"UserDefaultLastAppVersion"
+#define KEY_USER_DEFAULT_PUSH_NOTIF_STATUS              @"UserDefaultPushNotifStatus"
+#define KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL        @"UserDefaultShareLocationInterval"
+
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10   @"10 minutes"
 
 #define OTP_FROM_LOGIN                                  @"OTPFromLogin"
 #define OTP_FROM_REGISTRATION                           @"OTPFromRegistration"

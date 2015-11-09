@@ -34,6 +34,8 @@
 
 @property (strong, nonatomic) UIAlertView *alertViewDeleteClub, *alertViewLeaveClub;
 
+@property (strong, nonatomic) NSString *clubsSegueType;
+
 @end
 
 @implementation MyClubsViewController
@@ -50,8 +52,6 @@
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [self setMobileNumber:[userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]];
-    
-    [self fetchClubs];
     
     SWRevealViewController *revealViewController = [self revealViewController];
     if (revealViewController) {
@@ -74,6 +74,8 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+    [self fetchClubs];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -167,11 +169,12 @@
         }
     } else if ([[segue identifier] isEqualToString:@"ClubsContactsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[GenericContactsViewController class]]) {
-            
+            [(GenericContactsViewController *)[segue destinationViewController] setSegueType:SEGUE_FROM_CREATE_CLUB];
         }
     } else if ([[segue identifier] isEqualToString:@"ClubDetailsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[ClubDetailsViewController class]]) {
             [(ClubDetailsViewController *)[segue destinationViewController] setDictionaryClubDetails:(NSDictionary *)sender];
+            [(ClubDetailsViewController *)[segue destinationViewController] setSegueType:[self clubsSegueType]];
         }
     }
 }
@@ -342,9 +345,11 @@
                              animated:NO];
     
     if (tableView == [self tableViewMyClubs]) {
+        [self setClubsSegueType:MY_CLUBS_SEGUE];
         [self performSegueWithIdentifier:@"ClubDetailsSegue"
                                   sender:[[self arrayMyClubs] objectAtIndex:indexPath.row]];
     } else if (tableView == [self tableViewMemberOfClubs]) {
+        [self setClubsSegueType:MEMBER_OF_CLUBS_SEGUE];
         [self performSegueWithIdentifier:@"ClubDetailsSegue"
                                   sender:[[self arrayMemberOfClubs] objectAtIndex:indexPath.row]];
     }
