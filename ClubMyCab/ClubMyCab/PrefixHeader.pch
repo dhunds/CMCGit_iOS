@@ -24,6 +24,12 @@
 #define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                 //UAT
 #define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"         //UAT
 
+#define GOOGLE_MAPS_API_KEY                             @"AIzaSyBqd05mV8c2VTIAKhYP1mFKF7TRueU2-Z0"
+
+#define FAVORITE_LOCATIONS_FILE_NAME                    @"FavoriteLocations.txt"
+#define FAVORITE_LOCATIONS_TAG_VALUE_HOME               @"Home"
+#define FAVORITE_LOCATIONS_TAG_VALUE_OFFICE             @"Office"
+
 #define ENDPOINT_LOGIN                                  @"/login.php"
 #define ENDPOINT_VERIFY_LOGIN_OTP                       @"/verifyloginotp.php"
 #define ENDPOINT_RESEND_OTP                             @"/resendotp.php"

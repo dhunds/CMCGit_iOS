@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 @class GlobalMethods;
 
@@ -32,5 +33,6 @@
 - (UIBarButtonItem *)getNotificationsBarButtonItemWithTarget:(id)target
                                     unreadNotificationsCount:(int)count;
 
+- (NSString *)getShortNameForGMSAddress:(GMSAddress *)address;
 
 @end

@@ -34,6 +34,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0, 0.0, [[self view] frame].size.width, 44.0)];
+    UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                           target:nil
+                                                                           action:nil];
+    UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                            target:self
+                                                                            action:@selector(keyboardDonePressed)];
+    [toolBar setItems:[NSArray arrayWithObjects:space, button, nil]];
+    
+    [[self textFieldOTP] setInputAccessoryView:toolBar];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -86,6 +97,10 @@
     } else {
         [self makeToastWithMessage:@"Please enter OTP"];
     }
+}
+
+- (void)keyboardDonePressed {
+    [[self textFieldOTP] resignFirstResponder];
 }
 
 #pragma mark - Navigation

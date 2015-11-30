@@ -90,8 +90,10 @@
     
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     
-    if ([buttonTitle isEqualToString:@"Ok"]) {
+    if ([buttonTitle isEqualToString:@"Cancel"]) {
         [self popVC];
+    } else if ([buttonTitle isEqualToString:@"Settings"]) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
     }
 }
 
@@ -116,7 +118,7 @@
                                                                     message:@"ClubMyCab cannot add your friend(s) to clubs without access to your Address Book. Please provide access to your contacts in Settings."
                                                                    delegate:self
                                                           cancelButtonTitle:nil
-                                                          otherButtonTitles:@"Ok", nil];
+                                                          otherButtonTitles:@"Cancel", @"Settings", nil];
                 [alertView show];
                 
             }

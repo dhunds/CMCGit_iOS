@@ -185,5 +185,21 @@
     //added only to suppress warnings, does nothing
 }
 
+- (NSString *)getShortNameForGMSAddress:(GMSAddress *)address {
+    
+    NSString *shortName = @"";
+    
+    if ([[address subLocality] length] > 0) {
+        shortName = [NSString stringWithFormat:@"%@, %@", [address subLocality], [address locality]];
+    } else if ([[address thoroughfare] length] > 0) {
+        shortName = [NSString stringWithFormat:@"%@, %@", [address thoroughfare], [address locality]];
+    } else {
+        shortName = [address locality];
+    }
+    
+    [Logger logDebug:@"GlobalMethods"
+             message:[NSString stringWithFormat:@" getShortNameForGMSAddress : %@", shortName]];
+    return shortName;
+}
 
 @end

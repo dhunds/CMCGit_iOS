@@ -36,6 +36,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0.0, 0.0, [[self view] frame].size.width, 44.0)];
+    UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                           target:nil
+                                                                           action:nil];
+    UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                            target:self
+                                                                            action:@selector(keyboardDonePressed)];
+    [toolBar setItems:[NSArray arrayWithObjects:space, button, nil]];
+    
+    [[self textFieldMobileNumber] setInputAccessoryView:toolBar];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -75,6 +86,10 @@
                                                          parameters:[NSString stringWithFormat:@"MobileNumber=%@&DeviceToken=%@&Platform=I", [NSString stringWithFormat:@"0091%@", mobileNumber], @""]
                                                 delegateForProtocol:self];
     }
+}
+
+- (void)keyboardDonePressed {
+    [[self textFieldMobileNumber] resignFirstResponder];
 }
 
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods

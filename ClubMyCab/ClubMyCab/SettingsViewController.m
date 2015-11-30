@@ -13,6 +13,7 @@
 #import "ActivityIndicatorView.h"
 #import "GlobalMethods.h"
 #import "Logger.h"
+#import "FavoriteLocationsViewController.h"
 
 @interface SettingsViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -197,7 +198,8 @@
 }
 
 - (IBAction)favoriteLocationsPressed:(UIButton *)sender {
-    
+    [self performSegueWithIdentifier:@"FavLocSettingsSegue"
+                              sender:self];
 }
 
 #pragma mark - Private methods
@@ -257,6 +259,10 @@
     // Pass the selected object to the new view controller.
     if ([[segue identifier] isEqualToString:@"NotificationsClubsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[NotificationsListViewController class]]) {
+            
+        }
+    } else if ([[segue identifier] isEqualToString:@"FavLocSettingsSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[FavoriteLocationsViewController class]]) {
             
         }
     }
