@@ -38,6 +38,8 @@
 
 @property (strong, nonatomic) NSDictionary *dictionaryFavoriteLocations;
 
+@property (strong, nonatomic) UIAlertView *alertViewFavoriteLocations ,*alertViewNotifications;
+
 @end
 
 @implementation HomePageViewController
@@ -69,6 +71,7 @@
     
     [self readFavoriteLocationsJSONFromFile];
     
+    [self checkNotificationSettings];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -161,6 +164,8 @@
         if ([[segue destinationViewController] isKindOfClass:[TripDateTimeViewController class]]) {
             [(TripDateTimeViewController *)[segue destinationViewController] setAddressModelFrom:[self addressModelFrom]];
             [(TripDateTimeViewController *)[segue destinationViewController] setAddressModelTo:[self addressModelTo]];
+            
+            [self clearAddressModels];
         }
     }
 }
@@ -253,7 +258,6 @@
 
 - (IBAction)clubMyCabPressed:(UIButton *)sender {
     [[self viewClubAndCabButtons] setHidden:YES];
-    [self clearAddressModels];
     
     [self performSegueWithIdentifier:@"TripDateTimeSegue"
                               sender:self];
@@ -261,7 +265,7 @@
 
 - (IBAction)bookCabPressed:(UIButton *)sender {
     [[self viewClubAndCabButtons] setHidden:YES];
-    [self clearAddressModels];
+    [self clearAddressModels];    //TODO move to prepareForSegue
 }
 
 - (IBAction)cancelPressed:(UIButton *)sender {
@@ -338,8 +342,8 @@
         
         [self setHasFavoriteLocations:YES];
         
-        //        [Logger logDebug:[self TAG]
-        //                 message:[NSString stringWithFormat:@" readFavoriteLocationsJSONFromFile name : %@ dictionary : %@", [[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:@"longName"], [dictionary description]]];
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@" readFavoriteLocationsJSONFromFile home : %@ office : %@ dictionary : %@", [[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] longName], [[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE] longName], [[self dictionaryFavoriteLocations] description]]];
     } else {
         [Logger logError:[self TAG]
                  message:[NSString stringWithFormat:@" readFavoriteLocationsJSONFromFile error : %@", [error localizedDescription]]];
@@ -379,6 +383,43 @@
                                                                              blue:1.0
                                                                             alpha:1.0]];
     }
+}
+
+- (void)checkNotificationSettings {
+    
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" checkNotificationSettings : %lu isRegisteredForRemoteNotifications : %d", (unsigned long)[[[UIApplication sharedApplication] currentUserNotificationSettings] types], [[UIApplication sharedApplication] isRegisteredForRemoteNotifications]]];
+    
+    if (![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+        if (![[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_APN_REG_CALLED]) {
+            [self registerForNotifications];
+        } else {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Access needed"
+                                                                message:@"ClubMyCab cannot send you push notifications. Please consider enabling them to take advantage of all the features offered. Enable now?"
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Cancel", @"Settings", nil];
+            [alertView show];
+            
+            [self setAlertViewNotifications:alertView];
+        }
+    } else {
+        NSString *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_APN_DEVICE_TOKEN];
+        
+        if (!deviceToken || [deviceToken length] <= 0) {
+            [self registerForNotifications];
+        }
+    }
+    
+}
+
+- (void)registerForNotifications {
+    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+    
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:YES
+                                            forKey:KEY_USER_DEFAULT_APN_REG_CALLED];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -435,6 +476,8 @@
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Yes", @"Later", nil];
     [alertView show];
+    
+    [self setAlertViewFavoriteLocations:alertView];
 }
 
 #pragma mark - UIAlertViewDelegate methods
@@ -443,11 +486,19 @@
     
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     
-    if ([buttonTitle isEqualToString:@"Yes"]) {
-        [self performSegueWithIdentifier:@"FavLocHomeSegue"
-                                  sender:self];
-    } else if ([buttonTitle isEqualToString:@"Later"]) {
-        
+    if (alertView == [self alertViewFavoriteLocations]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [self performSegueWithIdentifier:@"FavLocHomeSegue"
+                                      sender:self];
+        } else if ([buttonTitle isEqualToString:@"Later"]) {
+            
+        }
+    } else if (alertView == [self alertViewNotifications]) {
+        if ([buttonTitle isEqualToString:@"Cancel"]) {
+            
+        } else if ([buttonTitle isEqualToString:@"Settings"]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
     }
 }
 

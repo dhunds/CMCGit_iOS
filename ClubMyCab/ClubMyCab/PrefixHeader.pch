@@ -14,15 +14,15 @@
 
 // chat IpAddress is same for both production & UAT
 
-//#define SERVER_ADDRESS                                  @"http://180.179.207.159/cmc/cmcservice"     //Production
-//#define SERVER_IP_ADDRESS                               @"180.179.207.159"                           //Production
-//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
-//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
+//#define SERVER_ADDRESS                                  @"http://104.155.193.222/cmc/cmcservice"     //GoogleCloudProduction
+//#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //GoogleCloudProduction
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //GoogleCloudProduction
+//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //GoogleCloudProduction
 
-#define SERVER_ADDRESS                                  @"http://180.179.208.23/cmc/cmcservice"     //UAT
-#define SERVER_IP_ADDRESS                               @"180.179.208.23"                           //UAT
-#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                 //UAT
-#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"         //UAT
+#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //GoogleCloudUAT
+#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //GoogleCloudUAT
+#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //GoogleCloudUAT
+#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //GoogleCloudUAT
 
 #define GOOGLE_MAPS_API_KEY                             @"AIzaSyBqd05mV8c2VTIAKhYP1mFKF7TRueU2-Z0"
 
@@ -53,6 +53,11 @@
 #define ENDPOINT_FETCH_PROFILE                          @"/fetchmyprofile.php"
 #define ENDPOINT_UPDATE_PROFILE                         @"/updatemyprofile.php"
 #define ENDPOINT_UPDATE_PUSH_NOTIF_STATUS               @"/updatepushnotificationstatus.php"
+#define ENDPOINT_UPDATE_REG_ID                          @"/updateregid.php"
+#define ENDPOINT_OPEN_A_CAB                             @"/openacab.php"
+#define ENDPOINT_FETCH_MY_POOLS                         @"/FetchMyPools.php"
+#define ENDPOINT_FETCH_MY_POOL_HISTORY                  @"/fetchmypoolshistory.php"
+
 
 #define LOGGING_ENABLED                                 1
 
@@ -67,6 +72,8 @@
 #define KEY_USER_DEFAULT_LAST_APP_VERSION               @"UserDefaultLastAppVersion"
 #define KEY_USER_DEFAULT_PUSH_NOTIF_STATUS              @"UserDefaultPushNotifStatus"
 #define KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL        @"UserDefaultShareLocationInterval"
+#define KEY_USER_DEFAULT_APN_DEVICE_TOKEN               @"UserDefaultAPNDeviceToken"
+#define KEY_USER_DEFAULT_APN_REG_CALLED                 @"UserDefaultAPNRegCalled"
 
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
