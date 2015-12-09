@@ -475,7 +475,7 @@
                                                              parameters:[NSString stringWithFormat:@"ClubId=%@&MemberName=%@&MemberNumber=%@&ReferedUserName=%@&ReferedUserNumber=%@", [[self dictionaryClubDetails] objectForKey:@"PoolId"], [[self dictionaryClubDetails] objectForKey:@"OwnerName"], [[self dictionaryClubDetails] objectForKey:@"OwnerNumber"], memberNames, memberNumbers]
                                                     delegateForProtocol:self];
         }
-    } else if ([[self segueType] isEqualToString:SEGUE_FROM_RIDE_INVITATION]) {
+    } else if ([[self segueType] isEqualToString:SEGUE_FROM_RIDE_INVITATION] || [[self segueType] isEqualToString:SEGUE_FROM_OWNER_RIDE_INVITATION]) {
         NSArray *selectionArray = [[self arrayContacts] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(KeyDictSelected CONTAINS[cd] %@)", @"ValueDictSelectedYes"]];
         if ([selectionArray count] <= 0) {
             [self makeToastWithMessage:@"Please select contact(s) to invite"];

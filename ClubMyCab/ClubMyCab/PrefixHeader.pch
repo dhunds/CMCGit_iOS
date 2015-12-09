@@ -57,6 +57,9 @@
 #define ENDPOINT_OPEN_A_CAB                             @"/openacab.php"
 #define ENDPOINT_FETCH_MY_POOLS                         @"/FetchMyPools.php"
 #define ENDPOINT_FETCH_MY_POOL_HISTORY                  @"/fetchmypoolshistory.php"
+#define ENDPOINT_SHOW_MEMBERS_ON_MAP                    @"/ShowMemberOnMap.php"
+#define ENDPOINT_CANCEL_POOL_OWNER                      @"/cancelpoolbyowner.php"
+#define ENDPOINT_OWNER_INVITE_FRIENDS                   @"/ownerinvitefriends.php"
 
 
 #define LOGGING_ENABLED                                 1

@@ -22,10 +22,11 @@
 
 @interface GenericContactsViewController : UIViewController
 
-#define SEGUE_FROM_CREATE_CLUB              @"SegueFromCreateClub"
-#define SEGUE_FROM_ADD_MEMBERS              @"SegueFromAddMembers"
-#define SEGUE_FROM_REFER_MEMBERS            @"SegueFromReferMembers"
-#define SEGUE_FROM_RIDE_INVITATION          @"SegueFromRideInvitation"
+#define SEGUE_FROM_CREATE_CLUB                  @"SegueFromCreateClub"
+#define SEGUE_FROM_ADD_MEMBERS                  @"SegueFromAddMembers"
+#define SEGUE_FROM_REFER_MEMBERS                @"SegueFromReferMembers"
+#define SEGUE_FROM_RIDE_INVITATION              @"SegueFromRideInvitation"
+#define SEGUE_FROM_OWNER_RIDE_INVITATION        @"SegueFromOwnerRideInvitation"
 
 @property (strong, nonatomic) NSString *segueType;
 @property (strong, nonatomic) NSDictionary *dictionaryClubDetails;
