@@ -17,6 +17,7 @@
 #import "FavoriteLocationsViewController.h"
 #import "PlacesAutoCompleteViewController.h"
 #import "TripDateTimeViewController.h"
+#import "BookACabViewController.h"
 
 @import GoogleMaps;
 
@@ -167,6 +168,13 @@
             
             [self clearAddressModels];
         }
+    } else if ([[segue identifier] isEqualToString:@"BookACabHomeSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[BookACabViewController class]]) {
+            
+            
+            
+            [self clearAddressModels];
+        }
     }
 }
 
@@ -265,7 +273,9 @@
 
 - (IBAction)bookCabPressed:(UIButton *)sender {
     [[self viewClubAndCabButtons] setHidden:YES];
-    [self clearAddressModels];    //TODO move to prepareForSegue
+    
+    [self performSegueWithIdentifier:@"BookACabHomeSegue"
+                              sender:self];
 }
 
 - (IBAction)cancelPressed:(UIButton *)sender {

@@ -14,6 +14,7 @@
 #import "GlobalMethods.h"
 #import "NotificationsListViewController.h"
 #import "MyRidesTableViewCell.h"
+#import "RideDetailsViewController.h"
 
 @interface MyRidesViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate>
 
@@ -88,6 +89,10 @@
         if ([[segue destinationViewController] isKindOfClass:[NotificationsListViewController class]]) {
             
         }
+    } else if ([[segue identifier] isEqualToString:@"RideDetailsSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[RideDetailsViewController class]]) {
+            [(RideDetailsViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+        }
     }
 }
 
@@ -118,6 +123,9 @@
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if ((response && [response caseInsensitiveCompare:@"No Pool Created Yet!!"] == NSOrderedSame) || [response length] <= 0 || [response isEqualToString:@"[]"]) {
                     [self makeToastWithMessage:@"No active rides!"];
+                    
+                    [self setArrayMyRides:[NSArray array]];
+                    [[self tableViewMyRides] reloadData];
                 } else {
                     NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
                     NSError *error = nil;
@@ -244,15 +252,8 @@
     [tableView deselectRowAtIndexPath:indexPath
                              animated:NO];
     
-//    if (tableView == [self tableViewMyClubs]) {
-//        [self setClubsSegueType:MY_CLUBS_SEGUE];
-//        [self performSegueWithIdentifier:@"ClubDetailsSegue"
-//                                  sender:[[self arrayMyClubs] objectAtIndex:indexPath.section]];
-//    } else if (tableView == [self tableViewMemberOfClubs]) {
-//        [self setClubsSegueType:MEMBER_OF_CLUBS_SEGUE];
-//        [self performSegueWithIdentifier:@"ClubDetailsSegue"
-//                                  sender:[[self arrayMemberOfClubs] objectAtIndex:indexPath.section]];
-//    }
+    [self performSegueWithIdentifier:@"RideDetailsSegue"
+                              sender:[[self arrayMyRides] objectAtIndex:indexPath.section]];
 }
 
 #pragma mark - IBAction methods
