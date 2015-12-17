@@ -70,8 +70,6 @@
         [[self view] addGestureRecognizer:[[self revealViewController] panGestureRecognizer]];
     }
     
-    [self readFavoriteLocationsJSONFromFile];
-    
     [self checkNotificationSettings];
 }
 
@@ -86,6 +84,8 @@
                                                        endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
                                                      parameters:[NSString stringWithFormat:@"MobileNumber=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]]
                                             delegateForProtocol:self];
+    
+    [self readFavoriteLocationsJSONFromFile];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -414,7 +414,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CGRect frameTableView = [tableView frame];
-    return frameTableView.size.height / 5.0;
+    return frameTableView.size.height / 3.0;
 }
 
 #pragma mark - UITableViewDelegate methods

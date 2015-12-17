@@ -12,6 +12,8 @@
 #import "ToastLabel.h"
 #import "Logger.h"
 #import "NotificationsTableViewCell.h"
+#import "RideDetailsViewController.h"
+#import "RideDetailsMemberViewController.h"
 
 @interface NotificationsListViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIAlertViewDelegate>
 
@@ -91,6 +93,16 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
+    if ([[segue identifier] isEqualToString:@"NotifToRideSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[RideDetailsViewController class]]) {
+            [(RideDetailsViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+        }
+    } else if ([[segue identifier] isEqualToString:@"NotifToRideMemberSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[RideDetailsMemberViewController class]]) {
+            [(RideDetailsMemberViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+        }
+    }
 }
 
 #pragma mark - IBAction methods
@@ -143,67 +155,6 @@
 //    else if ([buttonTitle isEqualToString:@"No"]) {
 //        
 //    }
-}
-
-#pragma mark - GlobalMethodsAsyncRequestProtocol methods
-
-- (void)asyncRequestComplete:(GlobalMethods *)sender
-                        data:(NSDictionary *)data {
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
-        [self hideActivityIndicatorView];
-        
-        NSString *error = [data valueForKey:KEY_ERROR_ASYNC_REQUEST];
-        
-        if([error isEqualToString:ERROR_CONNECTION_VALUE]) {
-            [self makeToastWithMessage:NO_INTERNET_ERROR_MESSAGE];
-        } else if ([error isEqualToString:ERROR_DATA_NIL_VALUE]) {
-            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
-        } else if ([error isEqualToString:ERROR_UNAUTHORIZED_ACCESS]) {
-            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
-        } else {
-            NSString *endPoint = [data valueForKey:KEY_ENDPOINT_ASYNC_CONNECTION];
-            if ([endPoint isEqualToString:ENDPOINT_FETCH_ALL_NOTIFICATIONS]) {
-                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
-                if([response isEqualToString:@"No Notification !!"]) {
-                    [self setNotificationsDataArray:[NSArray array]];
-                    [[self tableViewNotifications] reloadData];
-                    
-                    [self makeToastWithMessage:response];
-                } else {
-                    NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
-                    NSError *error = nil;
-                    NSArray *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                               options:NSJSONReadingMutableContainers
-                                                                                 error:&error];
-                    
-                    if(!error) {
-                        
-//                        [Logger logDebug:[self TAG]
-//                                 message:[NSString stringWithFormat:@" %@ parsedJson : %@", endPoint, [[parsedJson objectAtIndex:1] objectForKey:@"Message"]]];
-                        
-                        [self setNotificationsDataArray:parsedJson];
-                        
-                        [[self tableViewNotifications] reloadData];
-                        
-                    } else {
-                        [Logger logError:[self TAG]
-                                 message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
-                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
-                    }
-                }
-            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ]) {
-                
-            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_ALL_NOTIFICATIONS_READ]) {
-                [self fetchNotifications];
-            } else if ([endPoint isEqualToString:ENDPOINT_CLEAR_ALL_NOTIFICATIONS]) {
-                [self fetchNotifications];
-            } else if ([endPoint isEqualToString:ENDPOINT_DELETE_NOTIFICATION]) {
-                
-            }
-        }
-    });
 }
 
 #pragma mark - UITableViewDataSource methods
@@ -287,7 +238,7 @@
     //6s+   (393.3333, 699.3333)
     
     CGRect frameTableView = [[self tableViewNotifications] frame];
-    return frameTableView.size.height / 5.0;
+    return frameTableView.size.height / 3.5;
 //    return 200.0f;
 }
 
@@ -393,6 +344,20 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
                                                        endPoint:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ
                                                      parameters:[NSString stringWithFormat:@"rnum=%@&nid=%@", [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"ReceiveMemberNumber"], [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"NotificationId"]]
                                             delegateForProtocol:self];
+    
+    
+    NSString *notificationType = [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"NotificationType"];
+    
+    if ([notificationType isEqualToString:@"CabId_Invited"] || [notificationType isEqualToString:@"CabId_Joined"] || [notificationType isEqualToString:@"CabId_UpdateLocation"] || [notificationType isEqualToString:@"CabId_Dropped"] || [notificationType isEqualToString:@"CabId_Left"] || [notificationType isEqualToString:@"CabId_CancelRide"] || [notificationType isEqualToString:@"CabId_Approved"] || [notificationType isEqualToString:@"CabId_Rejected"] || [notificationType isEqualToString:@"tripcompleted"]) {
+        
+        [self showActivityIndicatorView];
+        
+        GlobalMethods *globalMethodsPool = [[GlobalMethods alloc] init];
+        [globalMethodsPool makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_GOTO_POOL
+                                                             parameters:[NSString stringWithFormat:@"CabId=%@", [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"CabId"]]
+                                                    delegateForProtocol:self];
+    }
     //TODO
     
 }
@@ -442,6 +407,97 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([self activityIndicatorView] != nil) {
         [[self activityIndicatorView] removeFromSuperview];
     }
+}
+
+#pragma mark - GlobalMethodsAsyncRequestProtocol methods
+
+- (void)asyncRequestComplete:(GlobalMethods *)sender
+                        data:(NSDictionary *)data {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        [self hideActivityIndicatorView];
+        
+        NSString *error = [data valueForKey:KEY_ERROR_ASYNC_REQUEST];
+        
+        if([error isEqualToString:ERROR_CONNECTION_VALUE]) {
+            [self makeToastWithMessage:NO_INTERNET_ERROR_MESSAGE];
+        } else if ([error isEqualToString:ERROR_DATA_NIL_VALUE]) {
+            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+        } else if ([error isEqualToString:ERROR_UNAUTHORIZED_ACCESS]) {
+            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+        } else {
+            NSString *endPoint = [data valueForKey:KEY_ENDPOINT_ASYNC_CONNECTION];
+            if ([endPoint isEqualToString:ENDPOINT_FETCH_ALL_NOTIFICATIONS]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if([response isEqualToString:@"No Notification !!"]) {
+                    [self setNotificationsDataArray:[NSArray array]];
+                    [[self tableViewNotifications] reloadData];
+                    
+                    [self makeToastWithMessage:response];
+                } else {
+                    NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                    NSError *error = nil;
+                    NSArray *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                          options:NSJSONReadingMutableContainers
+                                                                            error:&error];
+                    
+                    if(!error) {
+                        
+                        //                        [Logger logDebug:[self TAG]
+                        //                                 message:[NSString stringWithFormat:@" %@ parsedJson : %@", endPoint, [[parsedJson objectAtIndex:1] objectForKey:@"Message"]]];
+                        
+                        [self setNotificationsDataArray:parsedJson];
+                        
+                        [[self tableViewNotifications] reloadData];
+                        
+                    } else {
+                        [Logger logError:[self TAG]
+                                 message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ]) {
+                
+            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_ALL_NOTIFICATIONS_READ]) {
+                [self fetchNotifications];
+            } else if ([endPoint isEqualToString:ENDPOINT_CLEAR_ALL_NOTIFICATIONS]) {
+                [self fetchNotifications];
+            } else if ([endPoint isEqualToString:ENDPOINT_DELETE_NOTIFICATION]) {
+                
+            } else if ([endPoint isEqualToString:ENDPOINT_GOTO_POOL]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if([response isEqualToString:@"This Ride no longer exist"]) {
+                    [self makeToastWithMessage:@"This ride no longer exists!"];
+                } else {
+                    NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                    NSError *error = nil;
+                    NSArray *parsedJsonArray = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                          options:NSJSONReadingMutableContainers
+                                                                            error:&error];
+                    
+                    NSDictionary *parsedJson = [parsedJsonArray firstObject];
+                    
+                    if(!error) {
+                        
+                        //                        [Logger logDebug:[self TAG]
+                        //                                 message:[NSString stringWithFormat:@" %@ parsedJson : %@", endPoint, [[parsedJson objectAtIndex:1] objectForKey:@"Message"]]];
+                        if ([[parsedJson objectForKey:@"MobileNumber"] isEqualToString:[self mobileNumber]]) {
+                            [self performSegueWithIdentifier:@"NotifToRideSegue"
+                                                      sender:parsedJson];
+                        } else {
+                            [self performSegueWithIdentifier:@"NotifToRideMemberSegue"
+                                                      sender:parsedJson];
+                        }
+                    } else {
+                        [Logger logError:[self TAG]
+                                 message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                }
+            }
+        }
+    });
 }
 
 @end

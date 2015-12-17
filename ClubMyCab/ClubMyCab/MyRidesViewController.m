@@ -15,6 +15,7 @@
 #import "NotificationsListViewController.h"
 #import "MyRidesTableViewCell.h"
 #import "RideDetailsViewController.h"
+#import "RideDetailsMemberViewController.h"
 
 @interface MyRidesViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate>
 
@@ -54,6 +55,9 @@
     }
     
     [self setMobileNumber:[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]];
+    
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" viewDidLoad : %@", [self cabIDFromNotification]]];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -92,6 +96,10 @@
     } else if ([[segue identifier] isEqualToString:@"RideDetailsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[RideDetailsViewController class]]) {
             [(RideDetailsViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+        }
+    } else if ([[segue identifier] isEqualToString:@"RideDetailsMemberSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[RideDetailsMemberViewController class]]) {
+            [(RideDetailsMemberViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
         }
     }
 }
@@ -141,6 +149,19 @@
                         [Logger logError:[self TAG]
                                  message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
                         [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                }
+                
+                if ([self cabIDFromNotification] && [[self cabIDFromNotification] length] > 0) {
+                    for (NSDictionary *dict in [self arrayMyRides]) {
+                        if ([[dict objectForKey:@"CabId"] isEqualToString:[self cabIDFromNotification]]) {
+                            [self performSegueWithIdentifier:@"RideDetailsSegue"
+                                                      sender:dict];
+                            
+                            [self setCabIDFromNotification:@""];
+                            
+                            break;
+                        }
                     }
                 }
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_MY_POOL_HISTORY]) {
@@ -242,7 +263,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CGRect frameTableView = [tableView frame];
-    return frameTableView.size.height / 4.0;
+    return frameTableView.size.height / 3.0;
 }
 
 #pragma mark - UITableViewDelegate methods
@@ -252,8 +273,13 @@
     [tableView deselectRowAtIndexPath:indexPath
                              animated:NO];
     
-    [self performSegueWithIdentifier:@"RideDetailsSegue"
-                              sender:[[self arrayMyRides] objectAtIndex:indexPath.section]];
+    if ([[[[self arrayMyRides] objectAtIndex:indexPath.section] objectForKey:@"MobileNumber"] isEqualToString:[self mobileNumber]]) {
+        [self performSegueWithIdentifier:@"RideDetailsSegue"
+                                  sender:[[self arrayMyRides] objectAtIndex:indexPath.section]];
+    } else {
+        [self performSegueWithIdentifier:@"RideDetailsMemberSegue"
+                                  sender:[[self arrayMyRides] objectAtIndex:indexPath.section]];
+    }
 }
 
 #pragma mark - IBAction methods

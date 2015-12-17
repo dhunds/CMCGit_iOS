@@ -11,4 +11,6 @@
 @interface MyRidesViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
+
+@property (strong, nonatomic) NSString *cabIDFromNotification;
 @end

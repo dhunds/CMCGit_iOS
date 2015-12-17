@@ -31,10 +31,14 @@
 @property (weak, nonatomic) IBOutlet UILabel *label1Hour;
 @property (weak, nonatomic) IBOutlet UILabel *labelSelectDateTime;
 @property (weak, nonatomic) IBOutlet UILabel *labelCoPassengers;
+@property (weak, nonatomic) IBOutlet UILabel *labelHeaderCoPassengers;
 @property (weak, nonatomic) IBOutlet UIDatePicker *datePicker;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBarDatePicker;
 
 @property (strong, nonatomic) NSString *tripDateTime;
+
+@property (strong, nonatomic) NSString *cabID;
+@property (strong, nonatomic) NSDate *startTime;
 
 @property (strong, nonatomic) UIAlertView *alertViewClubs, *alertViewInvite;
 
@@ -142,6 +146,9 @@
 - (void)hideDatePicker {
     [[self datePicker] setHidden:YES];
     [[self toolBarDatePicker] setHidden:YES];
+    
+    [[self labelHeaderCoPassengers] setHidden:NO];
+    [[self labelCoPassengers] setHidden:NO];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -240,9 +247,16 @@
                                        }
                                        
                                        NSString *cabID = [NSString stringWithFormat:@"%@%1.0f", [self mobileNumber], ([[NSDate date] timeIntervalSince1970] * 1000)];
-                                       NSArray *array = [[self tripDateTime] componentsSeparatedByString:@"    "];
+                                       [self setCabID:cabID];
+                                       NSArray *array = [[self tripDateTime] componentsSeparatedByString:@"  "];
                                        NSString *date = [array firstObject];
                                        NSString *time = [array lastObject];
+                                       
+                                       NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                                       [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
+                                       NSDate *starttime = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@ %@", date, time]];
+                                       [self setStartTime:starttime];
+                                       
                                        NSString *seats = [[[self labelCoPassengers] text] stringByReplacingOccurrencesOfString:TEXT_TAP_TO_CHANGE
                                                                                                                     withString:@""];
                                        NSString *ownerName = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME];
@@ -327,6 +341,25 @@
                 }
                 
             } else if ([endPoint isEqualToString:ENDPOINT_OPEN_A_CAB]) {
+                
+                UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+                [localNotification setFireDate:[[self startTime] dateByAddingTimeInterval:(-1 * 60 * UPCOMING_TRIP_NOTIFICATION_TIME)]];
+                [localNotification setAlertBody:[NSString stringWithFormat:@"You have an upcoming trip from %@ to %@. Click here to book a cab", [[self addressModelFrom] shortName], [[self addressModelTo] shortName]]];
+                [localNotification setSoundName:UILocalNotificationDefaultSoundName];
+                [localNotification setUserInfo:[NSDictionary dictionaryWithObject:[self cabID]
+                                                                           forKey:@"CabID"]];
+                [localNotification setTimeZone:[NSTimeZone defaultTimeZone]];
+                [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                
+                localNotification = [[UILocalNotification alloc] init];
+                [localNotification setFireDate:[[self startTime] dateByAddingTimeInterval:(-1 * 60 * START_TRIP_NOTIFICATION_TIME)]];
+                [localNotification setAlertBody:[NSString stringWithFormat:@"Your trip from %@ to %@ is about to start", [[self addressModelFrom] shortName], [[self addressModelTo] shortName]]];
+                [localNotification setSoundName:UILocalNotificationDefaultSoundName];
+                [localNotification setUserInfo:[NSDictionary dictionaryWithObject:[self cabID]
+                                                                           forKey:@"CabID"]];
+                [localNotification setTimeZone:[NSTimeZone defaultTimeZone]];
+                [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Success"
                                                                     message:@"Your friend(s) have been informed about the ride! We will let you know when they join. Sit back & relax!"
                                                                    delegate:self
@@ -386,7 +419,7 @@
     NSDate *date = [NSDate date];
     date = [date dateByAddingTimeInterval:(30.0 * 60.0)];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy    hh:mm a"];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
     [[self label30Min] setText:[dateFormatter stringFromDate:date]];
     [[self label1Hour] setText:@""];
@@ -405,7 +438,7 @@
     NSDate *date = [NSDate date];
     date = [date dateByAddingTimeInterval:(60.0 * 60.0)];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy    hh:mm a"];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
     [[self label30Min] setText:@""];
     [[self label1Hour] setText:[dateFormatter stringFromDate:date]];
@@ -421,6 +454,9 @@
     
     [[self datePicker] setHidden:NO];
     [[self toolBarDatePicker] setHidden:NO];
+    
+    [[self labelHeaderCoPassengers] setHidden:YES];
+    [[self labelCoPassengers] setHidden:YES];
 }
 
 - (IBAction)labelCoPassengersPressed:(UITapGestureRecognizer *)sender {
@@ -446,7 +482,7 @@
 - (IBAction)datePickerValueChanged:(UIDatePicker *)sender {
     NSDate *date = [sender date];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy    hh:mm a"];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
     [[self label30Min] setText:@""];
     [[self label1Hour] setText:@""];
@@ -460,7 +496,7 @@
     
     NSDate *date = [[self datePicker] date];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy    hh:mm a"];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
     [[self label30Min] setText:@""];
     [[self label1Hour] setText:@""];

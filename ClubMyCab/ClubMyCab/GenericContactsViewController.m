@@ -147,13 +147,14 @@
         ABMultiValueRef phoneRef = ABRecordCopyValue(record, kABPersonPhoneProperty);
         
         for (int i = 0; i < ABMultiValueGetCount(phoneRef); i++) {
-//            [Logger logDebug:[self TAG]
-//                     message:[NSString stringWithFormat:@" getContactsArray : %@ , %@ , %@", ABRecordCopyCompositeName(record), ABMultiValueCopyLabelAtIndex(phoneRef, i), ABMultiValueCopyValueAtIndex(phoneRef, i)]];
+            [Logger logDebug:[self TAG]
+                     message:[NSString stringWithFormat:@" getContactsArray : %@ , %@ , %@", ABRecordCopyCompositeName(record), ABMultiValueCopyLabelAtIndex(phoneRef, i), ABMultiValueCopyValueAtIndex(phoneRef, i)]];
             
             CFStringRef labelAtIndex = ABMultiValueCopyLabelAtIndex(phoneRef, i);
             NSString *valueAtIndex = (__bridge NSString *)ABMultiValueCopyValueAtIndex(phoneRef, i);
             
-            if ((CFStringFind(labelAtIndex, CFSTR("mobile"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("phone"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("main"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("home"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("work"), kCFCompareCaseInsensitive).location != kCFNotFound)) {
+            NSString *labelAtIndexString = (__bridge NSString *)labelAtIndex;
+            if ((labelAtIndexString && [labelAtIndexString length] > 0) && ((CFStringFind(labelAtIndex, CFSTR("mobile"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("phone"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("main"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("home"), kCFCompareCaseInsensitive).location != kCFNotFound) || (CFStringFind(labelAtIndex, CFSTR("work"), kCFCompareCaseInsensitive).location != kCFNotFound))) {
                 
                 NSString *number = [self formatPhoneNumber:valueAtIndex];
                 if (number) {
@@ -358,17 +359,20 @@
                               action:@selector(selectContactPressed:)
                     forControlEvents:UIControlEventTouchUpInside];
     
-    id image = [dict objectForKey:KEY_DICT_IMAGE];
-    if ([image isKindOfClass:[UIImage class]]) {
-        
-        [[cell imageViewImage] setContentMode:UIViewContentModeScaleAspectFit];
-        [[cell imageViewImage] setClipsToBounds:YES];
-        [[cell imageViewImage] setFrame:CGRectMake(28.0, 25.0, 50.0, 50.0)];
-        [[cell imageViewImage] setImage:image];
-        
-    } else {
-        [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
-    }
+    [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
+    
+    //TODO:complete code below for displaying contact image
+//    id image = [dict objectForKey:KEY_DICT_IMAGE];
+//    if ([image isKindOfClass:[UIImage class]]) {
+//        
+//        [[cell imageViewImage] setContentMode:UIViewContentModeScaleAspectFit];
+//        [[cell imageViewImage] setClipsToBounds:YES];
+//        [[cell imageViewImage] setFrame:CGRectMake(28.0, 25.0, 50.0, 50.0)];
+//        [[cell imageViewImage] setImage:image];
+//        
+//    } else {
+//        [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
+//    }
     
     return cell;
 }

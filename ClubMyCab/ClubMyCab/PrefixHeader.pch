@@ -60,13 +60,23 @@
 #define ENDPOINT_SHOW_MEMBERS_ON_MAP                    @"/ShowMemberOnMap.php"
 #define ENDPOINT_CANCEL_POOL_OWNER                      @"/cancelpoolbyowner.php"
 #define ENDPOINT_OWNER_INVITE_FRIENDS                   @"/ownerinvitefriends.php"
-
+#define ENDPOINT_UPDATE_CAB_STATUS                      @"/updateCabStatus.php"
+#define ENDPOINT_START_TRIP_NOTIFICATION                @"/startTripNotification.php"
+#define ENDPOINT_TRIP_COMPLETED                         @"/tripCompleted.php"
+#define ENDPOINT_SAVE_CALCULATED_FARE                   @"/saveCalculatedFare.php"
+#define ENDPOINT_CHECK_POOL_ALREADY_JOINED              @"/checkpoolalreadyjoined.php"
+#define ENDPOINT_GOTO_POOL                              @"/GoToPool.php"
+#define ENDPOINT_REFER_FRIEND_RIDE_STEP_ONE             @"/referFriendRideStepOne.php"
+#define ENDPOINT_DROP_A_POOL                            @"/dropapool.php"
 
 #define LOGGING_ENABLED                                 1
 
 #define TOAST_DELAY                                     1.5
 
 #define TIMEOUT_SECONDS_NETWORK_QUERY                   30.0f
+
+#define START_TRIP_NOTIFICATION_TIME                    0
+#define UPCOMING_TRIP_NOTIFICATION_TIME                 15
 
 #define KEY_USER_DEFAULT_NAME                           @"UserDefaultName"
 #define KEY_USER_DEFAULT_MOBILE                         @"UserDefaultMobile"
@@ -77,6 +87,7 @@
 #define KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL        @"UserDefaultShareLocationInterval"
 #define KEY_USER_DEFAULT_APN_DEVICE_TOKEN               @"UserDefaultAPNDeviceToken"
 #define KEY_USER_DEFAULT_APN_REG_CALLED                 @"UserDefaultAPNRegCalled"
+#define KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE       @"UserDefaultBookedOrCarPreference"
 
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
