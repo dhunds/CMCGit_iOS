@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface NotificationsTableViewCell : UITableViewCell
+
 @property (weak, nonatomic) IBOutlet UITextView *textViewDescription;
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewNotificationType;
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewUnread;

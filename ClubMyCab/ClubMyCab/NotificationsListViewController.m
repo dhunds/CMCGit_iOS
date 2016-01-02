@@ -14,8 +14,11 @@
 #import "NotificationsTableViewCell.h"
 #import "RideDetailsViewController.h"
 #import "RideDetailsMemberViewController.h"
+#import "MyClubsViewController.h"
+#import "CabRatingViewController.h"
+#import "ShowLocationViewController.h"
 
-@interface NotificationsListViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIAlertViewDelegate>
+@interface NotificationsListViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIAlertViewDelegate, CabRatingViewControllerProtocol>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableViewNotifications;
 
@@ -27,6 +30,8 @@
 
 @property (strong, nonatomic) ToastLabel *toastLabel;
 @property (strong, nonatomic) ActivityIndicatorView *activityIndicatorView;
+
+@property (strong, nonatomic) UIAlertView *alertViewClearAllNotifications, *alertViewRideRefer, *alertViewClubRefer;
 
 @end
 
@@ -102,6 +107,24 @@
         if ([[segue destinationViewController] isKindOfClass:[RideDetailsMemberViewController class]]) {
             [(RideDetailsMemberViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
         }
+    } else if ([[segue identifier] isEqualToString:@"NotifToClubsSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyClubsViewController class]]) {
+            
+        }
+    } else if ([[segue identifier] isEqualToString:@"CabRatingSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[CabRatingViewController class]]) {
+            
+            NSString *cabAndNotifID = sender;
+            NSArray *array = [cabAndNotifID componentsSeparatedByString:@"-"];
+            
+            [(CabRatingViewController *)[segue destinationViewController] setCabID:[array firstObject]];
+            [(CabRatingViewController *)[segue destinationViewController] setNid:[array lastObject]];
+            [(CabRatingViewController *)[segue destinationViewController] setDelegateCabRatingVCProtocol:self];
+        }
+    } else if ([[segue identifier] isEqualToString:@"ShareLocationSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[ShowLocationViewController class]]) {
+            [(ShowLocationViewController *)[segue destinationViewController] setDictionaryNotification:sender];
+        }
     }
 }
 
@@ -115,6 +138,7 @@
                                                            delegate:self
                                                   cancelButtonTitle:nil
                                                   otherButtonTitles:@"Yes", @"No", nil];
+        [self setAlertViewClearAllNotifications:alertView];
         [alertView show];
     } else {
         [self makeToastWithMessage:@"No notifications to clear!"];
@@ -143,18 +167,55 @@
     
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     
-    if ([buttonTitle isEqualToString:@"Yes"]) {
+    if (alertView == [self alertViewClearAllNotifications]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [self showActivityIndicatorView];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_CLEAR_ALL_NOTIFICATIONS
+                                                             parameters:[NSString stringWithFormat:@"MemberNumber=%@", [self mobileNumber]]
+                                                    delegateForProtocol:self];
+        }
+        //    else if ([buttonTitle isEqualToString:@"No"]) {
+        //        
+        //    }
+    } else if (alertView == [self alertViewRideRefer]) {
+        
+        NSString *acceptReject = @"";
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            acceptReject = @"Yes";
+        } else if ([buttonTitle isEqualToString:@"No"]) {
+            acceptReject = @"No";
+        }
+        
         [self showActivityIndicatorView];
+        
+        NSDictionary *dictionary = [[self notificationsDataArray] objectAtIndex:[alertView tag]];
         
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
         [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
-                                                           endPoint:ENDPOINT_CLEAR_ALL_NOTIFICATIONS
-                                                         parameters:[NSString stringWithFormat:@"MemberNumber=%@", [self mobileNumber]]
+                                                           endPoint:ENDPOINT_REFER_FRIEND_RIDE_STEP_TWO
+                                                         parameters:[NSString stringWithFormat:@"RefId=%@&OwnerName=%@&OwnerNumber=%@&Accepted=%@", [dictionary objectForKey:@"RefId"], [dictionary objectForKey:@"ReceiveMemberName"], [dictionary objectForKey:@"ReceiveMemberNumber"], acceptReject]
+                                                delegateForProtocol:self];
+    } else if (alertView == [self alertViewClubRefer]) {
+        NSString *acceptReject = @"";
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            acceptReject = @"Yes";
+        } else if ([buttonTitle isEqualToString:@"No"]) {
+            acceptReject = @"No";
+        }
+        
+        [self showActivityIndicatorView];
+        
+        NSDictionary *dictionary = [[self notificationsDataArray] objectAtIndex:[alertView tag]];
+        
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                           endPoint:ENDPOINT_REFER_USERS_CLUB_STEP_TWO
+                                                         parameters:[NSString stringWithFormat:@"RefId=%@&OwnerName=%@&OwnerNumber=%@&Accepted=%@", [dictionary objectForKey:@"RefId"], [dictionary objectForKey:@"ReceiveMemberName"], [dictionary objectForKey:@"ReceiveMemberNumber"], acceptReject]
                                                 delegateForProtocol:self];
     }
-//    else if ([buttonTitle isEqualToString:@"No"]) {
-//        
-//    }
 }
 
 #pragma mark - UITableViewDataSource methods
@@ -287,9 +348,7 @@
     return YES;
 }
 
-- (void)tableView:(UITableView *)tableView
-commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
-forRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
@@ -345,8 +404,8 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
                                                      parameters:[NSString stringWithFormat:@"rnum=%@&nid=%@", [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"ReceiveMemberNumber"], [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"NotificationId"]]
                                             delegateForProtocol:self];
     
-    
-    NSString *notificationType = [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"NotificationType"];
+    NSDictionary *dictionaryNotification = [[self notificationsDataArray] objectAtIndex:index];
+    NSString *notificationType = [dictionaryNotification objectForKey:@"NotificationType"];
     
     if ([notificationType isEqualToString:@"CabId_Invited"] || [notificationType isEqualToString:@"CabId_Joined"] || [notificationType isEqualToString:@"CabId_UpdateLocation"] || [notificationType isEqualToString:@"CabId_Dropped"] || [notificationType isEqualToString:@"CabId_Left"] || [notificationType isEqualToString:@"CabId_CancelRide"] || [notificationType isEqualToString:@"CabId_Approved"] || [notificationType isEqualToString:@"CabId_Rejected"] || [notificationType isEqualToString:@"tripcompleted"]) {
         
@@ -357,8 +416,32 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
                                                                endPoint:ENDPOINT_GOTO_POOL
                                                              parameters:[NSString stringWithFormat:@"CabId=%@", [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"CabId"]]
                                                     delegateForProtocol:self];
+    } else if ([notificationType isEqualToString:@"CabId_Refered"]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:[NSString stringWithFormat:@"Do you want to invite friend refered by %@ for this ride?", [dictionaryNotification objectForKey:@"SentMemberName"]]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Yes", @"No", nil];
+        [self setAlertViewRideRefer:alertView];
+        [alertView show];
+    } else if ([notificationType isEqualToString:@"Share_LocationUpdate"]) {
+        [self performSegueWithIdentifier:@"ShareLocationSegue"
+                                  sender:dictionaryNotification];
+    } else if ([notificationType isEqualToString:@"PoolId_Added"] || [notificationType isEqualToString:@"PoolId_Removed"] || [notificationType isEqualToString:@"PoolId_Left"] || [notificationType isEqualToString:@"PoolId_ClubDeleted"] || [notificationType isEqualToString:@"PoolId_Approved"] || [notificationType isEqualToString:@"PoolId_Rejected"]) {
+        [self performSegueWithIdentifier:@"NotifToClubsSegue"
+                                  sender:self];
+    } else if ([notificationType isEqualToString:@"PoolId_Refered"]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:[NSString stringWithFormat:@"Do you want to add friend refered by %@", [dictionaryNotification objectForKey:@"SentMemberName"]]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Yes", @"No", nil];
+        [self setAlertViewClubRefer:alertView];
+        [alertView show];
+    } else if ([notificationType isEqualToString:@"Cab_Rating"]) {
+        [self performSegueWithIdentifier:@"CabRatingSegue"
+                                  sender:[NSString stringWithFormat:@"%@-%@", [dictionaryNotification objectForKey:@"CabId"], [dictionaryNotification objectForKey:@"NotificationId"]]];
     }
-    //TODO
     
 }
 
@@ -409,6 +492,41 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     }
 }
 
+#pragma mark - CabRatingViewControllerProtocol methods
+
+- (void)cabRatingSubmittedForSender:(CabRatingViewController *)sender
+                  andNotificationID:(NSString *)nid {
+    
+    int index = -1;
+    for (int i = 0; i < [[self notificationsDataArray] count]; i++) {
+        if ([[[[self notificationsDataArray] objectAtIndex:i] objectForKey:@"NotificationId"] isEqualToString:nid]) {
+            index = i;
+            break;
+        }
+    }
+    
+    if (index != -1) {
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                           endPoint:ENDPOINT_DELETE_NOTIFICATION
+                                                         parameters:[NSString stringWithFormat:@"MemberNumber=%@&NID=%@", [self mobileNumber], [[[self notificationsDataArray] objectAtIndex:index] objectForKey:@"NotificationId"]]
+                                                delegateForProtocol:self];
+        
+        NSMutableArray *mutableArray = [[self notificationsDataArray] mutableCopy];
+        [mutableArray removeObjectAtIndex:index];
+        
+        [self setNotificationsDataArray:[mutableArray copy]];
+        
+        [[self tableViewNotifications] reloadData];
+        
+        [self makeToastWithMessage:@"Thank you for the feedback!"];
+    } else {
+        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+    }
+    
+    
+}
+
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
 
 - (void)asyncRequestComplete:(GlobalMethods *)sender
@@ -450,6 +568,21 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
                         [self setNotificationsDataArray:parsedJson];
                         
                         [[self tableViewNotifications] reloadData];
+                        
+                        if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
+                            NSUInteger index = -1;
+                            for (int i = 0; i < [[self notificationsDataArray] count]; i++) {
+                                if ([[[[self notificationsDataArray] objectAtIndex:i] objectForKey:@"NotificationId"] isEqualToString:[self nidFromNotification]]) {
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            
+                            if (index != -1) {
+                                [self rowSelectedAtIndex:index];
+                                [self setNidFromNotification:nil];
+                            }
+                        }
                         
                     } else {
                         [Logger logError:[self TAG]
@@ -495,6 +628,10 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
                         [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
                     }
                 }
+            } else if ([endPoint isEqualToString:ENDPOINT_REFER_FRIEND_RIDE_STEP_TWO]) {
+                [self fetchNotifications];
+            } else if ([endPoint isEqualToString:ENDPOINT_REFER_USERS_CLUB_STEP_TWO]) {
+                [self fetchNotifications];
             }
         }
     });

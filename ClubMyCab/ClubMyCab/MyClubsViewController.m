@@ -63,6 +63,10 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
     
@@ -70,12 +74,6 @@
                                                        endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
                                                      parameters:[NSString stringWithFormat:@"MobileNumber=%@", [self mobileNumber]]
                                             delegateForProtocol:self];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    [self fetchClubs];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -106,6 +104,8 @@
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 [[self navigationItem] setRightBarButtonItem:[[[GlobalMethods alloc] init] getNotificationsBarButtonItemWithTarget:self
                                                                                                           unreadNotificationsCount:[response intValue]]];
+                
+                [self fetchClubs];
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_CLUBS]) {
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if (response && [response caseInsensitiveCompare:@"No Users of your Club"] == NSOrderedSame) {
@@ -149,8 +149,18 @@
                     }
                 }
                 
+                if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
+                    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                       endPoint:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ
+                                                                     parameters:[NSString stringWithFormat:@"rnum=&nid=%@", [self nidFromNotification]]
+                                                            delegateForProtocol:self];
+                }
+                
             } else if ([endPoint isEqualToString:ENDPOINT_DELETE_CLUB] || [endPoint isEqualToString:ENDPOINT_LEAVE_CLUB]) {
                 [self fetchClubs];
+            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ]) {
+                
             }
         }
     });

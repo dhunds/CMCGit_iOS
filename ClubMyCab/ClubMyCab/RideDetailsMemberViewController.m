@@ -51,6 +51,8 @@
 
 @property (strong, nonatomic) UIAlertView *alertViewLeaveRide;
 
+@property (strong, nonatomic) AddressModel *addressFrom, *addressTo;
+
 @end
 
 @implementation RideDetailsMemberViewController
@@ -680,8 +682,20 @@
                                                   otherButtonTitles:nil];
         [alertView show];
     } else {
-        [self performSegueWithIdentifier:@"BookACabMemberRideSegue"
-                                  sender:self];
+        
+        AddressModel *from = [self geocodeToAddressModelFromAddress:[[[self dictionaryRideDetails] objectForKey:@"FromLocation"] stringByReplacingOccurrencesOfString:@" "
+                                                                                                                                                           withString:@"%20"]];
+        AddressModel *to = [self geocodeToAddressModelFromAddress:[[[self dictionaryRideDetails] objectForKey:@"ToLocation"] stringByReplacingOccurrencesOfString:@" "
+                                                                                                                                                       withString:@"%20"]];
+        
+        if (from && to) {
+            [self setAddressFrom:from];
+            [self setAddressTo:to];
+            [self performSegueWithIdentifier:@"BookACabMemberRideSegue"
+                                      sender:self];
+        } else {
+            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+        }
     }
 }
 
@@ -753,7 +767,9 @@
         }
     } else if ([[segue identifier] isEqualToString:@"BookACabMemberRideSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[BookACabViewController class]]) {
-            
+            [(BookACabViewController *)[segue destinationViewController] setAddressModelFrom:[self addressFrom]];
+            [(BookACabViewController *)[segue destinationViewController] setAddressModelTo:[self addressTo]];
+            [(BookACabViewController *)[segue destinationViewController] setDictionaryBookCabFromRide:[self dictionaryRideDetails]];
         }
     }
 }

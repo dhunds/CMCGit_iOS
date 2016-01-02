@@ -53,13 +53,18 @@
 		D5C5E7391C0C344E00846A4E /* ClubsInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C5E7381C0C344E00846A4E /* ClubsInviteViewController.m */; };
 		D5C70F6B1C119E0100732644 /* RideDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C70F6A1C119E0000732644 /* RideDetailsViewController.m */; };
 		D5C79F361C10568F00FA2EB1 /* MyRidesTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C79F351C10568F00FA2EB1 /* MyRidesTableViewCell.m */; };
+		D5C92C8C1C35429200C63D44 /* HCSStarRatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92C8B1C35429100C63D44 /* HCSStarRatingView.m */; };
+		D5C92C8F1C35454800C63D44 /* CabRatingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92C8E1C35454800C63D44 /* CabRatingViewController.m */; };
 		D5CCE0361C16C8F500C199E3 /* BookACabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5CCE0351C16C8F500C199E3 /* BookACabViewController.m */; };
 		D5CCE0D51C16EC9000C199E3 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0D41C16EC8F00C199E3 /* CFNetwork.framework */; };
 		D5CCE0D71C16EC9E00C199E3 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0D61C16EC9E00C199E3 /* Security.framework */; };
 		D5CCE0D91C16ECB500C199E3 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0D81C16ECB500C199E3 /* libxml2.tbd */; };
 		D5CCE0DB1C16ECC600C199E3 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0DA1C16ECC600C199E3 /* libresolv.tbd */; };
+		D5D38EC51C313ABC0091D45E /* CabsWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D38EC41C313ABC0091D45E /* CabsWebViewController.m */; };
 		D5D60D3A1BC78E58001CE4F9 /* GenericContactsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */; };
 		D5D60D3D1BC7D9D3001CE4F9 /* ClubDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */; };
+		D5D90A791C36BC8400D73440 /* ShowLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D90A781C36BC8400D73440 /* ShowLocationViewController.m */; };
+		D5D956351C25761700B097AB /* BookACabTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D956341C25761700B097AB /* BookACabTableViewCell.m */; };
 		D5DC3FC91BB5803F00FBDF34 /* NotificationsListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC3FC81BB5803F00FBDF34 /* NotificationsListViewController.m */; };
 		D5DE433E1BC3CBD0006C0BEF /* NotificationsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DE433D1BC3CBD0006C0BEF /* NotificationsTableViewCell.m */; };
 		D5E34A201C215E04009F336F /* RideDetailsMemberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E34A1F1C215E04009F336F /* RideDetailsMemberViewController.m */; };
@@ -177,16 +182,26 @@
 		D5C70F6A1C119E0000732644 /* RideDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RideDetailsViewController.m; sourceTree = "<group>"; };
 		D5C79F341C10568E00FA2EB1 /* MyRidesTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRidesTableViewCell.h; sourceTree = "<group>"; };
 		D5C79F351C10568F00FA2EB1 /* MyRidesTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRidesTableViewCell.m; sourceTree = "<group>"; };
+		D5C92C8A1C35429100C63D44 /* HCSStarRatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HCSStarRatingView.h; sourceTree = "<group>"; };
+		D5C92C8B1C35429100C63D44 /* HCSStarRatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCSStarRatingView.m; sourceTree = "<group>"; };
+		D5C92C8D1C35454800C63D44 /* CabRatingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CabRatingViewController.h; sourceTree = "<group>"; };
+		D5C92C8E1C35454800C63D44 /* CabRatingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CabRatingViewController.m; sourceTree = "<group>"; };
 		D5CCE0341C16C8F500C199E3 /* BookACabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookACabViewController.h; sourceTree = "<group>"; };
 		D5CCE0351C16C8F500C199E3 /* BookACabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookACabViewController.m; sourceTree = "<group>"; };
 		D5CCE0D41C16EC8F00C199E3 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D5CCE0D61C16EC9E00C199E3 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D5CCE0D81C16ECB500C199E3 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		D5CCE0DA1C16ECC600C199E3 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		D5D38EC31C313ABC0091D45E /* CabsWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CabsWebViewController.h; sourceTree = "<group>"; };
+		D5D38EC41C313ABC0091D45E /* CabsWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CabsWebViewController.m; sourceTree = "<group>"; };
 		D5D60D381BC78E58001CE4F9 /* GenericContactsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericContactsViewController.h; sourceTree = "<group>"; };
 		D5D60D391BC78E58001CE4F9 /* GenericContactsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GenericContactsViewController.m; sourceTree = "<group>"; };
 		D5D60D3B1BC7D9D3001CE4F9 /* ClubDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClubDetailsViewController.h; sourceTree = "<group>"; };
 		D5D60D3C1BC7D9D3001CE4F9 /* ClubDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClubDetailsViewController.m; sourceTree = "<group>"; };
+		D5D90A771C36BC8400D73440 /* ShowLocationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShowLocationViewController.h; sourceTree = "<group>"; };
+		D5D90A781C36BC8400D73440 /* ShowLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShowLocationViewController.m; sourceTree = "<group>"; };
+		D5D956331C25761700B097AB /* BookACabTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookACabTableViewCell.h; sourceTree = "<group>"; };
+		D5D956341C25761700B097AB /* BookACabTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookACabTableViewCell.m; sourceTree = "<group>"; };
 		D5DC3FC71BB5803F00FBDF34 /* NotificationsListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationsListViewController.h; sourceTree = "<group>"; };
 		D5DC3FC81BB5803F00FBDF34 /* NotificationsListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationsListViewController.m; sourceTree = "<group>"; };
 		D5DE433C1BC3CBD0006C0BEF /* NotificationsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationsTableViewCell.h; sourceTree = "<group>"; };
@@ -278,6 +293,15 @@
 			name = SWRevealViewController;
 			sourceTree = "<group>";
 		};
+		D5C92C891C35426900C63D44 /* HCSStarRating */ = {
+			isa = PBXGroup;
+			children = (
+				D5C92C8A1C35429100C63D44 /* HCSStarRatingView.h */,
+				D5C92C8B1C35429100C63D44 /* HCSStarRatingView.m */,
+			);
+			name = HCSStarRating;
+			sourceTree = "<group>";
+		};
 		D5E560801B84560200CCDC12 = {
 			isa = PBXGroup;
 			children = (
@@ -311,8 +335,14 @@
 				D5E560911B84560200CCDC12 /* AppDelegate.m */,
 				D5B4C2D81BFC7F5700343C60 /* AutoCompleteTableViewCell.h */,
 				D5B4C2D91BFC7F5700343C60 /* AutoCompleteTableViewCell.m */,
+				D5D956331C25761700B097AB /* BookACabTableViewCell.h */,
+				D5D956341C25761700B097AB /* BookACabTableViewCell.m */,
 				D5CCE0341C16C8F500C199E3 /* BookACabViewController.h */,
 				D5CCE0351C16C8F500C199E3 /* BookACabViewController.m */,
+				D5C92C8D1C35454800C63D44 /* CabRatingViewController.h */,
+				D5C92C8E1C35454800C63D44 /* CabRatingViewController.m */,
+				D5D38EC31C313ABC0091D45E /* CabsWebViewController.h */,
+				D5D38EC41C313ABC0091D45E /* CabsWebViewController.m */,
 				D51B43411BE9E07C0036D554 /* ClubDetailsTableViewCell.h */,
 				D51B43421BE9E07C0036D554 /* ClubDetailsTableViewCell.m */,
 				D5D60D3B1BC7D9D3001CE4F9 /* ClubDetailsViewController.h */,
@@ -331,6 +361,7 @@
 				D52E30031BF5EE1900E448C9 /* GenericLocationPickerViewController.m */,
 				D5F2CD2F1B8DD6D3000D50FE /* GlobalMethods.h */,
 				D5F2CD301B8DD6D3000D50FE /* GlobalMethods.m */,
+				D5C92C891C35426900C63D44 /* HCSStarRating */,
 				D52A415F1BA2DCF1006FCDEA /* HomePageViewController.h */,
 				D52A41601BA2DCF1006FCDEA /* HomePageViewController.m */,
 				D52A41771BA2F078006FCDEA /* HowToViewController.h */,
@@ -382,6 +413,8 @@
 				D52A416C1BA2F02C006FCDEA /* ShareLocationViewController.m */,
 				D52A41741BA2F062006FCDEA /* ShareThisAppViewController.h */,
 				D52A41751BA2F062006FCDEA /* ShareThisAppViewController.m */,
+				D5D90A771C36BC8400D73440 /* ShowLocationViewController.h */,
+				D5D90A781C36BC8400D73440 /* ShowLocationViewController.m */,
 				D5E5608C1B84560200CCDC12 /* Supporting Files */,
 				D52A414E1BA2B0FA006FCDEA /* SWRevealViewController */,
 				D5F2CD321B8DD914000D50FE /* ToastLabel.h */,
@@ -619,9 +652,11 @@
 				D5D60D3D1BC7D9D3001CE4F9 /* ClubDetailsViewController.m in Sources */,
 				D55FE5601BCBC2D100B0C46E /* ContactsTableViewCell.m in Sources */,
 				D52A417C1BA2F087006FCDEA /* NeedSupportViewController.m in Sources */,
+				D5D90A791C36BC8400D73440 /* ShowLocationViewController.m in Sources */,
 				D5C5E7391C0C344E00846A4E /* ClubsInviteViewController.m in Sources */,
 				D563F06A1BC6664A00283695 /* MyClubsTableViewCell.m in Sources */,
 				D5C79F361C10568F00FA2EB1 /* MyRidesTableViewCell.m in Sources */,
+				D5D956351C25761700B097AB /* BookACabTableViewCell.m in Sources */,
 				D5E560921B84560200CCDC12 /* AppDelegate.m in Sources */,
 				D55A20F51B85BD540048D819 /* IntroPageViewController.m in Sources */,
 				D5B4C2DA1BFC7F5700343C60 /* AutoCompleteTableViewCell.m in Sources */,
@@ -634,7 +669,10 @@
 				D52A416D1BA2F02C006FCDEA /* ShareLocationViewController.m in Sources */,
 				D590C14C1B8F0E030076D251 /* OTPViewController.m in Sources */,
 				D5CCE0361C16C8F500C199E3 /* BookACabViewController.m in Sources */,
+				D5C92C8F1C35454800C63D44 /* CabRatingViewController.m in Sources */,
+				D5D38EC51C313ABC0091D45E /* CabsWebViewController.m in Sources */,
 				D55A20F81B85CD120048D819 /* IntroPageImageViewController.m in Sources */,
+				D5C92C8C1C35429200C63D44 /* HCSStarRatingView.m in Sources */,
 				D5B4C2D41BFC523100343C60 /* FavoriteLocationsTableViewCell.m in Sources */,
 				D55A20EE1B85A9370048D819 /* Logger.m in Sources */,
 				D5D60D3A1BC78E58001CE4F9 /* GenericContactsViewController.m in Sources */,

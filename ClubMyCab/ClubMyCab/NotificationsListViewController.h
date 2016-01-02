@@ -10,4 +10,6 @@
 
 @interface NotificationsListViewController : UIViewController
 
+@property (strong, nonatomic) NSString *nidFromNotification;
+
 @end

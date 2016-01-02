@@ -11,12 +11,18 @@
 #import "GlobalMethods.h"
 #import "SWRevealViewController.h"
 #import "MyRidesViewController.h"
+#import "MyClubsViewController.h"
+#import "HomePageViewController.h"
 
 @import GoogleMaps;
 
 @interface AppDelegate () <GlobalMethodsAsyncRequestProtocol>
 
 @property (strong, nonatomic) NSString *deviceTokenAPN;
+
+@property (strong, nonatomic) NSDictionary *dictionaryNotification;
+@property (nonatomic) BOOL isNotificationAlertViewShowing;
+@property (strong, nonatomic) UIAlertView *alertViewLocalNotification, *alertViewRemoteNotification;
 
 @end
 
@@ -34,7 +40,7 @@
         [Logger logDebug:@"AppDelegate"
                  message:[NSString stringWithFormat:@" didFinishLaunchingWithOptions localNotification : %@ userInfo : %@", [localNotification description], [[localNotification userInfo] description]]];
         
-        [self openMyRidesVCForUserInfo:[localNotification userInfo]];
+        [self application:application didReceiveLocalNotification:localNotification];
     }
     
     if (launchOptions != nil) {
@@ -43,6 +49,8 @@
 
         [Logger logDebug:@"AppDelegate"
                  message:[NSString stringWithFormat:@" didFinishLaunchingWithOptions remoteNotification : %@", [notification description]]];
+        
+        [self application:application didReceiveRemoteNotification:(NSDictionary*)notification];
     }
     
     return YES;
@@ -108,13 +116,144 @@
     [Logger logDebug:@"AppDelegate"
              message:[NSString stringWithFormat:@" didReceiveLocalNotification notification : %@ userInfo : %@", [notification description], [[notification userInfo] description]]];
     
-    [self openMyRidesVCForUserInfo:[notification userInfo]];
+    if ([application applicationState] == UIApplicationStateInactive || [application applicationState] == UIApplicationStateBackground) {
+        [self handleLocalNotification:[notification userInfo]];
+    } else {
+        if ([self isNotificationAlertViewShowing]) {
+            return;
+        }
+        
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Reminder"
+                                                            message:[notification alertBody]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Dismiss", @"Check notification", nil];
+        [self setDictionaryNotification:[notification userInfo]];
+        [self setIsNotificationAlertViewShowing:YES];
+        [self setAlertViewLocalNotification:alertView];
+        [alertView show];
+    }
     
+}
+
+- (void)handleLocalNotification:(NSDictionary *)dictionary {
+    [self openMyRidesVCForUserInfo:dictionary];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     [Logger logError:@"AppDelegate"
              message:[NSString stringWithFormat:@" didReceiveRemoteNotification : %@", [userInfo description]]];
+    
+    if ([application applicationState] == UIApplicationStateInactive || [application applicationState] == UIApplicationStateBackground) {
+        [self handleRemoteNotification:userInfo];
+    } else {
+        if ([self isNotificationAlertViewShowing]) {
+            return;
+        }
+        
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Notification received"
+                                                            message:[[userInfo objectForKey:@"aps"] objectForKey:@"alert"]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Dismiss", @"Check notification", nil];
+        [self setDictionaryNotification:userInfo];
+        [self setIsNotificationAlertViewShowing:YES];
+        [self setAlertViewRemoteNotification:alertView];
+        [alertView show];
+    }
+    
+    
+}
+
+- (void)handleRemoteNotification:(NSDictionary *)dictionary {
+    NSDictionary *aps = [dictionary objectForKey:@"aps"];
+    
+    NSString *pushFrom = [aps objectForKey:@"pushfrom"];
+    NSString *nid = [aps objectForKey:@"notificationId"];
+    
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    
+    UIViewController *navigationController = [[self window] rootViewController];
+    
+    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main"
+                                                         bundle:nil];
+    SWRevealViewController *revealViewController = (SWRevealViewController *)[navigationController presentedViewController];
+    
+    if (pushFrom && [pushFrom length] > 0) {
+        if ([pushFrom caseInsensitiveCompare:@"groupchat"] == NSOrderedSame) {
+            //TODO
+        } else if ([pushFrom caseInsensitiveCompare:@"upcomingtrip"] == NSOrderedSame) {
+            //TODO
+        } else if ([pushFrom caseInsensitiveCompare:@"genericnotification"] == NSOrderedSame) {
+            //nothing to do here, home screen opens automatically
+        } else if ([[pushFrom lowercaseString] rangeOfString:@"genericnotification"].location != NSNotFound) {
+            if ([pushFrom caseInsensitiveCompare:@"genericnotificationclub"] == NSOrderedSame) {
+                UINavigationController *clubNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"MyClubsNavigationController"];
+                [revealViewController pushFrontViewController:clubNavigationController
+                                                     animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationrides"] == NSOrderedSame) {
+                UINavigationController *ridesNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyRidesNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:ridesNavCont
+                                                                                                         animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationwallet"] == NSOrderedSame) {
+                UINavigationController *walletsNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyWalletsNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:walletsNavCont
+                                                                                                         animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationsharelocation"] == NSOrderedSame) {
+                UINavigationController *shareLocNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"ShareLocNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:shareLocNavCont
+                                                                                                         animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationprofile"] == NSOrderedSame) {
+                UINavigationController *profileNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyProfileNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:profileNavCont
+                                                                                                         animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationsettings"] == NSOrderedSame) {
+                UINavigationController *settingsNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"SettingsNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:settingsNavCont
+                                                                                                         animated:YES];
+            } else if ([pushFrom caseInsensitiveCompare:@"genericnotificationoffers"] == NSOrderedSame) {
+                UINavigationController *offersNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"OffersNavigationController"];
+                [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:offersNavCont
+                                                                                                         animated:YES];
+            }
+        } else if ([pushFrom caseInsensitiveCompare:@"TripStart"] == NSOrderedSame || [pushFrom caseInsensitiveCompare:@"ownerTripCompleted"] == NSOrderedSame || [pushFrom caseInsensitiveCompare:@"tripcompleted"] == NSOrderedSame) {
+            UINavigationController *ridesNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyRidesNavigationController"];
+            [(MyRidesViewController *)[[ridesNavCont viewControllers] firstObject] setCabIDFromNotification:[aps objectForKey:@"CabId"]];
+            [(MyRidesViewController *)[[ridesNavCont viewControllers] firstObject] setNidFromNotifications:nid];
+            [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:ridesNavCont
+                                                                                                     animated:YES];
+        } else if ([pushFrom caseInsensitiveCompare:@"CabId_"] == NSOrderedSame) {
+            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
+            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:homePageNavigationController
+                                                 animated:YES];
+        } else if ([pushFrom caseInsensitiveCompare:@"Share_LocationUpdate"] == NSOrderedSame) {
+            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
+            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:homePageNavigationController
+                                                 animated:YES];
+        } else if ([pushFrom caseInsensitiveCompare:@"PoolId_"] == NSOrderedSame) {
+            UINavigationController *clubNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"MyClubsNavigationController"];
+            [(MyClubsViewController *)[[clubNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:clubNavigationController
+                                                 animated:YES];
+        } else if ([pushFrom caseInsensitiveCompare:@"Cab_Rating"] == NSOrderedSame) {
+            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
+            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:homePageNavigationController
+                                                 animated:YES];
+        } else {
+            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
+            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:homePageNavigationController
+                                                 animated:YES];
+        }
+    } else {
+        UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
+        [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+        [revealViewController pushFrontViewController:homePageNavigationController
+                                             animated:YES];
+    }
 }
 
 #pragma mark - Private methods
@@ -140,6 +279,26 @@
     
     [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:ridesNavCont
                                                                                              animated:YES];
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    [self setIsNotificationAlertViewShowing:NO];
+    
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    
+    if ([buttonTitle isEqualToString:@"Check notification"]) {
+        if (alertView == [self alertViewRemoteNotification]) {
+            [self handleRemoteNotification:[self dictionaryNotification]];
+        } else if (alertView == [self alertViewLocalNotification]) {
+            [self handleLocalNotification:[self dictionaryNotification]];
+        }
+    }
+    //    else if ([buttonTitle isEqualToString:@"Dismiss"]) {
+    //
+    //    }
 }
 
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods

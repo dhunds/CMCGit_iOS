@@ -11,4 +11,6 @@
 @interface MyClubsViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
+
+@property (strong, nonatomic) NSString *nidFromNotification;
 @end

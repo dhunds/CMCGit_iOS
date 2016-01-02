@@ -88,6 +88,15 @@
     [self readFavoriteLocationsJSONFromFile];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
+        [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
+                                  sender:self];
+    }
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -145,7 +154,10 @@
     
     if ([[segue identifier] isEqualToString:@"NotificationsHomePageSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[NotificationsListViewController class]]) {
-            
+            if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
+                [(NotificationsListViewController *)[segue destinationViewController] setNidFromNotification:[self nidFromNotification]];
+                [self setNidFromNotification:nil];
+            }
         }
     } else if ([[segue identifier] isEqualToString:@"GenericLocationSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[GenericLocationPickerViewController class]]) {
@@ -170,8 +182,8 @@
         }
     } else if ([[segue identifier] isEqualToString:@"BookACabHomeSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[BookACabViewController class]]) {
-            
-            
+            [(BookACabViewController *)[segue destinationViewController] setAddressModelFrom:[self addressModelFrom]];
+            [(BookACabViewController *)[segue destinationViewController] setAddressModelTo:[self addressModelTo]];
             
             [self clearAddressModels];
         }

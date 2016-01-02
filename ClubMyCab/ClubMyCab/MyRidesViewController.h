@@ -13,4 +13,5 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
 
 @property (strong, nonatomic) NSString *cabIDFromNotification;
+@property (strong, nonatomic) NSString *nidFromNotifications;
 @end

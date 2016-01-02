@@ -152,13 +152,21 @@
                     }
                 }
                 
+                if ([self nidFromNotifications] && [[self nidFromNotifications] length] > 0) {
+                    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                       endPoint:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ
+                                                                     parameters:[NSString stringWithFormat:@"rnum=&nid=%@", [self nidFromNotifications]]
+                                                            delegateForProtocol:self];
+                }
+                
                 if ([self cabIDFromNotification] && [[self cabIDFromNotification] length] > 0) {
                     for (NSDictionary *dict in [self arrayMyRides]) {
                         if ([[dict objectForKey:@"CabId"] isEqualToString:[self cabIDFromNotification]]) {
                             [self performSegueWithIdentifier:@"RideDetailsSegue"
                                                       sender:dict];
                             
-                            [self setCabIDFromNotification:@""];
+                            [self setCabIDFromNotification:nil];
                             
                             break;
                         }
@@ -201,6 +209,8 @@
                         [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
                     }
                 }
+            } else if ([endPoint isEqualToString:ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ]) {
+                
             }
         }
     });

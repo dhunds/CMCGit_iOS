@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AddressModel.h"
+
 
 @interface BookACabViewController : UIViewController
+
+@property (strong, nonatomic) AddressModel *addressModelFrom, *addressModelTo;
+
+@property (strong, nonatomic) NSDictionary *dictionaryBookCabFromRide;
 
 @end
