@@ -55,6 +55,7 @@
 		D5C79F361C10568F00FA2EB1 /* MyRidesTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C79F351C10568F00FA2EB1 /* MyRidesTableViewCell.m */; };
 		D5C92C8C1C35429200C63D44 /* HCSStarRatingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92C8B1C35429100C63D44 /* HCSStarRatingView.m */; };
 		D5C92C8F1C35454800C63D44 /* CabRatingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92C8E1C35454800C63D44 /* CabRatingViewController.m */; };
+		D5CB93B81C37CA8D001C6708 /* OfferDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5CB93B71C37CA8C001C6708 /* OfferDetailsViewController.m */; };
 		D5CCE0361C16C8F500C199E3 /* BookACabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5CCE0351C16C8F500C199E3 /* BookACabViewController.m */; };
 		D5CCE0D51C16EC9000C199E3 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0D41C16EC8F00C199E3 /* CFNetwork.framework */; };
 		D5CCE0D71C16EC9E00C199E3 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CCE0D61C16EC9E00C199E3 /* Security.framework */; };
@@ -186,6 +187,8 @@
 		D5C92C8B1C35429100C63D44 /* HCSStarRatingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HCSStarRatingView.m; sourceTree = "<group>"; };
 		D5C92C8D1C35454800C63D44 /* CabRatingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CabRatingViewController.h; sourceTree = "<group>"; };
 		D5C92C8E1C35454800C63D44 /* CabRatingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CabRatingViewController.m; sourceTree = "<group>"; };
+		D5CB93B61C37CA8B001C6708 /* OfferDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OfferDetailsViewController.h; sourceTree = "<group>"; };
+		D5CB93B71C37CA8C001C6708 /* OfferDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfferDetailsViewController.m; sourceTree = "<group>"; };
 		D5CCE0341C16C8F500C199E3 /* BookACabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookACabViewController.h; sourceTree = "<group>"; };
 		D5CCE0351C16C8F500C199E3 /* BookACabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookACabViewController.m; sourceTree = "<group>"; };
 		D5CCE0D41C16EC8F00C199E3 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -411,6 +414,8 @@
 				D52A41721BA2F050006FCDEA /* SettingsViewController.m */,
 				D52A416B1BA2F02C006FCDEA /* ShareLocationViewController.h */,
 				D52A416C1BA2F02C006FCDEA /* ShareLocationViewController.m */,
+				D5CB93B61C37CA8B001C6708 /* OfferDetailsViewController.h */,
+				D5CB93B71C37CA8C001C6708 /* OfferDetailsViewController.m */,
 				D52A41741BA2F062006FCDEA /* ShareThisAppViewController.h */,
 				D52A41751BA2F062006FCDEA /* ShareThisAppViewController.m */,
 				D5D90A771C36BC8400D73440 /* ShowLocationViewController.h */,
@@ -671,6 +676,7 @@
 				D5CCE0361C16C8F500C199E3 /* BookACabViewController.m in Sources */,
 				D5C92C8F1C35454800C63D44 /* CabRatingViewController.m in Sources */,
 				D5D38EC51C313ABC0091D45E /* CabsWebViewController.m in Sources */,
+				D5CB93B81C37CA8D001C6708 /* OfferDetailsViewController.m in Sources */,
 				D55A20F81B85CD120048D819 /* IntroPageImageViewController.m in Sources */,
 				D5C92C8C1C35429200C63D44 /* HCSStarRatingView.m in Sources */,
 				D5B4C2D41BFC523100343C60 /* FavoriteLocationsTableViewCell.m in Sources */,
@@ -811,8 +817,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "Apple Development IOS Push Services: com.clubmycab.ClubMyCab";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development IOS Push Services: com.clubmycab.ClubMyCab";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ClubMyCab/PrefixHeader.pch";
@@ -866,7 +872,7 @@
 					"-lxml2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "ecdf762a-75cd-4c7c-a816-a60ed167453f";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -876,8 +882,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "Apple Development IOS Push Services: com.clubmycab.ClubMyCab";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development IOS Push Services: com.clubmycab.ClubMyCab";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/ClubMyCab/PrefixHeader.pch";
@@ -931,7 +937,7 @@
 					"-lxml2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "ecdf762a-75cd-4c7c-a816-a60ed167453f";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

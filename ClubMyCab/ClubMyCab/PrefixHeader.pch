@@ -79,6 +79,8 @@
 #define ENDPOINT_REFER_USERS_CLUB_STEP_TWO              @"/referFriendStepTwo.php"
 #define ENDPOINT_GET_CABS_FOR_RATING                    @"/getCabs.php"
 #define ENDPOINT_CABS_RATING_CMC                        @"/cmcCabRating.php"
+#define ENDPOINT_USER_DATA                              @"/userData.php"
+#define ENDPOINT_GET_OFFERS                             @"/getOffers.php"
 
 #define LOGGING_ENABLED                                 1
 
