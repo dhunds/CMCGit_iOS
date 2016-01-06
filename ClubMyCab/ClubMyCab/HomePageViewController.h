@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface HomePageViewController : UIViewController
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
 
-@property (strong, nonatomic) NSString *nidFromNotification;
+@property (strong, nonatomic) NSString *segueType;
 
 @end

@@ -14,4 +14,5 @@
 @property (strong, nonatomic) AddressModel *addressModelFrom;
 @property (strong, nonatomic) AddressModel *addressModelTo;
 
+@property (strong, nonatomic) NSString *segueType;
 @end

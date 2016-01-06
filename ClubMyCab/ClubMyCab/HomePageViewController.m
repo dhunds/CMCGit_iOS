@@ -7,12 +7,9 @@
 //
 
 #import "HomePageViewController.h"
-#import "SWRevealViewController.h"
-#import "GlobalMethods.h"
 #import "Logger.h"
 #import "ActivityIndicatorView.h"
 #import "ToastLabel.h"
-#import "NotificationsListViewController.h"
 #import "GenericLocationPickerViewController.h"
 #import "FavoriteLocationsViewController.h"
 #import "PlacesAutoCompleteViewController.h"
@@ -21,7 +18,7 @@
 
 @import GoogleMaps;
 
-@interface HomePageViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate, GenericLocationPickerVCProtocol, UIAlertViewDelegate, PlacesAutoCompleteVCProtocol>
+@interface HomePageViewController () <UITextFieldDelegate, GenericLocationPickerVCProtocol, UIAlertViewDelegate, PlacesAutoCompleteVCProtocol>
 
 @property (strong, nonatomic) NSString *TAG;
 
@@ -39,7 +36,7 @@
 
 @property (strong, nonatomic) NSDictionary *dictionaryFavoriteLocations;
 
-@property (strong, nonatomic) UIAlertView *alertViewFavoriteLocations ,*alertViewNotifications;
+@property (strong, nonatomic) UIAlertView *alertViewFavoriteLocations;
 
 @end
 
@@ -63,71 +60,23 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    SWRevealViewController *revealViewController = [self revealViewController];
-    if (revealViewController) {
-        [[self barButtonItem] setTarget:revealViewController];
-        [[self barButtonItem] setAction:@selector(revealToggle:)];
-        [[self view] addGestureRecognizer:[[self revealViewController] panGestureRecognizer]];
-    }
-    
-    [self checkNotificationSettings];
+//    SWRevealViewController *revealViewController = [self revealViewController];
+//    if (revealViewController) {
+//        [[self barButtonItem] setTarget:revealViewController];
+//        [[self barButtonItem] setAction:@selector(revealToggle:)];
+//        [[self view] addGestureRecognizer:[[self revealViewController] panGestureRecognizer]];
+//    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
-    
-    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
-                                                       endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
-                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]]
-                                            delegateForProtocol:self];
-    
     [self readFavoriteLocationsJSONFromFile];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
-        [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
-                                  sender:self];
-    }
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-#pragma mark - GlobalMethodsAsyncRequestProtocol methods
-
-- (void)asyncRequestComplete:(GlobalMethods *)sender
-                        data:(NSDictionary *)data {
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
-        [self hideActivityIndicatorView];
-        
-        NSString *error = [data valueForKey:KEY_ERROR_ASYNC_REQUEST];
-        
-        if([error isEqualToString:ERROR_CONNECTION_VALUE]) {
-            [self makeToastWithMessage:NO_INTERNET_ERROR_MESSAGE];
-        } else if ([error isEqualToString:ERROR_DATA_NIL_VALUE]) {
-            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
-        } else if ([error isEqualToString:ERROR_UNAUTHORIZED_ACCESS]) {
-            [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
-        } else {
-            NSString *endPoint = [data valueForKey:KEY_ENDPOINT_ASYNC_CONNECTION];
-            if ([endPoint isEqualToString:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT]) {
-                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
-                [[self navigationItem] setRightBarButtonItem:[[[GlobalMethods alloc] init] getNotificationsBarButtonItemWithTarget:self
-                                                                                                          unreadNotificationsCount:[response intValue]]];
-            }
-        }
-    });
 }
 
 #pragma mark - UITextFieldDelegate methods
@@ -152,14 +101,10 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     
-    if ([[segue identifier] isEqualToString:@"NotificationsHomePageSegue"]) {
-        if ([[segue destinationViewController] isKindOfClass:[NotificationsListViewController class]]) {
-            if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
-                [(NotificationsListViewController *)[segue destinationViewController] setNidFromNotification:[self nidFromNotification]];
-                [self setNidFromNotification:nil];
-            }
-        }
-    } else if ([[segue identifier] isEqualToString:@"GenericLocationSegue"]) {
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" prepareForSegue : %@", [segue identifier]]];
+    
+    if ([[segue identifier] isEqualToString:@"GenericLocationSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[GenericLocationPickerViewController class]]) {
             [(GenericLocationPickerViewController *)[segue destinationViewController] setDelegateGenericLocationPickerVC:self];
             [(GenericLocationPickerViewController *)[segue destinationViewController] setSegueType:sender];
@@ -177,6 +122,7 @@
         if ([[segue destinationViewController] isKindOfClass:[TripDateTimeViewController class]]) {
             [(TripDateTimeViewController *)[segue destinationViewController] setAddressModelFrom:[self addressModelFrom]];
             [(TripDateTimeViewController *)[segue destinationViewController] setAddressModelTo:[self addressModelTo]];
+            [(TripDateTimeViewController *)[segue destinationViewController] setSegueType:[self segueType]];
             
             [self clearAddressModels];
         }
@@ -205,7 +151,10 @@
         [[self textfieldToLocation] setText:[[self addressModelTo] longName]];
     }
     
-    [self showButtonsView];
+//    [self showButtonsView];
+    [self performSelector:@selector(showButtonsView)
+               withObject:nil
+               afterDelay:1.0];     //adding delay to let the GenericLocationPickerViewController popVC complete
 }
 
 #pragma mark - PlacesAutoCompleteVCProtocol methods
@@ -227,16 +176,13 @@
         [[self textfieldToLocation] setText:[[self addressModelTo] longName]];
     }
     
-    [self showButtonsView];
+//    [self showButtonsView];
+    [self performSelector:@selector(showButtonsView)
+               withObject:nil
+               afterDelay:1.0];     //adding delay to let the PlacesAutoCompleteViewController popVC complete
 }
 
 #pragma mark - IBAction methods
-
-- (IBAction)notificationsBarButtonItemPressed {
-    
-    [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
-                              sender:self];
-}
 
 - (IBAction)homeToOfficeTapped:(UITapGestureRecognizer *)sender {
     
@@ -395,53 +341,23 @@
 - (void)showButtonsView {
     
     if ([self addressModelFrom] && [self addressModelTo]) {
-        [[self viewClubAndCabButtons] setHidden:NO];
-        [[self viewClubAndCabButtons] setBackgroundColor:[UIColor colorWithRed:0.0
-                                                                         green:0.0
-                                                                          blue:0.0
-                                                                         alpha:0.6]];
-        [[self viewSubClubAndCabButtons] setBackgroundColor:[UIColor colorWithRed:1.0
-                                                                            green:1.0
-                                                                             blue:1.0
-                                                                            alpha:1.0]];
-    }
-}
-
-- (void)checkNotificationSettings {
-    
-    [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" checkNotificationSettings : %lu isRegisteredForRemoteNotifications : %d", (unsigned long)[[[UIApplication sharedApplication] currentUserNotificationSettings] types], [[UIApplication sharedApplication] isRegisteredForRemoteNotifications]]];
-    
-    if (![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
-        if (![[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_APN_REG_CALLED]) {
-            [self registerForNotifications];
-        } else {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Access needed"
-                                                                message:@"ClubMyCab cannot send you push notifications. Please consider enabling them to take advantage of all the features offered. Enable now?"
-                                                               delegate:self
-                                                      cancelButtonTitle:nil
-                                                      otherButtonTitles:@"Cancel", @"Settings", nil];
-            [alertView show];
-            
-            [self setAlertViewNotifications:alertView];
-        }
-    } else {
-        NSString *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_APN_DEVICE_TOKEN];
         
-        if (!deviceToken || [deviceToken length] <= 0) {
-            [self registerForNotifications];
+        if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] || [[self segueType] isEqualToString:HOME_SEGUE_TYPE_SHARE_CAB]) {
+            [self clubMyCabPressed:nil];
+        } else if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_BOOK_CAB]) {
+            [self bookCabPressed:nil];
         }
+        
+//        [[self viewClubAndCabButtons] setHidden:NO];
+//        [[self viewClubAndCabButtons] setBackgroundColor:[UIColor colorWithRed:0.0
+//                                                                         green:0.0
+//                                                                          blue:0.0
+//                                                                         alpha:0.6]];
+//        [[self viewSubClubAndCabButtons] setBackgroundColor:[UIColor colorWithRed:1.0
+//                                                                            green:1.0
+//                                                                             blue:1.0
+//                                                                            alpha:1.0]];
     }
-    
-}
-
-- (void)registerForNotifications {
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-    
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
-    
-    [[NSUserDefaults standardUserDefaults] setBool:YES
-                                            forKey:KEY_USER_DEFAULT_APN_REG_CALLED];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -514,12 +430,6 @@
                                       sender:self];
         } else if ([buttonTitle isEqualToString:@"Later"]) {
             
-        }
-    } else if (alertView == [self alertViewNotifications]) {
-        if ([buttonTitle isEqualToString:@"Cancel"]) {
-            
-        } else if ([buttonTitle isEqualToString:@"Settings"]) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
         }
     }
 }

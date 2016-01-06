@@ -151,8 +151,8 @@
                                                                      error:&errorParse];
         if (!errorParse) {
             if ([[parsedJson objectForKey:@"status"] isEqualToString:@"OK"]) {
-                [Logger logDebug:[self TAG]
-                         message:[NSString stringWithFormat:@" geocodeToAddressModelFromAddress response : %@", [[[parsedJson objectForKey:@"results"] firstObject] description]]];
+//                [Logger logDebug:[self TAG]
+//                         message:[NSString stringWithFormat:@" geocodeToAddressModelFromAddress response : %@", [[[parsedJson objectForKey:@"results"] firstObject] description]]];
                 
                 NSDictionary *resultDictionary = [[parsedJson objectForKey:@"results"] firstObject];
                 
@@ -164,8 +164,8 @@
                 
                 NSArray *addressComponents = [resultDictionary objectForKey:@"address_components"];
                 
-                [Logger logDebug:[self TAG]
-                         message:[NSString stringWithFormat:@" geocodeToAddressModelFromAddress addressComponents : %@", [addressComponents description]]];
+//                [Logger logDebug:[self TAG]
+//                         message:[NSString stringWithFormat:@" geocodeToAddressModelFromAddress addressComponents : %@", [addressComponents description]]];
                 NSString *subLocality = @"", *locality = @"";
                 for (NSDictionary *dict in addressComponents) {
                     if ([[[dict objectForKey:@"types"] description] rangeOfString:@"sublocality"].location != NSNotFound) {

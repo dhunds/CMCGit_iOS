@@ -12,7 +12,7 @@
 #import "SWRevealViewController.h"
 #import "MyRidesViewController.h"
 #import "MyClubsViewController.h"
-#import "HomePageViewController.h"
+#import "HomeCarPoolViewController.h"
 
 @import GoogleMaps;
 
@@ -223,14 +223,14 @@
             [(SWRevealViewController *)[navigationController presentedViewController] pushFrontViewController:ridesNavCont
                                                                                                      animated:YES];
         } else if ([pushFrom caseInsensitiveCompare:@"CabId_"] == NSOrderedSame) {
-            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
-            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
-            [revealViewController pushFrontViewController:homePageNavigationController
+            UINavigationController *CarPoolNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"CarPoolNavigationController"];
+            [(HomeCarPoolViewController *)[[CarPoolNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:CarPoolNavigationController
                                                  animated:YES];
         } else if ([pushFrom caseInsensitiveCompare:@"Share_LocationUpdate"] == NSOrderedSame) {
-            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
-            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
-            [revealViewController pushFrontViewController:homePageNavigationController
+            UINavigationController *CarPoolNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"CarPoolNavigationController"];
+            [(HomeCarPoolViewController *)[[CarPoolNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:CarPoolNavigationController
                                                  animated:YES];
         } else if ([pushFrom caseInsensitiveCompare:@"PoolId_"] == NSOrderedSame) {
             UINavigationController *clubNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"MyClubsNavigationController"];
@@ -238,20 +238,20 @@
             [revealViewController pushFrontViewController:clubNavigationController
                                                  animated:YES];
         } else if ([pushFrom caseInsensitiveCompare:@"Cab_Rating"] == NSOrderedSame) {
-            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
-            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
-            [revealViewController pushFrontViewController:homePageNavigationController
+            UINavigationController *CarPoolNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"CarPoolNavigationController"];
+            [(HomeCarPoolViewController *)[[CarPoolNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:CarPoolNavigationController
                                                  animated:YES];
         } else {
-            UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
-            [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
-            [revealViewController pushFrontViewController:homePageNavigationController
+            UINavigationController *CarPoolNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"CarPoolNavigationController"];
+            [(HomeCarPoolViewController *)[[CarPoolNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+            [revealViewController pushFrontViewController:CarPoolNavigationController
                                                  animated:YES];
         }
     } else {
-        UINavigationController *homePageNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"HomePageNavigationController"];
-        [(HomePageViewController *)[[homePageNavigationController viewControllers] firstObject] setNidFromNotification:nid];
-        [revealViewController pushFrontViewController:homePageNavigationController
+        UINavigationController *CarPoolNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"CarPoolNavigationController"];
+        [(HomeCarPoolViewController *)[[CarPoolNavigationController viewControllers] firstObject] setNidFromNotification:nid];
+        [revealViewController pushFrontViewController:CarPoolNavigationController
                                              animated:YES];
     }
 }

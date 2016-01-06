@@ -24,16 +24,14 @@
 
 @property (strong, nonatomic) NSString *mobileNumber;
 
-@property (weak, nonatomic) IBOutlet UIImageView *imageView30Min;
-@property (weak, nonatomic) IBOutlet UIImageView *imageView1Hour;
-@property (weak, nonatomic) IBOutlet UIImageView *imageViewSelectDateTime;
-@property (weak, nonatomic) IBOutlet UILabel *label30Min;
-@property (weak, nonatomic) IBOutlet UILabel *label1Hour;
 @property (weak, nonatomic) IBOutlet UILabel *labelSelectDateTime;
 @property (weak, nonatomic) IBOutlet UILabel *labelCoPassengers;
 @property (weak, nonatomic) IBOutlet UILabel *labelHeaderCoPassengers;
 @property (weak, nonatomic) IBOutlet UIDatePicker *datePicker;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBarDatePicker;
+@property (weak, nonatomic) IBOutlet UIView *viewCoPassengers;
+@property (weak, nonatomic) IBOutlet UIView *viewChargesPerSeat;
+@property (weak, nonatomic) IBOutlet UILabel *labelChargesPerSeat;
 
 @property (strong, nonatomic) NSString *tripDateTime;
 
@@ -42,11 +40,11 @@
 
 @property (strong, nonatomic) UIAlertView *alertViewClubs, *alertViewInvite;
 
+@property (nonatomic) BOOL shouldOfferFree;
+
 @end
 
 @implementation TripDateTimeViewController
-
-#define TEXT_TAP_TO_CHANGE                  @"        (tap to change)"
 
 - (NSString *)TAG {
     return @"TripDateTimeViewController";
@@ -61,8 +59,22 @@
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [self setMobileNumber:[userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]];
     
-    [self label30MinPressed:nil];
-    [[self labelCoPassengers] setText:[NSString stringWithFormat:@"3%@", TEXT_TAP_TO_CHANGE]];
+    NSDate *date = [[NSDate date] dateByAddingTimeInterval:(30 * 60)];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
+    
+    [[self labelSelectDateTime] setText:[dateFormatter stringFromDate:date]];
+    
+    [self setTripDateTime:[dateFormatter stringFromDate:date]];
+    
+    [[self labelCoPassengers] setText:@"3"];
+    if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL]) {
+        [[self viewChargesPerSeat] setHidden:NO];
+        [[self labelChargesPerSeat] setText:@"3"];
+        [self setShouldOfferFree:NO];
+    } else {
+        [[self viewChargesPerSeat] setHidden:YES];
+    }
     
     [[self datePicker] setMinimumDate:[NSDate date]];
     
@@ -101,8 +113,7 @@
             [(ClubsInviteViewController *)[segue destinationViewController] setArrayMyClubs:[mutableMyClubs copy]];
             [(ClubsInviteViewController *)[segue destinationViewController] setArrayMemberOfClubs:[mutableMemberOfClubs copy]];
             [(ClubsInviteViewController *)[segue destinationViewController] setDelegateClubsInviteVC:self];
-            [(ClubsInviteViewController *)[segue destinationViewController] setNumberOfSeats:[[[[self labelCoPassengers] text] stringByReplacingOccurrencesOfString:TEXT_TAP_TO_CHANGE
-                                                                                                                                                         withString:@""] intValue]];
+            [(ClubsInviteViewController *)[segue destinationViewController] setNumberOfSeats:[[[self labelCoPassengers] text] intValue]];
         }
     } else if ([[segue identifier] isEqualToString:@"TripClubsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[MyClubsViewController class]]) {
@@ -147,8 +158,10 @@
     [[self datePicker] setHidden:YES];
     [[self toolBarDatePicker] setHidden:YES];
     
-    [[self labelHeaderCoPassengers] setHidden:NO];
-    [[self labelCoPassengers] setHidden:NO];
+//    [[self labelHeaderCoPassengers] setHidden:NO];
+//    [[self labelCoPassengers] setHidden:NO];
+    [[self viewCoPassengers] setHidden:NO];
+    [[self viewChargesPerSeat] setHidden:([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] ? NO : YES)];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -257,12 +270,24 @@
                                        NSDate *starttime = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@ %@", date, time]];
                                        [self setStartTime:starttime];
                                        
-                                       NSString *seats = [[[self labelCoPassengers] text] stringByReplacingOccurrencesOfString:TEXT_TAP_TO_CHANGE
-                                                                                                                    withString:@""];
+                                       NSString *seats = [[self labelCoPassengers] text];
                                        NSString *ownerName = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME];
-                                       NSString *message = [NSString stringWithFormat:@"%@ invited you to share a cab from %@ to %@", ownerName, [[self addressModelFrom] shortName], [[self addressModelTo] shortName]];
                                        
-                                       NSString *parameters = [NSString stringWithFormat:@"CabId=%@&MobileNumber=%@&OwnerName=%@&FromLocation=%@&ToLocation=%@&FromShortName=%@&ToShortName=%@&TravelDate=%@&TravelTime=%@&Seats=%@&RemainingSeats=%@&Distance=%@&ExpTripDuration=%@&MembersNumber=%@&MembersName=%@&Message=%@", cabID, [self mobileNumber], ownerName, [[self addressModelFrom] longName], [[self addressModelTo] longName], [[self addressModelFrom] shortName], [[self addressModelTo] shortName], date, time, seats, seats, distancetext, durationvalue, numbers, names, message];
+                                       NSString *message = @"";
+                                       NSString *rideType = @"";
+                                       NSString *perKm = @"";
+                                       
+                                       if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL]) {
+                                           perKm = [[self labelChargesPerSeat] text];
+                                           message = [NSString stringWithFormat:@"%@ invited you to join a car pool from %@ to %@ at Rs.%@ per Km", ownerName, [[self addressModelFrom] shortName], [[self addressModelTo] shortName], perKm];
+                                           rideType = @"1";
+                                       } else {
+                                           perKm = @"0";
+                                           message = [NSString stringWithFormat:@"%@ invited you to share a cab from %@ to %@", ownerName, [[self addressModelFrom] shortName], [[self addressModelTo] shortName]];
+                                           rideType = @"2";
+                                       }
+                                       
+                                       NSString *parameters = [NSString stringWithFormat:@"CabId=%@&MobileNumber=%@&OwnerName=%@&FromLocation=%@&ToLocation=%@&FromShortName=%@&ToShortName=%@&TravelDate=%@&TravelTime=%@&Seats=%@&RemainingSeats=%@&Distance=%@&ExpTripDuration=%@&MembersNumber=%@&MembersName=%@&Message=%@&rideType=%@&perKmCharge=%@", cabID, [self mobileNumber], ownerName, [[self addressModelFrom] longName], [[self addressModelTo] longName], [[self addressModelFrom] shortName], [[self addressModelTo] shortName], date, time, seats, seats, distancetext, durationvalue, numbers, names, message, rideType, perKm];
                                        
                                        [Logger logDebug:[self TAG]
                                                 message:[NSString stringWithFormat:@" googleapis directions parameters : %@", parameters]];
@@ -363,8 +388,8 @@
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Success"
                                                                     message:@"Your friend(s) have been informed about the ride! We will let you know when they join. Sit back & relax!"
                                                                    delegate:self
-                                                          cancelButtonTitle:nil
-                                                          otherButtonTitles:I_AM_DONE, START_OVER, nil];
+                                                          cancelButtonTitle:@"Ok"
+                                                          otherButtonTitles:nil];
                 [alertView show];
                 
                 [self setAlertViewInvite:alertView];
@@ -388,12 +413,18 @@
                                       sender:self];
         }
     } else if (alertView == [self alertViewInvite]) {
-        if ([buttonTitle isEqualToString:I_AM_DONE]) {
-            //TODO handle exit with an alert view, abrupt quit not apple approved way
-            exit(0);
-        } else if ([buttonTitle isEqualToString:START_OVER]) {
-            [self popVC];
-        }
+        
+//        [Logger logDebug:[self TAG]
+//                 message:[NSString stringWithFormat:@" alertViewInvite : %@", [[[self navigationController] viewControllers] description]]];
+        
+        [[self navigationController] popToRootViewControllerAnimated:YES];
+        
+//        if ([buttonTitle isEqualToString:I_AM_DONE]) {
+//            //TODO handle exit with an alert view, abrupt quit not apple approved way
+//            exit(0);
+//        } else if ([buttonTitle isEqualToString:START_OVER]) {
+//            [self popVC];
+//        }
     }
 }
 
@@ -409,54 +440,15 @@
                                             delegateForProtocol:self];
 }
 
-- (IBAction)label30MinPressed:(UITapGestureRecognizer *)sender {
-    [self hideDatePicker];
-    
-    [[self imageView30Min] setHidden:NO];
-    [[self imageView1Hour] setHidden:YES];
-    [[self imageViewSelectDateTime] setHidden:YES];
-    
-    NSDate *date = [NSDate date];
-    date = [date dateByAddingTimeInterval:(30.0 * 60.0)];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
-    
-    [[self label30Min] setText:[dateFormatter stringFromDate:date]];
-    [[self label1Hour] setText:@""];
-    [[self labelSelectDateTime] setText:@""];
-    
-    [self setTripDateTime:[dateFormatter stringFromDate:date]];
-}
-
-- (IBAction)label1HourPressed:(UITapGestureRecognizer *)sender {
-    [self hideDatePicker];
-    
-    [[self imageView30Min] setHidden:YES];
-    [[self imageView1Hour] setHidden:NO];
-    [[self imageViewSelectDateTime] setHidden:YES];
-    
-    NSDate *date = [NSDate date];
-    date = [date dateByAddingTimeInterval:(60.0 * 60.0)];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
-    
-    [[self label30Min] setText:@""];
-    [[self label1Hour] setText:[dateFormatter stringFromDate:date]];
-    [[self labelSelectDateTime] setText:@""];
-    
-    [self setTripDateTime:[dateFormatter stringFromDate:date]];
-}
-
 - (IBAction)labelSelectDateTimePressed:(UITapGestureRecognizer *)sender {
-    [[self imageView30Min] setHidden:YES];
-    [[self imageView1Hour] setHidden:YES];
-    [[self imageViewSelectDateTime] setHidden:NO];
     
     [[self datePicker] setHidden:NO];
     [[self toolBarDatePicker] setHidden:NO];
     
-    [[self labelHeaderCoPassengers] setHidden:YES];
-    [[self labelCoPassengers] setHidden:YES];
+//    [[self labelHeaderCoPassengers] setHidden:YES];
+//    [[self labelCoPassengers] setHidden:YES];
+    [[self viewCoPassengers] setHidden:YES];
+    [[self viewChargesPerSeat] setHidden:YES];
 }
 
 - (IBAction)labelCoPassengersPressed:(UITapGestureRecognizer *)sender {
@@ -470,7 +462,7 @@
         [alertController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%d", i]
                                                             style:UIAlertActionStyleDefault
                                                           handler:^(UIAlertAction *action) {
-                                                              [[self labelCoPassengers] setText:[NSString stringWithFormat:@"%@%@", [action title], TEXT_TAP_TO_CHANGE]];
+                                                              [[self labelCoPassengers] setText:[action title]];
                                                           }]];
     }
     
@@ -484,8 +476,6 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
-    [[self label30Min] setText:@""];
-    [[self label1Hour] setText:@""];
     [[self labelSelectDateTime] setText:[dateFormatter stringFromDate:date]];
     
     [self setTripDateTime:[dateFormatter stringFromDate:date]];
@@ -498,11 +488,46 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"dd/MM/yyyy  hh:mm a"];
     
-    [[self label30Min] setText:@""];
-    [[self label1Hour] setText:@""];
     [[self labelSelectDateTime] setText:[dateFormatter stringFromDate:date]];
     
     [self setTripDateTime:[dateFormatter stringFromDate:date]];
+}
+
+- (IBAction)offerForFreePressed:(UIButton *)sender {
+    if ([self shouldOfferFree]) {
+        [self setShouldOfferFree:NO];
+        [sender setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]
+                forState:UIControlStateNormal];
+        [[self labelChargesPerSeat] setText:@"3"];
+    } else {
+        [self setShouldOfferFree:YES];
+        [sender setImage:[UIImage imageNamed:@"checkbox_checked.png"]
+                forState:UIControlStateNormal];
+        [[self labelChargesPerSeat] setText:@"0"];
+    }
+}
+
+- (IBAction)labelChargesPerSeatPressed:(UITapGestureRecognizer *)sender {
+    
+    if ([self shouldOfferFree]) {
+        return;
+    }
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+                                                                             message:@"Select charges per seat"
+                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    for (int i = 1; i <= 5; i++) {
+        [alertController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%d", i]
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction *action) {
+                                                              [[self labelChargesPerSeat] setText:[action title]];
+                                                          }]];
+    }
+    
+    [self presentViewController:alertController
+                       animated:YES
+                     completion:^{}];
 }
 
 @end

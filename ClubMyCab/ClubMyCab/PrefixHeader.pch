@@ -30,6 +30,10 @@
 #define FAVORITE_LOCATIONS_TAG_VALUE_HOME               @"Home"
 #define FAVORITE_LOCATIONS_TAG_VALUE_OFFICE             @"Office"
 
+#define HOME_SEGUE_TYPE_CAR_POOL                        @"HomeSegueTypeCarPool"
+#define HOME_SEGUE_TYPE_SHARE_CAB                       @"HomeSegueTypeShareCab"
+#define HOME_SEGUE_TYPE_BOOK_CAB                        @"HomeSegueTypeBookCab"
+
 #define ENDPOINT_LOGIN                                  @"/login.php"
 #define ENDPOINT_VERIFY_LOGIN_OTP                       @"/verifyloginotp.php"
 #define ENDPOINT_RESEND_OTP                             @"/resendotp.php"
@@ -81,6 +85,8 @@
 #define ENDPOINT_CABS_RATING_CMC                        @"/cmcCabRating.php"
 #define ENDPOINT_USER_DATA                              @"/userData.php"
 #define ENDPOINT_GET_OFFERS                             @"/getOffers.php"
+#define ENDPOINT_RIDE_INVITATIONS                       @"/rideInvitations.php"
+#define ENDPOINT_RIDE_INVITATIONS_CAR_POOL              @"/rideInvitationsCarpool.php"
 
 #define LOGGING_ENABLED                                 1
 

@@ -52,14 +52,16 @@
 //    [Logger logDebug:[self TAG]
 //             message:[NSString stringWithFormat:@" viewDidLoad addressModelFrom : %@ addressModelTo : %@", [[[self addressModelFrom] location] description], [[[self addressModelTo] location] description]]];
     
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+//    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+//    
+//    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+//    
+//    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+//                                                       endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
+//                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]]
+//                                            delegateForProtocol:self];
     
-    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
-    
-    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
-                                                       endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
-                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]]
-                                            delegateForProtocol:self];
+    [self fetchLocality];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -508,8 +510,8 @@
     [geoCoder reverseGeocodeCoordinate:[[[self addressModelFrom] location] coordinate]
                      completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
                          if (!error) {
-                             //                             [Logger logDebug:[self TAG]
-                             //                                      message:[NSString stringWithFormat:@" reverseGeocodeCoordinate : %@", [[response results] description]]];
+                             [Logger logDebug:[self TAG]
+                                      message:[NSString stringWithFormat:@" reverseGeocodeCoordinate addressModelFrom : %@", [[response results] description]]];
                              
                              [self setFromLocality:[(GMSAddress *)[[response results] firstObject] locality]];
                              
@@ -517,12 +519,24 @@
                              [geoCoderTo reverseGeocodeCoordinate:[[[self addressModelTo] location] coordinate]
                                                 completionHandler:^(GMSReverseGeocodeResponse *resp, NSError *err) {
                                                     if (!err) {
+                                                        
+                                                        [Logger logDebug:[self TAG]
+                                                                 message:[NSString stringWithFormat:@" reverseGeocodeCoordinate addressModelTo : %@", [[resp results] description]]];
+                                                        
                                                         [self setToLocality:[(GMSAddress *)[[resp results] firstObject] locality]];
                                                         
                                                         //                                                        [Logger logDebug:[self TAG]
                                                         //                                                                 message:[NSString stringWithFormat:@" fetchCabs from : %@ to : %@", [self fromLocality], [self toLocality]]];
                                                         
-                                                        [self fetchTimeAndDistance];
+                                                        if ([self fromLocality] && [[self fromLocality] length] > 0 && [self toLocality] && [[self toLocality] length] > 0) {
+                                                            [self fetchTimeAndDistance];
+                                                        } else {
+                                                            [self hideActivityIndicatorView];
+                                                            
+                                                            [Logger logError:[self TAG]
+                                                                     message:[NSString stringWithFormat:@" reverseGeocodeCoordinate error : %@", [error localizedDescription]]];
+                                                            [self makeToastWithMessage:@"Could not locate the address, please try using the map or a different address"];
+                                                        }
                                                         
                                                     } else {
                                                         [self hideActivityIndicatorView];

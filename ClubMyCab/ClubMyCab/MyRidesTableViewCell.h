@@ -17,5 +17,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelTime;
 @property (weak, nonatomic) IBOutlet UILabel *labelTotalSeats;
 @property (weak, nonatomic) IBOutlet UILabel *labelAvailableSeats;
+@property (weak, nonatomic) IBOutlet UILabel *labelPerSeatCharges;
 
 @end
