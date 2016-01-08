@@ -145,6 +145,15 @@
                         [self setArrayMyRides:[self arrayMyRidesCurrent]];
                         
                         [[self tableViewMyRides] reloadData];
+                        
+                        NSMutableArray *array = [NSMutableArray array];
+                        for (NSDictionary *dictionary in parsedJson) {
+                            [array addObject:[dictionary objectForKey:@"CabId"]];
+                        }
+                        
+                        if (array && [array count] > 0) {
+                            [self clearBookedOrCarPreferenceForRides:array];
+                        }
                     } else {
                         [Logger logError:[self TAG]
                                  message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
@@ -347,6 +356,22 @@
     }
     
     return NO;
+}
+
+- (void)clearBookedOrCarPreferenceForRides:(NSArray *)rides {
+    NSArray *array = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE];
+    
+    NSMutableArray *arrayMutable = [NSMutableArray array];
+    if (array && [array count] > 0) {
+        for (NSString *cabID in array) {
+            if ([rides containsObject:cabID]) {
+                [arrayMutable addObject:cabID];
+            }
+        }
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setObject:[arrayMutable copy]
+                                              forKey:KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {

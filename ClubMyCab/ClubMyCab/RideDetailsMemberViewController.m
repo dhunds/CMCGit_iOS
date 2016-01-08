@@ -40,6 +40,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelInfoMembers;
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewLocationPin;
 @property (weak, nonatomic) IBOutlet UILabel *labelLocationAddress;
+@property (weak, nonatomic) IBOutlet UILabel *labelInfoPerSeatCharge;
 
 @property (strong, nonatomic) NSArray *arrayMembers;
 
@@ -811,7 +812,12 @@
 }
 
 - (IBAction)chatPressed:(UIButton *)sender {
-    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                        message:@"Coming soon!"
+                                                       delegate:self
+                                              cancelButtonTitle:@"Ok"
+                                              otherButtonTitles:nil];
+    [alertView show];
 }
 
 - (IBAction)updatePickupPressed:(UIButton *)sender {
@@ -833,7 +839,16 @@
 }
 
 - (IBAction)bookCabPressed:(UIButton *)sender {
-    [self openBookCabPage];
+    if ([[[self dictionaryRideDetails] objectForKey:@"rideType"] isEqualToString:@"1"]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:@"This is a car pool ride, you can book a cab from home page"
+                                                           delegate:self
+                                                  cancelButtonTitle:@"Ok"
+                                                  otherButtonTitles:nil];
+        [alertView show];
+    } else {
+        [self openBookCabPage];
+    }
 }
 
 - (IBAction)cancelRidePressed:(UIButton *)sender {

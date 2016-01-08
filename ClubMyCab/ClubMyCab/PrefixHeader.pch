@@ -76,6 +76,8 @@
 #define ENDPOINT_CAB_BOOK_REQUEST_UBER                  @"/cabbookrequest.php"
 #define ENDPOINT_CAB_BOOK_REQUEST_STATUS_UBER           @"/cabbookrequeststatus.php"
 #define ENDPOINT_UBER_CONNECT                           @"/uberConnect.php"
+#define ENDPOINT_UBER_CANCEL                            @"/cancelUberBooking.php"
+#define ENDPOINT_OLA_CANCEL                             @"/olaApi.php"
 #define ENDPOINT_TAXI_FOR_SURE_API                      @"/tfs.php"
 #define ENDPOINT_MEGA_API                               @"/MegaApi.php"
 #define ENDPOINT_CMC_RECORDS                            @"/cmcRecords.php"

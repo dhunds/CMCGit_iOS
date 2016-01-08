@@ -954,8 +954,8 @@
                                                                            options:NSJSONReadingMutableContainers
                                                                              error:&error];
                 if (!error) {
-                    //                        [Logger logDebug:[self TAG]
-                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    [Logger logDebug:[self TAG]
+                             message:[NSString stringWithFormat:@" parsedJson : %@ Jobno : %@", parsedJson, [parsedJson objectForKey:@"Jobno"]]];
                     
                     if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
                         
@@ -966,7 +966,7 @@
                             [self updateCMCRecords:[dictionaryCab objectForKey:@"CabNameID"]
                                            cabType:[dictionaryCab objectForKey:@"CarType"]
                                             modeID:@"1"
-                                      bookingRefNo:[dictionary objectForKey:@"Jobno"]
+                                      bookingRefNo:[parsedJson objectForKey:@"Jobno"]
                                           distance:[[self dictionaryBookCabFromRide] objectForKey:@"Distance"]
                                       tripDuration:[[self dictionaryBookCabFromRide] objectForKey:@"ExpTripDuration"]
                                              cabID:[[self dictionaryBookCabFromRide] objectForKey:@"CabId"]
@@ -981,7 +981,7 @@
                             [self updateCMCRecords:[dictionaryCab objectForKey:@"CabNameID"]
                                            cabType:[dictionaryCab objectForKey:@"CarType"]
                                             modeID:@"1"
-                                      bookingRefNo:[dictionary objectForKey:@"Jobno"]
+                                      bookingRefNo:[parsedJson objectForKey:@"Jobno"]
                                           distance:@""
                                       tripDuration:@""
                                              cabID:@""
