@@ -305,6 +305,10 @@
 
 - (void)makeToastWithMessage:(NSString *)message {
     
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
+    
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];
     

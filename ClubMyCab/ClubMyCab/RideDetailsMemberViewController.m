@@ -16,7 +16,7 @@
 #import "BookACabViewController.h"
 #import "GenericContactsViewController.h"
 
-@interface RideDetailsMemberViewController () <GMSMapViewDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, GenericContactsVCProtocol, CLLocationManagerDelegate>
+@interface RideDetailsMemberViewController () <GMSMapViewDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, GenericContactsVCProtocol, CLLocationManagerDelegate, GlobalMethodsAsyncRequestProtocol>
 
 @property (strong, nonatomic) NSString *TAG;
 
@@ -41,6 +41,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewLocationPin;
 @property (weak, nonatomic) IBOutlet UILabel *labelLocationAddress;
 @property (weak, nonatomic) IBOutlet UILabel *labelInfoPerSeatCharge;
+@property (weak, nonatomic) IBOutlet UIButton *buttonCabInfo;
 
 @property (strong, nonatomic) NSArray *arrayMembers;
 
@@ -50,9 +51,17 @@
 @property (nonatomic) BOOL locationFetched;
 @property (strong, nonatomic) AddressModel *addressModel;
 
-@property (strong, nonatomic) UIAlertView *alertViewLeaveRide;
+@property (strong, nonatomic) UIAlertView *alertViewLeaveRide, *alertViewPickupConfirm, *alertViewDropConfirm;
+@property (strong, nonatomic) UIAlertView *alertViewRideComplete;
+@property (strong, nonatomic) UIAlertView *alertViewFareSplitAmount;
+@property (strong, nonatomic) UIAlertView *alertViewFareSplitSendToMembers;
+@property (strong, nonatomic) UIAlertView *alertViewCabInfo;
+@property (strong, nonatomic) UIAlertView *alertViewCabInfoCancelBooking;
 
-@property (strong, nonatomic) AddressModel *addressFrom, *addressTo;
+@property (strong, nonatomic) NSString *membersFareString, *totalFareString;
+
+@property (strong, nonatomic) AddressModel *addressFrom, *addressTo, *addressPickup, *addressDrop;
+@property (nonatomic) BOOL selectingPickupLocation, selectingDropLocation;
 
 @end
 
@@ -86,11 +95,23 @@
     if (![[[self dictionaryRideDetails] objectForKey:@"CabStatus"] isEqualToString:@"A"]) {
         [[self viewButtons] setHidden:YES];
     }
+    
+    if ([[self dictionaryRideDetails] objectForKey:@"BookingRefNo"] && ![[[self dictionaryRideDetails] objectForKey:@"BookingRefNo"] isEqual:[NSNull null]] && [[[self dictionaryRideDetails] objectForKey:@"BookingRefNo"] length] > 0 && [[[[self dictionaryRideDetails] objectForKey:@"BookingRefNo"] lowercaseString] rangeOfString:@"null"].location == NSNotFound) {
+        [[self buttonCabInfo] setHidden:NO];
+    } else {
+        [[self buttonCabInfo] setHidden:YES];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    [self checkPoolAlreadyJoined];
+    
+    [self changeChatStatus:CHAT_STATUS_ONLINE];
+}
+
+- (void)checkPoolAlreadyJoined {
     [self showActivityIndicatorView];
     
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
@@ -98,7 +119,6 @@
                                                        endPoint:ENDPOINT_CHECK_POOL_ALREADY_JOINED
                                                      parameters:[NSString stringWithFormat:@"CabId=%@&MemberNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
                                             delegateForProtocol:self];
-    [self changeChatStatus:CHAT_STATUS_ONLINE];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -115,6 +135,10 @@
 #pragma mark - Private methods
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];
@@ -447,76 +471,110 @@
     [self getPathForMembersJoinedWithWayPoints:wayPoint];
 }
 
+- (void)showRideInfoDialog {
+    
+    if ([[self viewRideInfoParent] isHidden]) {
+        [[self labelInfoUsername] setText:[[self dictionaryRideDetails] objectForKey:@"OwnerName"]];
+        [[self labelInfoFromTo] setText:[NSString stringWithFormat:@"    %@ > %@", [[self dictionaryRideDetails] objectForKey:@"FromShortName"], [[self dictionaryRideDetails] objectForKey:@"ToShortName"]]];
+        [[self labelInfoDate] setText:[[self dictionaryRideDetails] objectForKey:@"TravelDate"]];
+        [[self labelInfoTime] setText:[[self dictionaryRideDetails] objectForKey:@"TravelTime"]];
+        
+        NSString *seatStatus = [[self dictionaryRideDetails] objectForKey:@"Seat_Status"];
+        NSArray *array = [seatStatus componentsSeparatedByString:@"/"];
+        [[self labelInfoTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %@", [array lastObject]]];
+        [[self labelInfoAvailableSeats] setText:[NSString stringWithFormat:@"Available : %d", ([[array lastObject] intValue] - [[array firstObject] intValue])]];
+        
+        if ([[self arrayMembers] count] > 0) {
+            [[self tableViewInfoMembers] reloadData];
+            [[self labelInfoMembers] setHidden:NO];
+            [[self tableViewInfoMembers] setHidden:NO];
+        } else {
+            [[self labelInfoMembers] setHidden:YES];
+            [[self tableViewInfoMembers] setHidden:YES];
+        }
+        
+        if ([[[self dictionaryRideDetails] objectForKey:@"rideType"] isEqualToString:@"1"]) {
+            [[self labelInfoPerSeatCharge] setHidden:NO];
+            [[self labelInfoPerSeatCharge] setText:[NSString stringWithFormat:@"Per seat charge : \u20B9%@/km", [[self dictionaryRideDetails] objectForKey:@"perKmCharge"]]];
+        } else {
+            [[self labelInfoPerSeatCharge] setHidden:YES];
+        }
+        
+        [[self viewRideInfoParent] setHidden:NO];
+    } else {
+        [[self viewRideInfoParent] setHidden:YES];
+    }
+}
+
 - (void)checkCabStatusAndShowDialog {
     
-//    [self setShouldShowTripStartDialog:NO];
-//    
-//    NSString *cabStatus = [[self dictionaryRideDetails] objectForKey:@"CabStatus"];
-//    NSString *status = [[self dictionaryRideDetails] objectForKey:@"status"];
-//    
-//    NSArray *bookedCarPref = [self readBookedOrCarPreference];
-//    
-//    NSString *bookingRef = [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"];
-//    
-//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-//    [dateFormatter setDateFormat:@"dd/MM/yyyy hh:mm a"];
-//    NSDate *startTime = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@ %@", [[self dictionaryRideDetails] objectForKey:@"TravelDate"], [[self dictionaryRideDetails] objectForKey:@"TravelTime"]]];
-//    NSDate *currentTime = [NSDate date];
-//    
-//    if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"0"]) {
-//        
-//        if (([startTime timeIntervalSinceDate:currentTime] / 60.0f) <= START_TRIP_NOTIFICATION_TIME) {
-//            
-//            if (bookingRef && [bookingRef isKindOfClass:[NSString class]] && [bookingRef length] > 0 && ![bookingRef isEqualToString:@"null"]) {
-//                [self showTripStartDialog];
-//            } else {
-//                if (bookedCarPref && [bookedCarPref count] > 0) {
-//                    if ([bookedCarPref containsObject:[[self dictionaryRideDetails] objectForKey:@"CabId"]]) {
-//                        [self showTripStartDialog];
-//                    } else {
-//                        [self setShouldShowTripStartDialog:YES];
-//                        [self showCabBookingDialog];
-//                    }
-//                } else {
-//                    [self setShouldShowTripStartDialog:YES];
-//                    [self showCabBookingDialog];
-//                }
-//            }
-//        } else if (([startTime timeIntervalSinceDate:currentTime] / 60.0f) <= UPCOMING_TRIP_NOTIFICATION_TIME) {
-//            if (bookingRef && [bookingRef isKindOfClass:[NSString class]] && [bookingRef length] > 0 && ![bookingRef isEqualToString:@"null"]) {
-//                //do nothing
-//            } else {
-//                if (bookedCarPref && [bookedCarPref count] > 0) {
-//                    if ([bookedCarPref containsObject:[[self dictionaryRideDetails] objectForKey:@"CabId"]]) {
-//                        //do nothing
-//                    } else {
-//                        [self setShouldShowTripStartDialog:NO];
-//                        [self showCabBookingDialog];
-//                    }
-//                } else {
-//                    [self setShouldShowTripStartDialog:NO];
-//                    [self showCabBookingDialog];
-//                }
-//            }
-//        }
-//    } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"2"]) {
-//        [self showRideCompleteDialog];
-//    } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"3"]) {
-//        //show payment
-//    } else if (cabStatus && status && [cabStatus isEqualToString:@"A"]) {
-//        [Logger logDebug:[self TAG]
-//                 message:[NSString stringWithFormat:@" cabStatus startTime : %f ExpTripDuration : %ld", [currentTime timeIntervalSinceDate:startTime], [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]]];
-//        if ([currentTime timeIntervalSinceDate:startTime] >= [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]) {
-//            
-//            [self showActivityIndicatorView];
-//            
-//            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
-//            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
-//                                                               endPoint:ENDPOINT_UPDATE_CAB_STATUS
-//                                                             parameters:[NSString stringWithFormat:@"cabId=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"]]
-//                                                    delegateForProtocol:self];
-//        }
-//    }
+    NSString *cabStatus = [[self dictionaryRideDetails] objectForKey:@"CabStatus"];
+    NSString *status = [[self dictionaryRideDetails] objectForKey:@"status"];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"dd/MM/yyyy hh:mm a"];
+    NSDate *startTime = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@ %@", [[self dictionaryRideDetails] objectForKey:@"TravelDate"], [[self dictionaryRideDetails] objectForKey:@"TravelTime"]]];
+    NSDate *currentTime = [NSDate date];
+    
+    if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"2"]) {
+        if (![[[self dictionaryRideDetails] objectForKey:@"rideType"] isEqualToString:@"1"]) {
+            [self showRideCompleteDialog];
+        }
+    } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"3"]) {
+        //TODO show payment
+    } else if (cabStatus && status && [cabStatus isEqualToString:@"A"]) {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@" cabStatus startTime : %f ExpTripDuration : %ld", [currentTime timeIntervalSinceDate:startTime], [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]]];
+        if ([currentTime timeIntervalSinceDate:startTime] >= [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]) {
+            
+            [self showActivityIndicatorView];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_UPDATE_CAB_STATUS
+                                                             parameters:[NSString stringWithFormat:@"cabId=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"]]
+                                                    delegateForProtocol:self];
+        }
+    }
+}
+
+- (void)showRideCompleteDialog {
+    
+    if ([[self arrayMembers] count] <= 0) {
+        return;
+    }
+    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Your trip is completed, tell us if you paid the fare"
+                                                        message:nil
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"I paid, calculate fare split", @"Someone else paid", @"Already settled", nil];
+    [alertView show];
+    
+    [self setAlertViewRideComplete:alertView];
+}
+
+- (void)showFareSplitDialog {
+    
+    if ([[self arrayMembers] count] <= 0) {
+        return;
+    }
+    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Fare Split"
+                                                        message:@"Please enter fare to split :"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Split by distance", @"Split equally", nil];
+    [alertView setAlertViewStyle:UIAlertViewStylePlainTextInput];
+    [[alertView textFieldAtIndex:0] setKeyboardType:UIKeyboardTypeNumberPad];
+    
+    [alertView show];
+    
+    [self setAlertViewFareSplitAmount:alertView];
+}
+
+- (void)showPaymentsDialog {
+    //TODO
 }
 
 - (AddressModel *)geocodeToAddressModelFromAddress:(NSString *)address {
@@ -612,7 +670,7 @@
 
 - (void)showLocationPermissionAlert {
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Location services off"
-                                                        message:@"ClubMyCab needs access to your location to function properly. Please provide access in Settings"
+                                                        message:@"iShareRyde needs access to your location to function properly. Please provide access in Settings"
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Cancel", @"Settings", nil];
@@ -663,12 +721,23 @@
                              //                             [model setShortName:[self getShortNameForGMSAddress:(GMSAddress *)[[response results] firstObject]]];
                              
                              [self setAddressModel:model];
+                             
+                             if ([self selectingPickupLocation]) {
+                                 [self setAddressPickup:model];
+                             } else if ([self selectingDropLocation]) {
+                                 [self setAddressDrop:model];
+                             }
                          } else {
                              [Logger logError:[self TAG]
                                       message:[NSString stringWithFormat:@" reverseGeocodeCoordinate error : %@", [error localizedDescription]]];
                              [self makeToastWithMessage:@"Could not locate the address, please try using the map or a different address"];
                              
                              [self setAddressModel:nil];
+                             if ([self selectingPickupLocation]) {
+                                 [self setAddressPickup:nil];
+                             } else if ([self selectingDropLocation]) {
+                                 [self setAddressDrop:nil];
+                             }
                          }
                      }];
 }
@@ -734,14 +803,55 @@
     [[self labelLocationAddress] setHidden:NO];
     
     [self setLocationFetched:YES];
+    
+    [self makeToastWithMessage:@"We have set your pick-up to your current location, please move the map around to select a different location & press join ride again"];
+    [[self labelJoinRideButton] setText:@"Select Pickup Location"];
+    [self setSelectingPickupLocation:YES];
 }
 
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
+    
+    [self setLocationFetched:NO];
+    
     [self hideActivityIndicatorView];
     [self makeToastWithMessage:@"Your location could not be determined, please try again"];
     [Logger logError:[self TAG]
              message:[NSString stringWithFormat:@" locationManager didFailWithError : %@", [error localizedDescription]]];
+}
+
+#pragma mark - UITableViewDataSource methods
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [[self arrayMembers] count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell;
+    
+    static NSString *reuseIdentifier = @"InfoMembersTableViewCell";
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
+    
+    if (!cell) {
+        cell = [[UITableViewCell alloc] init];
+    }
+    
+    [[cell textLabel] setText:[[[self arrayMembers] objectAtIndex:indexPath.row] objectForKey:@"MemberName"]];
+    
+    return cell;
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    CGRect frameTableView = [tableView frame];
+    return frameTableView.size.height / 2.0;
 }
 
 #pragma mark - GMSMapViewDelegate methods
@@ -790,8 +900,34 @@
         return;
     }
     
-    [self setLocationFetched:NO];
-    [self checkLocationPermission];
+    if (![self selectingPickupLocation] && ![self selectingDropLocation]) {
+        [self setLocationFetched:NO];
+        [self checkLocationPermission];
+    } else if ([self selectingPickupLocation]) {
+        if ([self addressPickup]) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                message:[[self addressPickup] longName]
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Confirm", @"Cancel", nil];
+            [self setAlertViewPickupConfirm:alertView];
+            [alertView show];
+        } else {
+            [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
+        }
+    } else if ([self selectingDropLocation]) {
+        if ([self addressDrop]) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                message:[[self addressDrop] longName]
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Confirm", @"Cancel", nil];
+            [self setAlertViewDropConfirm:alertView];
+            [alertView show];
+        } else {
+            [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
+        }
+    }
 }
 
 - (IBAction)referFriendsPressed:(UIButton *)sender {
@@ -863,18 +999,28 @@
 }
 
 - (IBAction)infoButtonPressed:(UIButton *)sender {
-//    [self showRideInfoDialog];
+    [self showRideInfoDialog];
 }
 
 - (IBAction)infoViewTapped:(UITapGestureRecognizer *)sender {
     
-//    CGRect frame = [[self viewRideInfo] frame];
-//    
-//    if ([sender locationInView:[self viewRideInfoParent]].x < frame.size.width && [sender locationInView:[self viewRideInfoParent]].y < frame.size.height) {
-//        
-//    } else {
-//        [[self viewRideInfoParent] setHidden:YES];
-//    }
+    CGRect frame = [[self viewRideInfo] frame];
+    
+    if ([sender locationInView:[self viewRideInfoParent]].x < frame.size.width && [sender locationInView:[self viewRideInfoParent]].y < frame.size.height) {
+        
+    } else {
+        [[self viewRideInfoParent] setHidden:YES];
+    }
+}
+
+- (IBAction)cabInfoPressed:(UIButton *)sender {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Booking details"
+                                                        message:[NSString stringWithFormat:@"Driver : %@\r\nVehicle : %@\r\nBooking reference : %@", [[self dictionaryRideDetails] objectForKey:@"DriverName"], [[self dictionaryRideDetails] objectForKey:@"CarNumber"], [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"]]
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Call Driver", @"Cancel booking", @"Dismiss", nil];
+    [self setAlertViewCabInfo:alertView];
+    [alertView show];
 }
 
 #pragma mark - UIAlertViewDelegate methods
@@ -896,6 +1042,235 @@
             
         } else if ([buttonTitle isEqualToString:@"No"]) {
             
+        }
+    } else if (alertView == [self alertViewPickupConfirm]) {
+        if ([buttonTitle isEqualToString:@"Confirm"]) {
+            [self setSelectingPickupLocation:NO];
+            [self setSelectingDropLocation:YES];
+            [[self labelJoinRideButton] setText:@"Select Drop Location"];
+            
+            GMSMarker *marker = [GMSMarker markerWithPosition:[[[self addressPickup] location] coordinate]];
+            [marker setIcon:[GMSMarker markerImageWithColor:[UIColor orangeColor]]];
+            [marker setMap:[self mapViewRideDetails]];
+        }
+    } else if (alertView == [self alertViewDropConfirm]) {
+        if ([buttonTitle isEqualToString:@"Confirm"]) {
+            [self setSelectingDropLocation:NO];
+            
+            GMSMarker *marker = [GMSMarker markerWithPosition:[[[self addressDrop] location] coordinate]];
+            [marker setIcon:[GMSMarker markerImageWithColor:[UIColor orangeColor]]];
+            [marker setMap:[self mapViewRideDetails]];
+            
+            [self showActivityIndicatorView];
+            NSString *latLng = [NSString stringWithFormat:@"%f,%f", [[[self addressPickup] location] coordinate].latitude, [[[self addressPickup] location] coordinate].longitude];
+            NSString *endLatLng = [NSString stringWithFormat:@"%f,%f", [[[self addressDrop] location] coordinate].latitude, [[[self addressDrop] location] coordinate].longitude];
+            NSString *message = [NSString stringWithFormat:@"%@ has joined your ride from %@ to %@", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME], [[self dictionaryRideDetails] objectForKey:@"FromShortName"], [[self dictionaryRideDetails] objectForKey:@"ToShortName"]];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_JOIN_POOL
+                                                             parameters:[NSString stringWithFormat:@"CabId=%@&OwnerName=%@&OwnerNumber=%@&MemberName=%@&MemberNumber=%@&MemberLocationAddress=%@&MemberEndLocationAddress=%@&MemberLocationlatlong=%@&MemberEndLocationlatlong=%@&Status=Nothing&Message=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[self dictionaryRideDetails] objectForKey:@"OwnerName"], [[self dictionaryRideDetails] objectForKey:@"MobileNumber"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [[self addressPickup] longName], [[self addressDrop] longName], latLng, endLatLng, message]
+                                                    delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewRideComplete]) {
+        if ([buttonTitle isEqualToString:@"I paid, calculate fare split"]) {
+            [self showFareSplitDialog];
+        } else if ([buttonTitle isEqualToString:@"Someone else paid"]) {
+            [self makeToastWithMessage:@"We will let you know when your friend shares the fare details & the amount you owe"];
+            
+            [self performSelector:@selector(popVC)
+                       withObject:nil
+                       afterDelay:5];
+        } else if ([buttonTitle isEqualToString:@"Already settled"]) {
+            [self showActivityIndicatorView];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_TRIP_COMPLETED
+                                                             parameters:[NSString stringWithFormat:@"cabId=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"]]
+                                                    delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewFareSplitAmount]) {
+        NSString *fare = [[alertView textFieldAtIndex:0] text];
+        if (!fare || [fare length] <= 0 || [fare doubleValue] <= 0.0) {
+            [self makeToastWithMessage:@"Please enter a valid fare"];
+            
+            [self showFareSplitDialog];
+            
+            return;
+        }
+        
+        if ([buttonTitle isEqualToString:@"Split by distance"]) {
+            
+            [Logger logDebug:[self TAG]
+                     message:[NSString stringWithFormat:@" fareSplitMobileNumbers : %@ fareSplitPickUpLocation : %@ fareSplitDropLocation : %@ fareSplitRouteDistance : %@ fareSplitRouteLocation : %@", [[self fareSplitMobileNumbers] description], [[self fareSplitPickUpLocation] description], [[self fareSplitDropLocation] description], [[self fareSplitRouteDistance] description], [[self fareSplitRouteLocation] description]]];
+            
+            NSMutableDictionary *distanceDictionary = [NSMutableDictionary dictionary];
+            for (int i = 0; i < [[self fareSplitMobileNumbers] count]; i++) {
+                NSString *number = [[self fareSplitMobileNumbers] objectAtIndex:i];
+                
+                CLLocation *pick = [(AddressModel *)[[self fareSplitPickUpLocation] objectAtIndex:i] location];
+                CLLocation *drop = [(AddressModel *)[[self fareSplitDropLocation] objectAtIndex:i] location];
+                
+                int pickIndex = -1, dropIndex = -1;
+                
+                for (int j = 0; j < [[self fareSplitRouteLocation] count]; j++) {
+                    CLLocation *routePoint = [(AddressModel *)[[self fareSplitRouteLocation] objectAtIndex:j] location];
+                    //                                               [Logger logDebug:[self TAG]
+                    //                                                        message:[NSString stringWithFormat:@" i : %d j : %d distance pick : %f drop : %f", i, j, [pick distanceFromLocation:routePoint], [drop distanceFromLocation:routePoint]]];
+                    if ([pick distanceFromLocation:routePoint] < 500.0) {
+                        pickIndex = j;
+                    }
+                    
+                    if ([drop distanceFromLocation:routePoint] < 500.0) {
+                        dropIndex = j;
+                    }
+                }
+                
+                if (pickIndex != -1 && dropIndex != -1) {
+                    double distance = 0.0;
+                    for (int j = (pickIndex + 1); j <= dropIndex; j++) {
+                        distance += [[[self fareSplitRouteDistance] objectAtIndex:j] doubleValue];
+                    }
+                    
+                    [distanceDictionary setObject:[NSNumber numberWithDouble:distance]
+                                           forKey:number];
+                }
+                
+            }
+            
+            [Logger logDebug:[self TAG]
+                     message:[NSString stringWithFormat:@" distanceDictionary : %@", [distanceDictionary description]]];
+            double totalDistance = 0.0;
+            for (NSString *key in [distanceDictionary allKeys]) {
+                totalDistance += [[distanceDictionary objectForKey:key] doubleValue];
+            }
+            
+            NSString *membersFare = @"";
+            NSString *message = @"";
+            for (int i = 0; i < [[self fareSplitMobileNumbers] count]; i++) {
+                
+                NSString *fareSplit = [NSString stringWithFormat:@"%1.0f", (([[distanceDictionary objectForKey:[[self fareSplitMobileNumbers] objectAtIndex:i]] doubleValue] / totalDistance) * [fare doubleValue])];
+                
+                BOOL found = NO;
+                for (int k = 0; k < [[self arrayMembers] count]; k++) {
+                    if ([[[self fareSplitMobileNumbers] objectAtIndex:i] isEqualToString:[[[self arrayMembers] objectAtIndex:k] objectForKey:@"MemberNumber"]]) {
+                        found = YES;
+                        
+                        message = [message stringByAppendingString:[NSString stringWithFormat:@"%@ : \u20B9%@\r\n", [[[self arrayMembers] objectAtIndex:k] objectForKey:@"MemberName"], fareSplit]];
+                        membersFare = [membersFare stringByAppendingString:[NSString stringWithFormat:@"%@~%@,", [[self fareSplitMobileNumbers] objectAtIndex:i], fareSplit]];
+                        
+                    }
+                }
+                
+                if (!found) {
+                    message = [message stringByAppendingString:[NSString stringWithFormat:@"%@ : \u20B9%@\r\n", [[self dictionaryRideDetails] objectForKey:@"OwnerName"], fareSplit]];
+                    membersFare = [membersFare stringByAppendingString:[NSString stringWithFormat:@"%@~%@,", [[self fareSplitMobileNumbers] objectAtIndex:i], fareSplit]];
+                }
+            }
+            
+            if ([[membersFare substringFromIndex:([membersFare length] - 1)] isEqualToString:@","]) {
+                membersFare = [membersFare substringToIndex:([membersFare length] - 1)];
+            }
+            
+            [self setMembersFareString:membersFare];
+            [self setTotalFareString:fare];
+            
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Fare Split"
+                                                                message:message
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Send to members", nil];
+            
+            [alertView show];
+            
+            [self setAlertViewFareSplitSendToMembers:alertView];
+            
+        } else if ([buttonTitle isEqualToString:@"Split equally"]) {
+            NSString *fareSplit = [NSString stringWithFormat:@"%1.0f", ([fare doubleValue] / ([[self arrayMembers] count] + 1))];
+            
+            NSString *membersFare = @"";
+            NSString *message = @"";
+            for (int i = 0; i < [[self arrayMembers] count]; i++) {
+                message = [message stringByAppendingString:[NSString stringWithFormat:@"%@ : \u20B9%@\r\n", [[[self arrayMembers] objectAtIndex:i] objectForKey:@"MemberName"], fareSplit]];
+                membersFare = [membersFare stringByAppendingString:[NSString stringWithFormat:@"%@~%@,", [[[self arrayMembers] objectAtIndex:i] objectForKey:@"MemberNumber"], fareSplit]];
+            }
+            
+            message = [message stringByAppendingString:[NSString stringWithFormat:@"%@ : \u20B9%@", [[self dictionaryRideDetails] objectForKey:@"OwnerName"], fareSplit]];
+            membersFare = [membersFare stringByAppendingString:[NSString stringWithFormat:@"%@~%@", [[self dictionaryRideDetails] objectForKey:@"MobileNumber"], fareSplit]];
+            
+            [self setMembersFareString:membersFare];
+            [self setTotalFareString:fare];
+            
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Fare Split"
+                                                                message:message
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Send to members", nil];
+            
+            [alertView show];
+            
+            [self setAlertViewFareSplitSendToMembers:alertView];
+        }
+    } else if (alertView == [self alertViewFareSplitSendToMembers]) {
+        if ([buttonTitle isEqualToString:@"Send to members"]) {
+            [self showActivityIndicatorView];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_SAVE_CALCULATED_FARE
+                                                             parameters:[NSString stringWithFormat:@"cabId=%@&totalFare=%@&numberAndFare=%@&paidBy=%@&owner=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [self totalFareString], [self membersFareString], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [[self dictionaryRideDetails] objectForKey:@"MobileNumber"]]
+                                                    delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewCabInfo]) {
+        if ([buttonTitle isEqualToString:@"Call Driver"]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel://%@", [[self dictionaryRideDetails] objectForKey:@"DriverNumber"]]]];
+        } else if ([buttonTitle isEqualToString:@"Cancel booking"]) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cancel booking?"
+                                                                message:@"Are you sure you want to cancel the booking?"
+                                                               delegate:self
+                                                      cancelButtonTitle:nil
+                                                      otherButtonTitles:@"Yes", @"No", nil];
+            [self setAlertViewCabInfoCancelBooking:alertView];
+            [alertView show];
+        } else if ([buttonTitle isEqualToString:@"Dismiss"]) {
+            
+        }
+    } else if (alertView == [self alertViewCabInfoCancelBooking]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            NSString *cabName = [[self dictionaryRideDetails] objectForKey:@"CabName"];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            
+            if ([cabName caseInsensitiveCompare:@"Uber"] == NSOrderedSame) {
+                [self showActivityIndicatorView];
+                
+                [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                   endPoint:ENDPOINT_UBER_CANCEL
+                                                                 parameters:[NSString stringWithFormat:@"bookingRefNo=%@", [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"]]
+                                                        delegateForProtocol:self];
+            } else if ([cabName caseInsensitiveCompare:@"Mega"] == NSOrderedSame) {
+                [self showActivityIndicatorView];
+                
+                [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                   endPoint:ENDPOINT_MEGA_API
+                                                                 parameters:[NSString stringWithFormat:@"type=CancelBooking&mobile=%@&bookingNo=%@", [[self dictionaryRideDetails] objectForKey:@"MobileNumber"], [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"]]
+                                                        delegateForProtocol:self];
+            } else if ([cabName caseInsensitiveCompare:@"TaxiForSure"] == NSOrderedSame) {
+                [self showActivityIndicatorView];
+                
+                [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                   endPoint:ENDPOINT_TAXI_FOR_SURE_API
+                                                                 parameters:[NSString stringWithFormat:@"type=cancellation&booking_id=%@&cancellation_reason=", [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"]]
+                                                        delegateForProtocol:self];
+            } else if ([cabName caseInsensitiveCompare:@"ola"] == NSOrderedSame) {
+                [self showActivityIndicatorView];
+                
+                [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                   endPoint:ENDPOINT_OLA_CANCEL
+                                                                 parameters:[NSString stringWithFormat:@"type=cancellation&booking_id=%@", [[self dictionaryRideDetails] objectForKey:@"BookingRefNo"]]
+                                                        delegateForProtocol:self];
+            }
         }
     }
 }
@@ -941,10 +1316,12 @@
                 if (response && [response caseInsensitiveCompare:@"fresh pool"] == NSOrderedSame) {
                     if ([[[self dictionaryRideDetails] objectForKey:@"CabStatus"] isEqualToString:@"A"]) {
                         [[self viewButtonsJoinRide] setHidden:NO];
+                        [[self viewButtons] setHidden:YES];
                     }
                 } else {
                     if ([[[self dictionaryRideDetails] objectForKey:@"CabStatus"] isEqualToString:@"A"]) {
                         [[self viewButtons] setHidden:NO];
+                        [[self viewButtonsJoinRide] setHidden:YES];
                     }
                     
                     NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
@@ -1044,6 +1421,147 @@
             } else if ([endPoint isEqualToString:ENDPOINT_DROP_A_POOL]) {
                 [self hideActivityIndicatorView];
                 [self popVC];
+            } else if ([endPoint isEqualToString:ENDPOINT_JOIN_POOL]) {
+                [self hideActivityIndicatorView];
+                
+                [self setLocationFetched:NO];
+                [[self labelLocationAddress] setHidden:YES];
+                [[self imageViewLocationPin] setHidden:YES];
+                [[self mapViewRideDetails] clear];
+                
+                [self checkPoolAlreadyJoined];
+            } else if ([endPoint isEqualToString:ENDPOINT_UBER_CANCEL]) {
+                [self hideActivityIndicatorView];
+                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    //                        [Logger logDebug:[self TAG]
+                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:@"Booking cancelled!"
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    } else {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cab could not be cancelled"
+                                                                            message:[parsedJson objectForKey:@"message"]
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    }
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_MEGA_API]) {
+                [self hideActivityIndicatorView];
+                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    //                        [Logger logDebug:[self TAG]
+                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:@"Booking cancelled!"
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    } else {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cab could not be cancelled"
+                                                                            message:[parsedJson objectForKey:@"data"]
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    }
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_TAXI_FOR_SURE_API]) {
+                [self hideActivityIndicatorView];
+                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    //                        [Logger logDebug:[self TAG]
+                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:@"Booking cancelled!"
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    } else {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cab could not be cancelled"
+                                                                            message:[parsedJson objectForKey:@"error_desc"]
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    }
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_OLA_CANCEL]) {
+                [self hideActivityIndicatorView];
+                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    //                        [Logger logDebug:[self TAG]
+                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:@"Booking cancelled!"
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    } else {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Cab could not be cancelled"
+                                                                            message:[parsedJson objectForKey:@"reason"]
+                                                                           delegate:self
+                                                                  cancelButtonTitle:@"Ok"
+                                                                  otherButtonTitles:nil];
+                        [alertView show];
+                    }
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
             }
         }
     });

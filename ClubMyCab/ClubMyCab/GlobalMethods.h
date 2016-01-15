@@ -30,6 +30,14 @@
                                                 parameters:(NSString *)postParam
                                  delegateForProtocol:(id)delegate;
 
+- (void)makeMobikwikURLConnectionAsynchronousRequestToServer:(NSString *)serverAddress
+                                            endPoint:(NSString *)endPoint
+                                          parameters:(NSString *)postParam
+                                 delegateForProtocol:(id)delegate;
+
+- (BOOL)checkMobikwikResponseCheckSum:(NSString *)response
+                          andResponse:(NSString *)response;
+
 - (UIBarButtonItem *)getNotificationsBarButtonItemWithTarget:(id)target
                                     unreadNotificationsCount:(int)count;
 

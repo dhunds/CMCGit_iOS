@@ -170,7 +170,7 @@
     
     [[self toastLabel] removeFromSuperview];
     
-    [self makeToastWithMessage:@"Low club membership - add/refer more members to improve chances of sharing"];
+    [self makeToastWithMessage:@"Low group membership - add/refer more members to improve chances of sharing"];
 }
 
 - (IBAction)myClubSelected:(id)sender {
@@ -312,6 +312,10 @@
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];

@@ -109,7 +109,7 @@
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_CLUBS]) {
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if (response && [response caseInsensitiveCompare:@"No Users of your Club"] == NSOrderedSame) {
-                    [self makeToastWithMessage:@"No clubs created yet!!"];
+                    [self makeToastWithMessage:@"No groups created yet!!"];
                 } else {
                     NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
                     NSError *error = nil;
@@ -203,8 +203,8 @@
 }
 
 - (IBAction)deleteClubPressed:(id)sender {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Delete Club"
-                                                        message:@"Are you sure you want to delete this club?"
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Delete Group"
+                                                        message:@"Are you sure you want to delete this group?"
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Yes", @"No", nil];
@@ -214,8 +214,8 @@
 }
 
 - (IBAction)leaveClubPressed:(id)sender {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Leave Club"
-                                                        message:@"Are you sure you want to leave this club?"
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Leave Group"
+                                                        message:@"Are you sure you want to leave this group?"
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Yes", @"No", nil];
@@ -228,7 +228,7 @@
     
     [[self toastLabel] removeFromSuperview];
     
-    [self makeToastWithMessage:@"Low club membership - add/refer more members to improve chances of sharing"];
+    [self makeToastWithMessage:@"Low group membership - add/refer more members to improve chances of sharing"];
 }
 
 #pragma mark - UIAlertViewDelegate methods
@@ -378,6 +378,10 @@
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];

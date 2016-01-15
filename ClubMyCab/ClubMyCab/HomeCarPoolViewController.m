@@ -147,6 +147,10 @@
 
 - (void)makeToastWithMessage:(NSString *)message {
     
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
+    
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];
     
@@ -202,7 +206,7 @@
             [self registerForNotifications];
         } else {
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Access needed"
-                                                                message:@"ClubMyCab cannot send you push notifications. Please consider enabling them to take advantage of all the features offered. Enable now?"
+                                                                message:@"iShareRyde cannot send you push notifications. Please consider enabling them to take advantage of all the features offered. Enable now?"
                                                                delegate:self
                                                       cancelButtonTitle:nil
                                                       otherButtonTitles:@"Cancel", @"Settings", nil];
@@ -268,6 +272,7 @@
                 [[self navigationItem] setRightBarButtonItem:[[[GlobalMethods alloc] init] getNotificationsBarButtonItemWithTarget:self
                                                                                                           unreadNotificationsCount:[response intValue]]];
                 
+                [self setArrayRideInvitations:[NSArray array]];
                 GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
                 [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
                                                                    endPoint:ENDPOINT_RIDE_INVITATIONS

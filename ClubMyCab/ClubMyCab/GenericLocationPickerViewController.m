@@ -103,7 +103,7 @@
 
 - (void)showLocationPermissionAlert {
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Location services off"
-                                                        message:@"ClubMyCab needs access to your location to function properly. Please provide access in Settings"
+                                                        message:@"iShareRyde needs access to your location to function properly. Please provide access in Settings"
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Cancel", @"Settings", nil];
@@ -169,6 +169,10 @@
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];

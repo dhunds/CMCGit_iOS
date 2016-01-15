@@ -96,7 +96,7 @@
 
 - (IBAction)termsConditionsPressed:(UIButton *)sender {
     
-    NSURL *url = [[NSURL alloc] initWithString:@"http://www.clubmycab.com/terms---conditions.html"];
+    NSURL *url = [[NSURL alloc] initWithString:@"http://ishareryde.com/terms.html"];
     [[UIApplication sharedApplication] openURL:url];
 }
 
@@ -224,6 +224,10 @@
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];

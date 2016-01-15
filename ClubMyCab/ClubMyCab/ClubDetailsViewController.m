@@ -115,7 +115,7 @@
 
 - (IBAction)removeUserPressed:(id)sender {
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Delete User"
-                                                        message:[NSString stringWithFormat:@"Are you sure you want to delete %@ from this club?", [[[self arrayMembers] objectAtIndex:[sender tag]] objectForKey:@"FullName"]]
+                                                        message:[NSString stringWithFormat:@"Are you sure you want to delete %@ from this group?", [[[self arrayMembers] objectAtIndex:[sender tag]] objectForKey:@"FullName"]]
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Yes", @"No", nil];
@@ -209,6 +209,10 @@
 #pragma mark - Private methods
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];

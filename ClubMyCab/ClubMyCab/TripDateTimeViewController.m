@@ -166,6 +166,10 @@
 
 - (void)makeToastWithMessage:(NSString *)message {
     
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
+    
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];
     
@@ -312,7 +316,7 @@
 
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
 
-#define NO_CLUBS_CREATE                 @"Yes, Create club"
+#define NO_CLUBS_CREATE                 @"Yes, Create group"
 #define NO_CLUBS_CONTACTS               @"No, Invite contacts"
 #define I_AM_DONE                       @"I'm done here"
 #define START_OVER                      @"Start over again"
@@ -341,8 +345,8 @@
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_CLUBS]) {
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if (response && [response caseInsensitiveCompare:@"No Users of your Club"] == NSOrderedSame) {
-                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"No Clubs"
-                                                                        message:@"You are not a member of any club yet. Would you like to create one now?"
+                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"No Groups"
+                                                                        message:@"You are not a member of any group yet. Would you like to create one now?"
                                                                        delegate:self
                                                               cancelButtonTitle:nil
                                                               otherButtonTitles:NO_CLUBS_CREATE, NO_CLUBS_CONTACTS, nil];

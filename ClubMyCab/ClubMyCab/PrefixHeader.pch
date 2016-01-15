@@ -19,10 +19,32 @@
 //#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //GoogleCloudProduction
 //#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //GoogleCloudProduction
 
+//Mobikwik
+//#define MOBIKWIK_SERVER_URL                             @"https://walletapi.mobikwik.com"            //Production
+//#define MOBIKWIK_MID                                    @"MBK9572"                                   //Production
+//#define MOBIKWIK_MERCHANT_NAME                          @"iShareRyde"                                //Production
+//#define MOBIKWIK_14SECRET_KEY                           @"bToO0UJ7OaijZ9g7a1Axr3J5OpEF"              //Production
+//#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"xXgeDsLo1nliS32dlkb21JpC05"                //Production
+
 #define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //GoogleCloudUAT
 #define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //GoogleCloudUAT
 #define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //GoogleCloudUAT
 #define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //GoogleCloudUAT
+
+//Mobikwik
+#define MOBIKWIK_SERVER_URL                             @"https://test.mobikwik.com/mobikwik"          //UAT
+#define MOBIKWIK_MID                                    @"MBK9005"                                     //UAT
+#define MOBIKWIK_MERCHANT_NAME                          @"MyMerchantName"                              //UAT
+#define MOBIKWIK_14SECRET_KEY                           @"ju6tygh7u7tdg554k098ujd5468o"                //UAT
+#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"lu6tygh7u7tdg554k098ujd5468o"                //UAT
+
+#define MOBIKWIK_ENDPOINT_QUERY_WALLET                  @"/querywallet"
+#define MOBIKWIK_ENDPOINT_OTP_GENERATE                  @"/otpgenerate"
+#define MOBIKWIK_ENDPOINT_TOKEN_GENERATE                @"/tokengenerate"
+#define MOBIKWIK_ENDPOINT_CREATE_WALLET                 @"/createwalletuser"
+#define MOBIKWIK_ENDPOINT_USER_BALANCE                  @"/userbalance"
+#define MOBIKWIK_ENDPOINT_TOKEN_REGENERATE              @"/tokenregenerate"
+#define MOBIKWIK_ENDPOINT_GET_COUPONS                   @"/getCoupons.php"
 
 #define GOOGLE_MAPS_API_KEY                             @"AIzaSyBqd05mV8c2VTIAKhYP1mFKF7TRueU2-Z0"
 
@@ -89,6 +111,8 @@
 #define ENDPOINT_GET_OFFERS                             @"/getOffers.php"
 #define ENDPOINT_RIDE_INVITATIONS                       @"/rideInvitations.php"
 #define ENDPOINT_RIDE_INVITATIONS_CAR_POOL              @"/rideInvitationsCarpool.php"
+#define ENDPOINT_DROP_USER_FROM_POPUP                   @"/dropuserfrompopup.php"
+#define ENDPOINT_JOIN_POOL                              @"/joinpool.php"
 
 #define LOGGING_ENABLED                                 1
 
@@ -109,6 +133,8 @@
 #define KEY_USER_DEFAULT_APN_DEVICE_TOKEN               @"UserDefaultAPNDeviceToken"
 #define KEY_USER_DEFAULT_APN_REG_CALLED                 @"UserDefaultAPNRegCalled"
 #define KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE       @"UserDefaultBookedOrCarPreference"
+#define KEY_USER_DEFAULT_MOBIKWIK_TOKEN                 @"UserDefaultMobikwikToken"
+#define KEY_USER_DEFAULT_MOBIKWIK_COUPON                @"UserDefaultMobikwikCoupon"
 
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
@@ -127,5 +153,6 @@
 #define ERROR_CONNECTION_VALUE                          @"ConnectionErrorAsyncRequest"
 #define ERROR_DATA_NIL_VALUE                            @"DataNilErrorAsyncRequest"
 #define ERROR_UNAUTHORIZED_ACCESS                       @"Unauthorized Access"
+#define ERROR_MOBIKWIK_CHECKSUM                         @"Checksum Mismatch"
 
 #endif

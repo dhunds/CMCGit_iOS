@@ -115,7 +115,7 @@
             } else {
                 
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Access needed"
-                                                                    message:@"ClubMyCab cannot add your friend(s) to clubs without access to your Address Book. Please provide access to your contacts in Settings."
+                                                                    message:@"iShareRyde cannot add your friend(s) to groups without access to your Address Book. Please provide access to your contacts in Settings."
                                                                    delegate:self
                                                           cancelButtonTitle:nil
                                                           otherButtonTitles:@"Cancel", @"Settings", nil];
@@ -142,6 +142,10 @@
             image = [UIImage imageWithData:(__bridge NSData *)ABPersonCopyImageData(record)];
         } else {
             image = nil;
+        }
+        
+        if (!ABRecordCopyCompositeName(record)) {
+            continue;        //skip the entry when name is blank
         }
         
         ABMultiValueRef phoneRef = ABRecordCopyValue(record, kABPersonPhoneProperty);
@@ -237,6 +241,10 @@
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
+    
+    if ([self toastLabel]) {
+        [[self toastLabel] removeFromSuperview];
+    }
     
     [self setToastLabel:[[ToastLabel alloc] initToastWithFrame:[[self view] bounds]
                                                     andMessage:message]];
@@ -427,13 +435,13 @@
         NSString *clubName = [[self textFieldClubName] text];
         
         if ([clubName length] <= 0) {
-            [self makeToastWithMessage:@"Please enter the club name"];
+            [self makeToastWithMessage:@"Please enter the group name"];
         } else {
             NSArray *selectionArray = [[self arrayContacts] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(KeyDictSelected CONTAINS[cd] %@)", @"ValueDictSelectedYes"]];
             [Logger logDebug:[self TAG]
                      message:[NSString stringWithFormat:@" createClubPressed : %@", [selectionArray description]]];
             if ([selectionArray count] <= 0) {
-                [self makeToastWithMessage:@"Please select contact(s) to create club"];
+                [self makeToastWithMessage:@"Please select contact(s) to create group"];
             } else {
                 [self showActivityIndicatorView];
                 
@@ -540,7 +548,7 @@
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_CLUBS]) {
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if (response && [response caseInsensitiveCompare:@"No Users of your Club"] == NSOrderedSame) {
-                    [self makeToastWithMessage:@"No clubs created yet!!"];
+                    [self makeToastWithMessage:@"No groups created yet!!"];
                 } else {
                     NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
                     NSError *error = nil;
