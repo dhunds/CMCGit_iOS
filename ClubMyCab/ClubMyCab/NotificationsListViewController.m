@@ -336,7 +336,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" didSelectRowAtIndexPath : %lu", indexPath.section]];
+             message:[NSString stringWithFormat:@" didSelectRowAtIndexPath : %lu", (long)indexPath.section]];
     
     [self rowSelectedAtIndex:indexPath.section];
     
@@ -372,7 +372,7 @@
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" textViewShouldBeginEditing : %lu", [textView tag]]];
+             message:[NSString stringWithFormat:@" textViewShouldBeginEditing : %lu", (long)[textView tag]]];
     
     [self rowSelectedAtIndex:[textView tag]];
     

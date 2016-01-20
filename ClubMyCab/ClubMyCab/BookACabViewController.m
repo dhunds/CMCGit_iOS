@@ -240,8 +240,8 @@
         return [est1 compare:est2];
     }];
     
-    //    [Logger logDebug:[self TAG]
-    //             message:[NSString stringWithFormat:@" sortByTime : %@", [arraySorted description]]];
+//    [Logger logDebug:[self TAG]
+//             message:[NSString stringWithFormat:@" sortByTime : %@", [arraySorted description]]];
     
     [self setArrayCabDetails:arraySorted];
     [[self tableViewCabDetails] reloadData];
@@ -253,11 +253,20 @@
     [barButton setImageInsets:UIEdgeInsetsMake(3.0, 0.0, 0.0, 0.0)];
     
     NSMutableArray *barButtonItems = [[[self navigationItem] rightBarButtonItems] mutableCopy];
+//    [Logger logDebug:[self TAG]
+//             message:[NSString stringWithFormat:@" before barButtonItems : %@", [barButtonItems description]]];
     if ([barButtonItems count] > 1) {
         [barButtonItems removeObject:[barButtonItems lastObject]];
+    } else {
+        barButtonItems = [NSMutableArray array];
     }
     [barButtonItems addObject:barButton];
+//    [Logger logDebug:[self TAG]
+//             message:[NSString stringWithFormat:@" after barButtonItems : %@", [barButtonItems description]]];
     [[self navigationItem] setRightBarButtonItems:[barButtonItems copy]];
+    
+//    [Logger logDebug:[self TAG]
+//             message:[NSString stringWithFormat:@" sortByTime barButton : %@ barButtonItems : %@ rightBarButtonItems : %@", [barButton description], [barButtonItems description], [[[self navigationItem] rightBarButtonItems] description]]];
 }
 
 - (void)sortByPriceArray:(NSArray *)arrayToSort {
@@ -284,6 +293,8 @@
     NSMutableArray *barButtonItems = [[[self navigationItem] rightBarButtonItems] mutableCopy];
     if ([barButtonItems count] > 1) {
         [barButtonItems removeObject:[barButtonItems lastObject]];
+    } else {
+        barButtonItems = [NSMutableArray array];
     }
     [barButtonItems addObject:barButton];
     [[self navigationItem] setRightBarButtonItems:[barButtonItems copy]];
@@ -764,8 +775,6 @@
                         //                        [Logger logDebug:[self TAG]
                         //                                 message:[NSString stringWithFormat:@" %@ parsedJson : %@", endPoint, [[parsedJson objectAtIndex:1] objectForKey:@"Message"]]];
                         
-                        //TODO apply sorting before display & add sort button
-                        
                         [self setArrayCabDetails:parsedJson];
                         
                         [self sortByTime:parsedJson];
@@ -1068,7 +1077,7 @@
     NSString *carType = [[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"CarType"];
     [[cell labelCabName] setText:((!carType || [carType length] <= 0 || [carType caseInsensitiveCompare:@"null"] == NSOrderedSame) ? @"-" : carType)];
     
-    NSString *timeEstimate = [NSString stringWithFormat:@"%ld", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"timeEstimate"] integerValue]];
+    NSString *timeEstimate = [NSString stringWithFormat:@"%td", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"timeEstimate"] integerValue]];
     NSString *time = @"";
     if (!timeEstimate || [timeEstimate length] <= 0 || [timeEstimate caseInsensitiveCompare:@"null"] == NSOrderedSame) {
         time = @"Est. time: -";
@@ -1077,8 +1086,8 @@
     }
     [[cell labelEstimatedTime] setText:time];
     
-    NSString *lowEstimate = [NSString stringWithFormat:@"%ld", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"low_estimate"] integerValue]];
-    NSString *highEstimate = [NSString stringWithFormat:@"%ld", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"high_estimate"] integerValue]];
+    NSString *lowEstimate = [NSString stringWithFormat:@"%td", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"low_estimate"] integerValue]];
+    NSString *highEstimate = [NSString stringWithFormat:@"%td", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"high_estimate"] integerValue]];
     NSString *lowHigh = @"";
     
     if (!lowEstimate || [lowEstimate length] <= 0 || [lowEstimate caseInsensitiveCompare:@"null"] == NSOrderedSame || [lowEstimate caseInsensitiveCompare:@"na"] == NSOrderedSame || !highEstimate || [highEstimate length] <= 0 || [highEstimate caseInsensitiveCompare:@"null"] == NSOrderedSame || [highEstimate caseInsensitiveCompare:@"na"] == NSOrderedSame) {

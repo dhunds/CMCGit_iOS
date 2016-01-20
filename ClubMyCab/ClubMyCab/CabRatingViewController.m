@@ -238,7 +238,7 @@
                                                               [self setCurrentSelectedIndex:i];
                                                               [[self textFieldCabName] setText:[action title]];
                                                               [Logger logDebug:[self TAG]
-                                                                       message:[NSString stringWithFormat:@" selected index : %lu", [self currentSelectedIndex]]];
+                                                                       message:[NSString stringWithFormat:@" selected index : %lu", (long)[self currentSelectedIndex]]];
                                                           }]];
     }
     

@@ -125,7 +125,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" didSelectRowAtIndexPath : %lu", indexPath.row]];
+             message:[NSString stringWithFormat:@" didSelectRowAtIndexPath : %tu", indexPath.row]];
     
     [tableView deselectRowAtIndexPath:indexPath
                              animated:NO];

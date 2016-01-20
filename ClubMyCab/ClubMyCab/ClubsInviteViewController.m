@@ -277,7 +277,7 @@
     
     if ([arraySelectedNumbers count] < [self numberOfSeats]) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@""
-                                                            message:[NSString stringWithFormat:@"You have %d seats to share and have selected only %lu friend(s)", [self numberOfSeats], [arraySelectedNumbers count]]
+                                                            message:[NSString stringWithFormat:@"You have %d seats to share and have selected only %lu friend(s)", [self numberOfSeats], (long)[arraySelectedNumbers count]]
                                                            delegate:self
                                                   cancelButtonTitle:nil
                                                   otherButtonTitles:@"Invite more", @"Continue Anyways", nil];

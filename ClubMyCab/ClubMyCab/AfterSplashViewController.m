@@ -40,7 +40,7 @@
     NSString *mobile = [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE];
     BOOL verifyOTP = [userDefaults boolForKey:KEY_USER_DEFAULT_VERIFY_OTP];
     NSString *lastRegisteredAppVersion = [userDefaults objectForKey:KEY_USER_DEFAULT_LAST_APP_VERSION];
-    NSString *email = [userDefaults objectForKey:KEY_USER_DEFAULT_EMAIL];
+//    NSString *email = [userDefaults objectForKey:KEY_USER_DEFAULT_EMAIL];
     
     [Logger logDebug:[self TAG]
              message:[NSString stringWithFormat:@" viewDidLoad name : %@ mobile : %@ currentAppVersion : %@ verifyOTP : %d", name, mobile, [self currentAppVersion], verifyOTP]];
@@ -132,7 +132,8 @@
     
     if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Update"]) {
         //TODO get actual app link & test on device
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/in/app/whatsapp-messenger/id310633997?mt=8"]];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/in/app/ishareryde/id1073560784?ls=1&mt=8"]];
+//        https://itunes.apple.com/in/app/ishareryde/id1073560784?ls=1&mt=8
     } else if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Later"]) {
         //TODO handle exit with an alert view, abrupt quit not apple approved way
         exit(0);

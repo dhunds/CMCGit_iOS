@@ -15,6 +15,7 @@
 #import "AddressModel.h"
 #import "BookACabViewController.h"
 #import "GenericContactsViewController.h"
+#import "SWRevealViewController.h"
 
 @interface RideDetailsViewController () <GMSMapViewDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, GenericContactsVCProtocol, GlobalMethodsAsyncRequestProtocol>
 
@@ -37,6 +38,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableViewInfoMembers;
 @property (weak, nonatomic) IBOutlet UILabel *labelInfoMembers;
 @property (weak, nonatomic) IBOutlet UILabel *labelInfoPerSeatCharge;
+@property (weak, nonatomic) IBOutlet UILabel *labelFareSplitShare;
+@property (weak, nonatomic) IBOutlet UILabel *labelDummySpace;
 @property (weak, nonatomic) IBOutlet UIButton *buttonCabInfo;
 
 @property (strong, nonatomic) NSArray *arrayMembers;
@@ -51,6 +54,10 @@
 @property (strong, nonatomic) UIAlertView *alertViewCabInfoCancelBooking;
 @property (strong, nonatomic) UIAlertView *alertViewMemberInfo;
 @property (strong, nonatomic) UIAlertView *alertViewMemberInfoDrop;
+@property (strong, nonatomic) UIAlertView *alertViewPayments;
+@property (strong, nonatomic) UIAlertView *alertViewNoWallet;
+@property (strong, nonatomic) UIAlertView *alertViewWalletToWallet;
+@property (strong, nonatomic) UIAlertView *alertViewNoWalletBalance;
 
 @property (strong, nonatomic) NSString *membersFareString, *totalFareString;
 
@@ -60,12 +67,20 @@
 
 @property (strong, nonatomic) AddressModel *addressFrom, *addressTo;
 
+@property (strong, nonatomic) NSString *getMyFareType, *getMyFareAmountToPay, *getMyFareTotalAmount, *getMyFarePayToPerson, *getMyFareTotalCredits;
+
+@property (nonatomic) BOOL shouldReinitiateTransfer;
+
 @end
 
 @implementation RideDetailsViewController
 
 #define CHAT_STATUS_ONLINE              @"online"
 #define CHAT_STATUS_OFFLINE             @"offline"
+
+#define MY_FARE_DISPLAY                 @"MyFareDisplay"
+#define MY_FARE_WALLET_TO_WALLET        @"MyFareWalletToWallet"
+#define MY_FARE_USING_CREDITS           @"MyFareUsingCredits"
 
 - (NSString *)TAG {
     return @"RideDetailsViewController";
@@ -94,6 +109,13 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+    [self setGetMyFareType:MY_FARE_DISPLAY];
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_GET_MY_FARE
+                                                     parameters:[NSString stringWithFormat:@"cabId=%@&mobileNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                            delegateForProtocol:self];
     
     [self changeChatStatus:CHAT_STATUS_ONLINE];
     [self getMembersForMap];
@@ -488,6 +510,72 @@
                                                                endPoint:ENDPOINT_DROP_USER_FROM_POPUP
                                                              parameters:[NSString stringWithFormat:@"CabId=%@&OwnerName=%@&OwnerNumber=%@&MemberName=%@&MemberNumber=%@&Message=%@&", [dictionary objectForKey:@"CabId"], [dictionary objectForKey:@"OwnerName"], [dictionary objectForKey:@"OwnerNumber"], [dictionary objectForKey:@"MemberName"], [dictionary objectForKey:@"MemberNumber"], message]
                                                     delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewPayments]) {
+        
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        
+        if ([buttonTitle isEqualToString:@"Already settled/Will pay cash"]) {
+            [self showActivityIndicatorView];
+            
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_TRIP_COMPLETED
+                                                             parameters:[NSString stringWithFormat:@"cabId=%@&owner=%@&mobileNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                    delegateForProtocol:self];
+            
+        } else if ([buttonTitle isEqualToString:@"Wallet-to-Wallet transfer"]) {
+            NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN];
+            if (token && [token length] > 0) {
+                
+                [self setGetMyFareType:MY_FARE_WALLET_TO_WALLET];
+                GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                   endPoint:ENDPOINT_GET_MY_FARE
+                                                                 parameters:[NSString stringWithFormat:@"cabId=%@&mobileNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                        delegateForProtocol:self];
+                
+            } else {
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                    message:@"You cannot make a transfer as you do not have a wallet integrated yet, would you like to add a wallet now?"
+                                                                   delegate:self
+                                                          cancelButtonTitle:nil
+                                                          otherButtonTitles:@"Yes", @"No", nil];
+                [self setAlertViewNoWallet:alertView];
+                [alertView show];
+            }
+        } else if ([buttonTitle isEqualToString:@"Settle using Reward points"]) {
+            [self showActivityIndicatorView];
+            
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_USER_DATA
+                                                             parameters:[NSString stringWithFormat:@"mobileNumber=%@", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                    delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewNoWallet]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            SWRevealViewController *revealViewController = (SWRevealViewController *)[[[[[[self navigationController] viewControllers] firstObject] navigationController] presentingViewController] presentedViewController];
+            UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main"
+                                                                 bundle:nil];
+            UINavigationController *walletsNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyWalletsNavigationController"];
+            [revealViewController pushFrontViewController:walletsNavCont
+                                                 animated:YES];
+//            [Logger logDebug:[self TAG]
+//                     message:[NSString stringWithFormat:@" alertViewNoWallet : %@", [revealViewController description]]];
+            
+        }
+    } else if (alertView == [self alertViewWalletToWallet]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [self showActivityIndicatorView];
+            
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeMobikwikURLConnectionAsynchronousRequestToServer:MOBIKWIK_SERVER_URL
+                                                                       endPoint:MOBIKWIK_ENDPOINT_CHECK_TRANSACTION_LIMIT
+                                                                     parameters:[NSString stringWithFormat:@"cell=%@&amount=%@&mid=%@&merchantname=%@", [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [self getMyFareAmountToPay], MOBIKWIK_MID, MOBIKWIK_MERCHANT_NAME]
+                                                            delegateForProtocol:self];
+        }
+    } else if (alertView == [self alertViewNoWalletBalance]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://m.mobikwik.com"]];
         }
     }
 }
@@ -1025,10 +1113,10 @@
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"2"]) {
         [self showRideCompleteDialog];
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"3"]) {
-        //TODO show payment
+        [self showPaymentsDialog];
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"]) {
         [Logger logDebug:[self TAG]
-                 message:[NSString stringWithFormat:@" cabStatus startTime : %f ExpTripDuration : %ld", [currentTime timeIntervalSinceDate:startTime], [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]]];
+                 message:[NSString stringWithFormat:@" cabStatus startTime : %f ExpTripDuration : %td", [currentTime timeIntervalSinceDate:startTime], [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]]];
         if ([currentTime timeIntervalSinceDate:startTime] >= [[[self dictionaryRideDetails] objectForKey:@"ExpTripDuration"] integerValue]) {
             
             [self showActivityIndicatorView];
@@ -1052,7 +1140,7 @@
                                                         message:@"Member(s) of your trip will receive your location updates once you start the ride"
                                                        delegate:self
                                               cancelButtonTitle:nil
-                                              otherButtonTitles:@"Start the ride now", nil];
+                                              otherButtonTitles:@"Start the ride now", @"Dismiss", nil];
     [alertView show];
     
     [self setAlertViewTripStart:alertView];
@@ -1063,7 +1151,7 @@
                                                         message:nil
                                                        delegate:self
                                               cancelButtonTitle:nil
-                                              otherButtonTitles:@"Book a cab", @"Already booked", @"Driving my own car", @"Cancel trip", nil];
+                                              otherButtonTitles:@"Book a cab", @"Already booked", @"Driving my own car", @"Cancel trip", @"Dismiss", nil];
     [alertView show];
     
     [self setAlertViewCabBooking:alertView];
@@ -1079,7 +1167,7 @@
                                                         message:nil
                                                        delegate:self
                                               cancelButtonTitle:nil
-                                              otherButtonTitles:@"I paid, calculate fare split", @"Someone else paid", @"Already settled", nil];
+                                              otherButtonTitles:@"I paid, calculate fare split", @"Someone else paid", @"Already settled", @"Dismiss", nil];
     [alertView show];
     
     [self setAlertViewRideComplete:alertView];
@@ -1200,7 +1288,13 @@
 }
 
 - (void)showPaymentsDialog {
-    //TODO
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                        message:@"How would you like to settle the fare?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Already settled/Will pay cash", @"Wallet-to-Wallet transfer", @"Settle using Reward points", @"Dismiss", nil];
+    [self setAlertViewPayments:alertView];
+    [alertView show];
 }
 
 - (void)saveBookedOrCarPreference:(NSString *)cabID {
@@ -1293,6 +1387,14 @@
 
 - (void)changeChatStatus:(NSString *)status {
     
+}
+
+- (void)regenerateToken {
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeMobikwikURLConnectionAsynchronousRequestToServer:MOBIKWIK_SERVER_URL
+                                                               endPoint:MOBIKWIK_ENDPOINT_TOKEN_REGENERATE
+                                                             parameters:[NSString stringWithFormat:@"cell=%@&token=%@&tokentype=1&msgcode=507&mid=%@&merchantname=%@", [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN], MOBIKWIK_MID, MOBIKWIK_MERCHANT_NAME]
+                                                    delegateForProtocol:self];
 }
 
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
@@ -1523,6 +1625,218 @@
                 
                 [[self mapViewRideDetails] clear];
                 [self getMembersForMap];
+            } else if ([endPoint isEqualToString:ENDPOINT_GET_MY_FARE]) {
+                [self hideActivityIndicatorView];
+                
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    //                        [Logger logDebug:[self TAG]
+                    //                                 message:[NSString stringWithFormat:@" parsedJson : %@", parsedJson]];
+                    
+                    [self setGetMyFareAmountToPay:[parsedJson objectForKey:@"fareToPay"]];
+                    [self setGetMyFarePayToPerson:[parsedJson objectForKey:@"paidBy"]];
+                    [self setGetMyFareTotalAmount:[parsedJson objectForKey:@"totalFare"]];
+                    
+                    if ([self getMyFareTotalAmount] && [[self getMyFareTotalAmount] length] > 0 && [self getMyFareAmountToPay] && [[self getMyFareAmountToPay] length] > 0) {
+                        [[self labelFareSplitShare] setText:[NSString stringWithFormat:@"Total fare : \u20B9%@  Your share : \u20B9%@", [self getMyFareTotalAmount], [self getMyFareAmountToPay]]];
+                    } else {
+                        [[self labelDummySpace] setHidden:YES];
+                        [[self labelFareSplitShare] setHidden:YES];
+                    }
+                    
+                    if ([[self getMyFareType] isEqualToString:MY_FARE_WALLET_TO_WALLET]) {
+                        NSString *name = @"";
+                        for (NSDictionary *member in [self arrayMembers]) {
+                            if ([[member objectForKey:@"MemberNumber"] isEqualToString:[self getMyFarePayToPerson]]) {
+                                name = [member objectForKey:@"MemberName"];
+                                break;
+                            }
+                        }
+                        
+                        NSString *message = [NSString stringWithFormat:@"%@ (%@) agrees to transfer \u20B9%@ towards trip cost, undertaken between %@ to %@, to %@ (%@)", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME], [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [self getMyFareAmountToPay], [[self dictionaryRideDetails] objectForKey:@"FromShortName"], [[self dictionaryRideDetails] objectForKey:@"ToShortName"], name, [[self getMyFarePayToPerson] substringFromIndex:4]];
+                        
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:message
+                                                                           delegate:self
+                                                                  cancelButtonTitle:nil
+                                                                  otherButtonTitles:@"Yes", @"No", nil];
+                        [self setAlertViewWalletToWallet:alertView];
+                        [alertView show];
+                        
+                    } else if ([[self getMyFareType] isEqualToString:MY_FARE_USING_CREDITS]) {
+                        if ([[self getMyFareTotalCredits] doubleValue] < [[self getMyFareAmountToPay] doubleValue]) {
+                            [self makeToastWithMessage:@"You do not have sufficient reward Points to pay for your share!"];
+                            [self showPaymentsDialog];
+                        } else {
+                            [self showActivityIndicatorView];
+                            
+                            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                               endPoint:ENDPOINT_PAY_USING_CREDITS
+                                                                             parameters:[NSString stringWithFormat:@"mobileNumber=%@&sender=%@&amount=%@&owner=%@&cabId=%@", [self getMyFarePayToPerson], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [self getMyFareAmountToPay], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [[self dictionaryRideDetails] objectForKey:@"CabId"]]
+                                                                    delegateForProtocol:self];
+                        }
+                    }
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_USER_DATA]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    [self setGetMyFareTotalCredits:[[parsedJson objectForKey:@"data"] objectForKey:@"totalCredits"]];
+                    
+                    [self setGetMyFareType:MY_FARE_USING_CREDITS];
+                    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                       endPoint:ENDPOINT_GET_MY_FARE
+                                                                     parameters:[NSString stringWithFormat:@"cabId=%@&mobileNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                            delegateForProtocol:self];
+                    
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_PAY_USING_CREDITS]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    [self makeToastWithMessage:[parsedJson objectForKey:@"message"]];
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:MOBIKWIK_ENDPOINT_CHECK_TRANSACTION_LIMIT]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    if ([[parsedJson objectForKey:@"status"] isEqualToString:@"SUCCESS"]) {
+                        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                        [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                           endPoint:MOBIKWIK_ENDPOINT_LOG_TRANSACTION
+                                                                         parameters:[NSString stringWithFormat:@"amount=%@&fee=0&merchantname=%@&mid=%@&token=%@&sendercell=%@&receivercell=%@&cabId=%@", [self getMyFareAmountToPay], MOBIKWIK_MERCHANT_NAME, MOBIKWIK_MID, [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN], [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [[self getMyFarePayToPerson] substringFromIndex:4], [[self dictionaryRideDetails] objectForKey:@"CabId"]]
+                                                                delegateForProtocol:self];
+                    } else {
+                        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                                            message:@"You do not have sufficient balance in your wallet to make this transfer, would you like to top-up your wallet?"
+                                                                           delegate:self
+                                                                  cancelButtonTitle:nil
+                                                                  otherButtonTitles:@"Yes", @"No", nil];
+                        [self setAlertViewNoWalletBalance:alertView];
+                        [alertView show];
+                    }
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:MOBIKWIK_ENDPOINT_LOG_TRANSACTION]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"success"] == NSOrderedSame) {
+                        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                        [globalMethods makeMobikwikURLConnectionAsynchronousRequestToServer:MOBIKWIK_SERVER_URL
+                                                                                   endPoint:MOBIKWIK_ENDPOINT_INITIATE_PEER_TRANSFER
+                                                                                 parameters:[NSString stringWithFormat:@"sendercell=%@&receivercell=%@&amount=%@&fee=0&orderid=%@&token=%@&mid=%@&merchantname=%@", [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [[self getMyFarePayToPerson] substringFromIndex:4], [self getMyFareAmountToPay], [parsedJson objectForKey:@"orderId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN], MOBIKWIK_MID, MOBIKWIK_MERCHANT_NAME]
+                                                                        delegateForProtocol:self];
+                    } else {
+                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:MOBIKWIK_ENDPOINT_INITIATE_PEER_TRANSFER]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        [self setShouldReinitiateTransfer:NO];
+                        [self regenerateToken];
+                    } else {
+                        NSString *statusDescription = [parsedJson objectForKey:@"statusdescription"];
+                        if ([statusDescription rangeOfString:@"Invalid Token"].location != NSNotFound || [statusDescription rangeOfString:@"Token Expired"].location != NSNotFound) {
+                            [self setShouldReinitiateTransfer:YES];
+                            [self regenerateToken];
+                        } else {
+                            [self makeToastWithMessage:statusDescription];
+                        }
+                    }
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:MOBIKWIK_ENDPOINT_TOKEN_REGENERATE]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        [[NSUserDefaults standardUserDefaults] setObject:[parsedJson objectForKey:@"token"]
+                                                                  forKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN];
+                        
+                        if ([self shouldReinitiateTransfer]) {
+                            [self showActivityIndicatorView];
+                            
+                            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                            [globalMethods makeMobikwikURLConnectionAsynchronousRequestToServer:MOBIKWIK_SERVER_URL
+                                                                                       endPoint:MOBIKWIK_ENDPOINT_CHECK_TRANSACTION_LIMIT
+                                                                                     parameters:[NSString stringWithFormat:@"cell=%@&amount=%@&mid=%@&merchantname=%@", [[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE] substringFromIndex:4], [self getMyFareAmountToPay], MOBIKWIK_MID, MOBIKWIK_MERCHANT_NAME]
+                                                                            delegateForProtocol:self];
+                        } else {
+                            [self showActivityIndicatorView];
+                            
+                            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                               endPoint:ENDPOINT_TRIP_COMPLETED
+                                                                             parameters:[NSString stringWithFormat:@"cabId=%@&owner=%@&mobileNumber=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                                    delegateForProtocol:self];
+                        }
+                    } else {
+                        [self makeToastWithMessage:[parsedJson objectForKey:@"statusdescription"]];
+                    }
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
             }
         }
     });

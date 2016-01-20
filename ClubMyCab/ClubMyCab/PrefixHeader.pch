@@ -45,6 +45,9 @@
 #define MOBIKWIK_ENDPOINT_USER_BALANCE                  @"/userbalance"
 #define MOBIKWIK_ENDPOINT_TOKEN_REGENERATE              @"/tokenregenerate"
 #define MOBIKWIK_ENDPOINT_GET_COUPONS                   @"/getCoupons.php"
+#define MOBIKWIK_ENDPOINT_CHECK_TRANSACTION_LIMIT       @"/checkTransactionLimit"
+#define MOBIKWIK_ENDPOINT_LOG_TRANSACTION               @"/logTransaction.php"
+#define MOBIKWIK_ENDPOINT_INITIATE_PEER_TRANSFER        @"/initiatePeerTransfer"
 
 #define GOOGLE_MAPS_API_KEY                             @"AIzaSyBqd05mV8c2VTIAKhYP1mFKF7TRueU2-Z0"
 
@@ -113,6 +116,8 @@
 #define ENDPOINT_RIDE_INVITATIONS_CAR_POOL              @"/rideInvitationsCarpool.php"
 #define ENDPOINT_DROP_USER_FROM_POPUP                   @"/dropuserfrompopup.php"
 #define ENDPOINT_JOIN_POOL                              @"/joinpool.php"
+#define ENDPOINT_GET_MY_FARE                            @"/getMyFare.php"
+#define ENDPOINT_PAY_USING_CREDITS                      @"/payUsingCredits.php"
 
 #define LOGGING_ENABLED                                 1
 

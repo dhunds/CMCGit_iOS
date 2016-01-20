@@ -474,8 +474,12 @@
                                                                            options:NSJSONReadingMutableContainers
                                                                              error:&error];
                 if (!error) {
-                    [[NSUserDefaults standardUserDefaults] setObject:[parsedJson objectForKey:@"token"]
-                                                              forKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN];
+                    if ([[parsedJson objectForKey:@"status"] caseInsensitiveCompare:@"SUCCESS"] == NSOrderedSame) {
+                        [[NSUserDefaults standardUserDefaults] setObject:[parsedJson objectForKey:@"token"]
+                                                                  forKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN];
+                    } else {
+                        [self makeToastWithMessage:[parsedJson objectForKey:@"statusdescription"]];
+                    }
                 } else {
                     [Logger logError:[self TAG]
                              message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];

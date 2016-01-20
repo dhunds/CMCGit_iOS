@@ -120,7 +120,7 @@
 
 - (IBAction)mapButtonPressed:(id)sender {
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" mapButtonPressed : %lu", [sender tag]]];
+             message:[NSString stringWithFormat:@" mapButtonPressed : %ld", (long)[sender tag]]];
     [self performSegueWithIdentifier:@"GenericLocationFavLocSegue"
                               sender:sender];
 }
@@ -295,7 +295,7 @@
 }
 
 - (void)updateButtonTitle {
-    [[self buttonAddMore] setTitle:[NSString stringWithFormat:@"%@%lu%@", @"Add More (", (MAX_FAVORITES - [[self arrayFavoriteLocations] count]), @" remaining)"]
+    [[self buttonAddMore] setTitle:[NSString stringWithFormat:@"%@%tu%@", @"Add More (", (MAX_FAVORITES - [[self arrayFavoriteLocations] count]), @" remaining)"]
                           forState:UIControlStateNormal];
     
     if (MAX_FAVORITES == [[self arrayFavoriteLocations] count]) {
@@ -367,7 +367,7 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" textFieldShouldBeginEditing : %lu", [textField tag]]];
+             message:[NSString stringWithFormat:@" textFieldShouldBeginEditing : %lu", (long)[textField tag]]];
     
     [self performSegueWithIdentifier:@"AutoCompleteFavLocSegue"
                               sender:textField];
@@ -462,12 +462,12 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     // Pass the selected object to the new view controller.
     if ([[segue identifier] isEqualToString:@"GenericLocationFavLocSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[GenericLocationPickerViewController class]]) {
-            [(GenericLocationPickerViewController *)[segue destinationViewController] setSegueType:[NSString stringWithFormat:@"%@%lu", SEGUE_TYPE_FAV_LOC_LOCATION, [sender tag]]];
+            [(GenericLocationPickerViewController *)[segue destinationViewController] setSegueType:[NSString stringWithFormat:@"%@%lu", SEGUE_TYPE_FAV_LOC_LOCATION, (long)[sender tag]]];
             [(GenericLocationPickerViewController *)[segue destinationViewController] setDelegateGenericLocationPickerVC:self];
         }
     } else if ([[segue identifier] isEqualToString:@"AutoCompleteFavLocSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[PlacesAutoCompleteViewController class]]) {
-            [(PlacesAutoCompleteViewController *)[segue destinationViewController] setSegueType:[NSString stringWithFormat:@"%@%lu", SEGUE_TYPE_FAV_LOC_AUTO_COMPLETE, [sender tag]]];
+            [(PlacesAutoCompleteViewController *)[segue destinationViewController] setSegueType:[NSString stringWithFormat:@"%@%lu", SEGUE_TYPE_FAV_LOC_AUTO_COMPLETE, (long)[sender tag]]];
             [(PlacesAutoCompleteViewController *)[segue destinationViewController] setDelegatePlacesAutoCompleteVC:self];
         }
     }
@@ -486,7 +486,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     [[self tableViewFavoriteLocations] reloadData];
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" addressModelFromSender segueType : %@ name : %@ index : %lu", segueType, [model longName], index]];
+             message:[NSString stringWithFormat:@" addressModelFromSender segueType : %@ name : %@ index : %lu", segueType, [model longName], (unsigned long)index]];
 }
 
 #pragma mark - PlacesAutoCompleteVCProtocol methods
@@ -502,7 +502,7 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     [[self tableViewFavoriteLocations] reloadData];
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" addressModelFromSenderAutoComp segueType : %@ name : %@ index : %lu", segueType, [model longName], index]];
+             message:[NSString stringWithFormat:@" addressModelFromSenderAutoComp segueType : %@ name : %@ index : %lu", segueType, [model longName], (unsigned long)index]];
 }
 
 @end
