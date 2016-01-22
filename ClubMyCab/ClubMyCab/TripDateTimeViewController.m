@@ -79,7 +79,7 @@
     [[self datePicker] setMinimumDate:[NSDate date]];
     
     [Logger logDebug:[self TAG]
-             message:[NSString stringWithFormat:@" viewDidLoad from : %@ to : %@", [[self addressModelFrom] location], [[self addressModelTo] location]]];
+             message:[NSString stringWithFormat:@" viewDidLoad from : %@ to : %@", [[self addressModelFrom] longName], [[self addressModelTo] longName]]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -424,7 +424,7 @@
         [[self navigationController] popToRootViewControllerAnimated:YES];
         
 //        if ([buttonTitle isEqualToString:I_AM_DONE]) {
-//            //TODO handle exit with an alert view, abrupt quit not apple approved way
+//            //handle exit with an alert view, abrupt quit not apple approved way
 //            exit(0);
 //        } else if ([buttonTitle isEqualToString:START_OVER]) {
 //            [self popVC];
@@ -455,6 +455,10 @@
     [[self viewChargesPerSeat] setHidden:YES];
 }
 
+- (IBAction)selectDateTimePressed:(UIButton *)sender {
+    [self labelSelectDateTimePressed:nil];
+}
+
 - (IBAction)labelCoPassengersPressed:(UITapGestureRecognizer *)sender {
     [self hideDatePicker];
     
@@ -473,6 +477,10 @@
     [self presentViewController:alertController
                        animated:YES
                      completion:^{}];
+}
+
+- (IBAction)coPassengersPressed:(UIButton *)sender {
+    [self labelCoPassengersPressed:nil];
 }
 
 - (IBAction)datePickerValueChanged:(UIDatePicker *)sender {
@@ -532,6 +540,10 @@
     [self presentViewController:alertController
                        animated:YES
                      completion:^{}];
+}
+
+- (IBAction)chargesPerSeatPressed:(UIButton *)sender {
+    [self labelChargesPerSeatPressed:nil];
 }
 
 @end

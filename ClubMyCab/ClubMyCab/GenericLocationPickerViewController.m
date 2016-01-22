@@ -165,7 +165,12 @@
 }
 
 - (void)popVC {
-    [[self navigationController] popViewControllerAnimated:NO];
+    if ([self navigationController]) {
+        [[self navigationController] popViewControllerAnimated:NO];
+    } else {
+        [self dismissViewControllerAnimated:NO
+                                 completion:nil];
+    }
 }
 
 - (void)makeToastWithMessage:(NSString *)message {

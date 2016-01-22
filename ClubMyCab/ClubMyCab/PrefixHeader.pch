@@ -14,10 +14,13 @@
 
 // chat IpAddress is same for both production & UAT
 
-//#define SERVER_ADDRESS                                  @"http://104.155.193.222/cmc/cmcservice"     //GoogleCloudProduction
-//#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //GoogleCloudProduction
-//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //GoogleCloudProduction
-//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //GoogleCloudProduction
+//#define SERVER_ADDRESS                                  @"http://104.155.193.222/cmc/cmcservice"     //Production
+
+//#define SERVER_ADDRESS                                  @"https://ishareryde.com/cmcservice"         //Production
+//#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //Production
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
+//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
+//#define SHARE_THIS_APP                                  @"http://bit.ly/1nxCdYk"                     //Production
 
 //Mobikwik
 //#define MOBIKWIK_SERVER_URL                             @"https://walletapi.mobikwik.com"            //Production
@@ -26,10 +29,11 @@
 //#define MOBIKWIK_14SECRET_KEY                           @"bToO0UJ7OaijZ9g7a1Axr3J5OpEF"              //Production
 //#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"xXgeDsLo1nliS32dlkb21JpC05"                //Production
 
-#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //GoogleCloudUAT
-#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //GoogleCloudUAT
-#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //GoogleCloudUAT
-#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //GoogleCloudUAT
+#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //UAT
+#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //UAT
+#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //UAT
+#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //UAT
+#define SHARE_THIS_APP                                  @"http://bit.ly/1V7PZva"                       //UAT
 
 //Mobikwik
 #define MOBIKWIK_SERVER_URL                             @"https://test.mobikwik.com/mobikwik"          //UAT
@@ -140,6 +144,7 @@
 #define KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE       @"UserDefaultBookedOrCarPreference"
 #define KEY_USER_DEFAULT_MOBIKWIK_TOKEN                 @"UserDefaultMobikwikToken"
 #define KEY_USER_DEFAULT_MOBIKWIK_COUPON                @"UserDefaultMobikwikCoupon"
+#define KEY_USER_DEFAULT_FIRST_LOGIN_CLUB               @"UserDefaultFirstLoginClub"
 
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"

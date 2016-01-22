@@ -48,12 +48,10 @@
     
     NSString *content = @"";
     
-    //TODO add actual app link
-    
     if ([[[self dictionaryOffer] objectForKey:@"useCount"] doubleValue] >= [[[self dictionaryOffer] objectForKey:@"maxUsePerUser"] doubleValue]) {
-        content = @"I am using this cool app 'iShareRyde' to share rides. Check it out @ https://";
+        content = [NSString stringWithFormat:@"I am using this cool app 'iShareRyde' to share rides. Check it out @ %@", SHARE_THIS_APP];
     } else {
-        content = [NSString stringWithFormat:@"I am using this cool app 'iShareRyde' to share rides. Check it out @ https:// . Use my referral code %@ and earn credits worth Rs.%@", [[self dictionaryUserData] objectForKey:@"referralCode"], [[self dictionaryOffer] objectForKey:@"amount"]];
+        content = [NSString stringWithFormat:@"I am using this cool app 'iShareRyde' to share rides. Check it out @ %@ . Use my referral code %@ and earn credits worth Rs.%@", SHARE_THIS_APP, [[self dictionaryUserData] objectForKey:@"referralCode"], [[self dictionaryOffer] objectForKey:@"amount"]];
     }
     
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:[NSArray arrayWithObject:content]

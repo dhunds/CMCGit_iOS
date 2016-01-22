@@ -48,21 +48,14 @@
     if(name && mobile && [name length] > 0 && [mobile length] > 0) {
         if(lastRegisteredAppVersion && [lastRegisteredAppVersion length] > 0) {
             if([lastRegisteredAppVersion doubleValue] < [[self currentAppVersion] doubleValue]) {
-                //TODO update app version in user defaults & open home page vc
-            } else {
-                //TODO call /changeuserstatus.php to get force update version
-                // in the response check if app to be force updated else if verifyotp false
-                // open OTPVC else if veriyotp true fetch pool & open home page vc
+                [userDefaults setObject:[self currentAppVersion]
+                                 forKey:KEY_USER_DEFAULT_LAST_APP_VERSION];
                 
+                [self changeUserStatus];
+            } else {
                 [self changeUserStatus];
             }
         } else {
-            //TODO call /updateregid.php with APN id
-            
-            //TODO call /changeuserstatus.php to get force update version
-            // in the response check if app to be force updated else if verifyotp false
-            // open OTPVC else if veriyotp true fetch pool & open home page vc
-            
             [self changeUserStatus];
         }
     } else {
@@ -109,7 +102,7 @@
                                                                         message:@"Newer version of the app is available. You need to update before proceeding"
                                                                        delegate:self
                                                               cancelButtonTitle:nil
-                                                              otherButtonTitles:@"Update", @"Later", nil];
+                                                              otherButtonTitles:@"Update", nil];
                     [alertView show];
                 } else {
                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -131,13 +124,13 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
     if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Update"]) {
-        //TODO get actual app link & test on device
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/in/app/ishareryde/id1073560784?ls=1&mt=8"]];
 //        https://itunes.apple.com/in/app/ishareryde/id1073560784?ls=1&mt=8
-    } else if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Later"]) {
-        //TODO handle exit with an alert view, abrupt quit not apple approved way
-        exit(0);
     }
+//    else if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"Later"]) {
+//        //handle exit with an alert view, abrupt quit not apple approved way
+//        exit(0);
+//    }
     
 }
 

@@ -11,6 +11,7 @@
 #import "GlobalMethods.h"
 #import "ToastLabel.h"
 #import "ActivityIndicatorView.h"
+#import "FavoriteLocationsViewController.h"
 
 @interface OTPViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -109,6 +110,11 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"OTPFavLocSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[FavoriteLocationsViewController class]]) {
+            [(FavoriteLocationsViewController *)[segue destinationViewController] setSegueType:OTP_FROM_REGISTRATION];
+        }
+    }
 }
 
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
@@ -158,7 +164,7 @@
                     [userDefaults setBool:YES
                                    forKey:KEY_USER_DEFAULT_VERIFY_OTP];
                     
-                    [self performSegueWithIdentifier:@"OTPHomeSegue"
+                    [self performSegueWithIdentifier:@"OTPFavLocSegue"
                                               sender:self];
                     
                 } else if (response && [response caseInsensitiveCompare:@"OTPEXPIRE"] == NSOrderedSame) {

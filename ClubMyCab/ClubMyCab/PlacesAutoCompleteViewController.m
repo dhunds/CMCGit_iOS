@@ -22,6 +22,10 @@
 
 @property (strong, nonatomic) NSArray *arrayPlaces;
 
+@property (strong, nonatomic) NSArray *arrayFavoriteLocations;
+@property (strong, nonatomic) NSDictionary *dictionaryFavoriteLocations;
+@property (nonatomic) BOOL shouldDisplayFavorites;
+
 @end
 
 @implementation PlacesAutoCompleteViewController
@@ -31,6 +35,22 @@
 
 - (NSString *)TAG {
     return @"PlacesAutoCompleteViewController";
+}
+
+- (NSArray *)arrayFavoriteLocations {
+    if (!_arrayFavoriteLocations) {
+        _arrayFavoriteLocations = [NSArray array];
+    }
+    
+    return _arrayFavoriteLocations;
+}
+
+- (NSDictionary *)dictionaryFavoriteLocations {
+    if (!_dictionaryFavoriteLocations) {
+        _dictionaryFavoriteLocations = [NSDictionary dictionary];
+    }
+    
+    return _dictionaryFavoriteLocations;
 }
 
 #pragma mark - View Controller Life Cycle methods
@@ -44,6 +64,18 @@
                      forControlEvents:UIControlEventEditingChanged];
     
     [self setIsSearching:NO];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self readFavoriteLocationsJSONFromFile];
+    if ([[self arrayFavoriteLocations] count] > 0) {
+        [self setShouldDisplayFavorites:YES];
+        [[self tableViewPlaces] reloadData];
+    } else {
+        [self setShouldDisplayFavorites:NO];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -104,6 +136,7 @@
 //                                       [Logger logDebug:[self TAG]
 //                                                message:[NSString stringWithFormat:@" PLACES_API_BASE response : %@", [[[parsedJson objectForKey:@"predictions"] firstObject] description]]];
                                        [self setArrayPlaces:[parsedJson objectForKey:@"predictions"]];
+                                       [self setShouldDisplayFavorites:NO];
                                        
                                        [[self tableViewPlaces] reloadData];
                                    } else {
@@ -198,7 +231,95 @@
 }
 
 - (void)popVC {
-    [[self navigationController] popViewControllerAnimated:NO];
+    if ([self navigationController]) {
+        [[self navigationController] popViewControllerAnimated:NO];
+    } else {
+        [self dismissViewControllerAnimated:NO
+                                 completion:nil];
+    }
+}
+
+- (void)readFavoriteLocationsJSONFromFile {
+    
+    NSError *error = nil;
+    
+    NSString *filePath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent:FAVORITE_LOCATIONS_FILE_NAME];
+    NSString *jsonString = [NSString stringWithContentsOfFile:filePath
+                                                     encoding:NSUTF8StringEncoding
+                                                        error:&error];
+    if (!error) {
+        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]
+                                                                   options:NSJSONReadingMutableContainers
+                                                                     error:&error];
+        
+        NSMutableArray *array = [NSMutableArray array];
+        NSArray *allKeys = [dictionary allKeys];
+        
+        if ([allKeys containsObject:FAVORITE_LOCATIONS_TAG_VALUE_HOME]) {
+            AddressModel *addressModel = [[AddressModel alloc] init];
+            [addressModel setLocation:[[CLLocation alloc] initWithLatitude:[[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:MODEL_DICT_KEY_LATITUDE] doubleValue]
+                                                                 longitude:[[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:MODEL_DICT_KEY_LONGITUDE] doubleValue]]];
+            [addressModel setShortName:[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:MODEL_DICT_KEY_SHORT_NAME]];
+            [addressModel setLongName:[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:MODEL_DICT_KEY_LONG_NAME]];
+            
+            [array insertObject:FAVORITE_LOCATIONS_TAG_VALUE_HOME
+                        atIndex:0];
+            
+            [self addAddressModelToDictionary:addressModel
+                                       forTag:FAVORITE_LOCATIONS_TAG_VALUE_HOME];
+        }
+        
+        if ([allKeys containsObject:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE]) {
+            AddressModel *addressModel = [[AddressModel alloc] init];
+            [addressModel setLocation:[[CLLocation alloc] initWithLatitude:[[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE] objectForKey:MODEL_DICT_KEY_LATITUDE] doubleValue]
+                                                                 longitude:[[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE] objectForKey:MODEL_DICT_KEY_LONGITUDE] doubleValue]]];
+            [addressModel setShortName:[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE] objectForKey:MODEL_DICT_KEY_SHORT_NAME]];
+            [addressModel setLongName:[[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE] objectForKey:MODEL_DICT_KEY_LONG_NAME]];
+            
+            [array insertObject:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE
+                        atIndex:1];
+            
+            [self addAddressModelToDictionary:addressModel
+                                       forTag:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE];
+        }
+        
+        for (NSString *key in allKeys) {
+            if (![key isEqualToString:FAVORITE_LOCATIONS_TAG_VALUE_HOME] && ![key isEqualToString:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE]) {
+                AddressModel *addressModel = [[AddressModel alloc] init];
+                [addressModel setLocation:[[CLLocation alloc] initWithLatitude:[[[dictionary objectForKey:key] objectForKey:MODEL_DICT_KEY_LATITUDE] doubleValue]
+                                                                     longitude:[[[dictionary objectForKey:key] objectForKey:MODEL_DICT_KEY_LONGITUDE] doubleValue]]];
+                [addressModel setShortName:[[dictionary objectForKey:key] objectForKey:MODEL_DICT_KEY_SHORT_NAME]];
+                [addressModel setLongName:[[dictionary objectForKey:key] objectForKey:MODEL_DICT_KEY_LONG_NAME]];
+                
+                [array addObject:key];
+                
+                [self addAddressModelToDictionary:addressModel
+                                           forTag:key];
+            }
+        }
+        
+        if ([array count] > 0) {
+            [self setArrayFavoriteLocations:[array copy]];
+        }
+        
+        //        [Logger logDebug:[self TAG]
+        //                 message:[NSString stringWithFormat:@" readFavoriteLocationsJSONFromFile name : %@ dictionary : %@", [[dictionary objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME] objectForKey:@"longName"], [dictionary description]]];
+    } else {
+        [Logger logError:[self TAG]
+                 message:[NSString stringWithFormat:@" readFavoriteLocationsJSONFromFile error : %@", [error localizedDescription]]];
+        
+        [self setArrayFavoriteLocations:[NSArray array]];
+        
+        //        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+    }
+}
+
+- (void)addAddressModelToDictionary:(AddressModel *)address
+                             forTag:(NSString *)tag {
+    NSMutableDictionary *dictionaryMutable = [[self dictionaryFavoriteLocations] mutableCopy];
+    [dictionaryMutable setObject:address
+                          forKey:tag];
+    [self setDictionaryFavoriteLocations:[dictionaryMutable copy]];
 }
 
 #pragma mark - UITableViewDataSource methods
@@ -209,7 +330,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView
  numberOfRowsInSection:(NSInteger)section {
-    return [[self arrayPlaces] count];
+    return ([self shouldDisplayFavorites] ? [[self arrayFavoriteLocations] count] : [[self arrayPlaces] count]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -223,8 +344,13 @@
         cell = [[AutoCompleteTableViewCell alloc] init];
     }
     
-    [[cell labelMain] setText:[[[self arrayPlaces] objectAtIndex:indexPath.row] objectForKey:@"description"]];
-    [[cell labelSub] setText:@""];
+    if ([self shouldDisplayFavorites]) {
+        [[cell labelMain] setText:[[self arrayFavoriteLocations] objectAtIndex:indexPath.row]];
+        [[cell labelSub] setText:[[[self dictionaryFavoriteLocations] objectForKey:[[self arrayFavoriteLocations] objectAtIndex:indexPath.row]] longName]];
+    } else {
+        [[cell labelMain] setText:[[[self arrayPlaces] objectAtIndex:indexPath.row] objectForKey:@"description"]];
+        [[cell labelSub] setText:@""];
+    }
     
     return cell;
 }
@@ -241,8 +367,15 @@
     [tableView deselectRowAtIndexPath:indexPath
                              animated:NO];
     
-    AddressModel *model = [self geocodeToAddressModelFromAddress:[[[[self arrayPlaces] objectAtIndex:indexPath.row] objectForKey:@"description"] stringByReplacingOccurrencesOfString:@" "
-                                                                                                                                                     withString:@"%20"]];
+    AddressModel *model = nil;
+    
+    if ([self shouldDisplayFavorites]) {
+        model = [[self dictionaryFavoriteLocations] objectForKey:[[self arrayFavoriteLocations] objectAtIndex:indexPath.row]];
+    } else {
+        model = [self geocodeToAddressModelFromAddress:[[[[self arrayPlaces] objectAtIndex:indexPath.row] objectForKey:@"description"] stringByReplacingOccurrencesOfString:@" "
+                                                                                                                                                                 withString:@"%20"]];
+    }
+    
     if (model) {
         [[self delegatePlacesAutoCompleteVC] addressModelFromSenderAutoComp:self
                                                             address:model

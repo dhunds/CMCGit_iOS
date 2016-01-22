@@ -25,8 +25,8 @@
 @property (strong, nonatomic) NSString *mobileNumber;
 
 @property (weak, nonatomic) IBOutlet UISwitch *switchNotification;
-@property (weak, nonatomic) IBOutlet UIButton *buttonHereIAm;
-@property (weak, nonatomic) IBOutlet UILabel *labelInterval;
+//@property (weak, nonatomic) IBOutlet UIButton *buttonHereIAm;
+//@property (weak, nonatomic) IBOutlet UILabel *labelInterval;
 @property (weak, nonatomic) IBOutlet UIButton *buttonFavoriteLocations;
 
 
@@ -71,14 +71,14 @@
         [[self switchNotification] setOn:YES];
     }
     
-    NSString *shareInterval = [userDefaults objectForKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-    if (shareInterval) {
-        [[self labelInterval] setText:shareInterval];
-    } else {
-        [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-                         forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-        [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
-    }
+//    NSString *shareInterval = [userDefaults objectForKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+//    if (shareInterval) {
+//        [[self labelInterval] setText:shareInterval];
+//    } else {
+//        [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+//                         forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+//        [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
+//    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -136,40 +136,40 @@
 }
 
 - (IBAction)hereIAmPressed:(UIButton *)sender {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
-                                                                             message:@"Please select an interval"
-                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^(UIAlertAction *action) {
-                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2];
-                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
-                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-                                                      }]];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^(UIAlertAction *action) {
-                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
-                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-                                                      }]];
-    
-    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
-                                                        style:UIAlertActionStyleDefault
-                                                      handler:^(UIAlertAction *action) {
-                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10];
-                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
-                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-                                                      }]];
-    
-    [self presentViewController:alertController
-                       animated:YES
-                     completion:^{}];
+//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+//                                                                             message:@"Please select an interval"
+//                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
+//                                                        style:UIAlertActionStyleDefault
+//                                                      handler:^(UIAlertAction *action) {
+//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2];
+//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
+//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+//                                                      }]];
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+//                                                        style:UIAlertActionStyleDefault
+//                                                      handler:^(UIAlertAction *action) {
+//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
+//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+//                                                      }]];
+//    
+//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
+//                                                        style:UIAlertActionStyleDefault
+//                                                      handler:^(UIAlertAction *action) {
+//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10];
+//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
+//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+//                                                      }]];
+//    
+//    [self presentViewController:alertController
+//                       animated:YES
+//                     completion:^{}];
 }
 
 - (IBAction)notificationsSwitchValueChanged:(UISwitch *)sender {

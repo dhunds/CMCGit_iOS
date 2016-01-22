@@ -29,6 +29,11 @@
 @property (weak, nonatomic) IBOutlet UITextField *textfieldToLocation;
 @property (weak, nonatomic) IBOutlet UIView *viewClubAndCabButtons;
 @property (weak, nonatomic) IBOutlet UIView *viewSubClubAndCabButtons;
+@property (weak, nonatomic) IBOutlet UIButton *buttonNext;
+@property (weak, nonatomic) IBOutlet UIView *viewHomeToOffice;
+@property (weak, nonatomic) IBOutlet UIView *viewOfficeToHome;
+@property (weak, nonatomic) IBOutlet UIButton *buttonSaveFavorites;
+@property (weak, nonatomic) IBOutlet UILabel *labelChooseFavorite;
 
 @property (strong, nonatomic) AddressModel *addressModelFrom, *addressModelTo;
 
@@ -71,7 +76,21 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [self clearHomeOfficeSelection];
+    
     [self readFavoriteLocationsJSONFromFile];
+    
+    if ([self hasFavoriteLocations]) {
+        [[self viewHomeToOffice] setHidden:NO];
+        [[self viewOfficeToHome] setHidden:NO];
+        [[self labelChooseFavorite] setHidden:NO];
+        [[self buttonSaveFavorites] setHidden:YES];
+    } else {
+        [[self viewHomeToOffice] setHidden:YES];
+        [[self viewOfficeToHome] setHidden:YES];
+        [[self labelChooseFavorite] setHidden:YES];
+        [[self buttonSaveFavorites] setHidden:NO];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -82,6 +101,8 @@
 #pragma mark - UITextFieldDelegate methods
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    
+    [self clearHomeOfficeSelection];
     
     if (textField == [self textfieldFromLocation]) {
         [self performSegueWithIdentifier:@"AutoCompleteHomeSegue"
@@ -192,6 +213,9 @@
         [self setAddressModelFrom:[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME]];
         [self setAddressModelTo:[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE]];
         
+        [[self viewHomeToOffice] setBackgroundColor:[UIColor lightGrayColor]];
+        [[self viewOfficeToHome] setBackgroundColor:[UIColor whiteColor]];
+        
         [self showButtonsView];
     } else {
         [self showFavoriteLocationAlertView];
@@ -206,6 +230,9 @@
         [self setAddressModelFrom:[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_OFFICE]];
         [self setAddressModelTo:[[self dictionaryFavoriteLocations] objectForKey:FAVORITE_LOCATIONS_TAG_VALUE_HOME]];
         
+        [[self viewOfficeToHome] setBackgroundColor:[UIColor lightGrayColor]];
+        [[self viewHomeToOffice] setBackgroundColor:[UIColor whiteColor]];
+        
         [self showButtonsView];
     } else {
         [self showFavoriteLocationAlertView];
@@ -215,11 +242,15 @@
 - (IBAction)fromLocationPressed:(UIButton *)sender {
     [self performSegueWithIdentifier:@"GenericLocationSegue"
                               sender:SEGUE_TYPE_HOME_PAGE_FROM_LOCATION];
+    
+    [self clearHomeOfficeSelection];
 }
 
 - (IBAction)toLocationPressed:(UIButton *)sender {
     [self performSegueWithIdentifier:@"GenericLocationSegue"
                               sender:SEGUE_TYPE_HOME_PAGE_TO_LOCATION];
+    
+    [self clearHomeOfficeSelection];
 }
 
 - (IBAction)clubMyCabPressed:(UIButton *)sender {
@@ -239,6 +270,19 @@
 - (IBAction)cancelPressed:(UIButton *)sender {
     [[self viewClubAndCabButtons] setHidden:YES];
     [self clearAddressModels];
+}
+
+- (IBAction)nextPressed:(UIButton *)sender {
+    if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] || [[self segueType] isEqualToString:HOME_SEGUE_TYPE_SHARE_CAB]) {
+        [self clubMyCabPressed:nil];
+    } else if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_BOOK_CAB]) {
+        [self bookCabPressed:nil];
+    }
+}
+
+- (IBAction)saveFavoritesPressed:(UIButton *)sender {
+    [self performSegueWithIdentifier:@"FavLocHomeSegue"
+                              sender:self];
 }
 
 #pragma mark - Private methods
@@ -338,15 +382,21 @@
     [[self textfieldToLocation] setText:@""];
 }
 
+-(void)clearHomeOfficeSelection {
+    [[self viewHomeToOffice] setBackgroundColor:[UIColor whiteColor]];
+    [[self viewOfficeToHome] setBackgroundColor:[UIColor whiteColor]];
+    
+    [[self buttonNext] setHidden:YES];
+}
+
 - (void)showButtonsView {
     
-    if ([self addressModelFrom] && [self addressModelTo]) {
+    NSString *fromText = [[self textfieldFromLocation] text];
+    NSString *toText = [[self textfieldToLocation] text];
+    
+    if ([self addressModelFrom] && [self addressModelTo] && [fromText length] <= 0 && [toText length] <= 0) {
         
-        if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] || [[self segueType] isEqualToString:HOME_SEGUE_TYPE_SHARE_CAB]) {
-            [self clubMyCabPressed:nil];
-        } else if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_BOOK_CAB]) {
-            [self bookCabPressed:nil];
-        }
+        [[self buttonNext] setHidden:NO];
         
 //        [[self viewClubAndCabButtons] setHidden:NO];
 //        [[self viewClubAndCabButtons] setBackgroundColor:[UIColor colorWithRed:0.0
@@ -357,6 +407,12 @@
 //                                                                            green:1.0
 //                                                                             blue:1.0
 //                                                                            alpha:1.0]];
+    } else {
+        if ([self addressModelFrom] && [self addressModelTo] && [fromText length] > 0 && [toText length] > 0) {
+            [[self buttonNext] setHidden:NO];
+        } else {
+            [[self buttonNext] setHidden:YES];
+        }
     }
 }
 

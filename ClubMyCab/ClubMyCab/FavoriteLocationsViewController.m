@@ -13,6 +13,7 @@
 #import "FavoriteLocationsTableViewCell.h"
 #import "GenericLocationPickerViewController.h"
 #import "PlacesAutoCompleteViewController.h"
+#import "WalletsViewController.h"
 
 @interface FavoriteLocationsViewController () <UITextFieldDelegate, GenericLocationPickerVCProtocol, PlacesAutoCompleteVCProtocol, UIAlertViewDelegate>
 
@@ -26,6 +27,7 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *tableViewFavoriteLocations;
 @property (weak, nonatomic) IBOutlet UIButton *buttonAddMore;
+@property (weak, nonatomic) IBOutlet UIButton *buttonCancel;
 
 @end
 
@@ -64,6 +66,12 @@
     [[self tableViewFavoriteLocations] reloadData];
     
     [self updateButtonTitle];
+    
+    if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+        [[self buttonCancel] setTitle:@"Skip"
+                             forState:UIControlStateNormal];
+        [[self buttonCancel] setBackgroundColor:[UIColor orangeColor]];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -91,7 +99,12 @@
 }
 
 - (IBAction)cancelPressed:(UIButton *)sender {
-    [self popVC];
+    if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+        [self performSegueWithIdentifier:@"FavLocWalletSegue"
+                                  sender:self];
+    } else {
+        [self popVC];
+    }
 }
 
 - (IBAction)savePressed:(UIButton *)sender {
@@ -115,6 +128,11 @@
         }
         
         [self writeFavoritesDictionaryToFile:YES];
+        
+        if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+            [self performSegueWithIdentifier:@"FavLocWalletSegue"
+                                      sender:self];
+        }
     }
 }
 
@@ -469,6 +487,10 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
         if ([[segue destinationViewController] isKindOfClass:[PlacesAutoCompleteViewController class]]) {
             [(PlacesAutoCompleteViewController *)[segue destinationViewController] setSegueType:[NSString stringWithFormat:@"%@%lu", SEGUE_TYPE_FAV_LOC_AUTO_COMPLETE, (long)[sender tag]]];
             [(PlacesAutoCompleteViewController *)[segue destinationViewController] setDelegatePlacesAutoCompleteVC:self];
+        }
+    } else if ([[segue identifier] isEqualToString:@"FavLocWalletSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[WalletsViewController class]]) {
+            [(WalletsViewController *)[segue destinationViewController] setSegueType:OTP_FROM_REGISTRATION];
         }
     }
 }

@@ -12,6 +12,7 @@
 #import "ActivityIndicatorView.h"
 #import "ToastLabel.h"
 #import "GlobalMethods.h"
+#import "FirstLoginClubsViewController.h"
 
 @interface WalletsViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate>
 
@@ -34,6 +35,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelCoupon;
 @property (weak, nonatomic) IBOutlet UILabel *labelCouponTNC;
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIButton *buttonSkip;
 
 @property (strong, nonatomic) NSString *mobileNumber, *name, *email;
 
@@ -70,6 +72,12 @@
     [self setEmail:[[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_EMAIL]];
     
     [[self textFieldMobile] setText:[self mobileNumber]];
+    
+    if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+        [[self buttonSkip] setHidden:NO];
+    } else {
+        [[self buttonSkip] setHidden:YES];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -98,15 +106,18 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"WalletClubSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[FirstLoginClubsViewController class]]) {
+            
+        }
+    }
 }
-*/
 
 #pragma mark - Private methods
 
@@ -308,6 +319,14 @@
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://m.mobikwik.com"]];
 }
 
+- (IBAction)skipPressed:(UIButton *)sender {
+    
+    if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+        [self performSegueWithIdentifier:@"WalletClubSegue"
+                                  sender:self];
+    }
+}
+
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
 
 - (void)asyncRequestComplete:(GlobalMethods *)sender
@@ -404,6 +423,11 @@
                             [[self viewLinkCreate] setHidden:YES];
                             
                             [self updateCouponLabels];
+                            
+                            if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+                                [self performSegueWithIdentifier:@"WalletClubSegue"
+                                                          sender:self];
+                            }
                         } else {
                             [self makeToastWithMessage:[parsedJson objectForKey:@"statusdescription"]];
                         }

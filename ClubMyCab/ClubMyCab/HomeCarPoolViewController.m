@@ -84,6 +84,18 @@
         [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
                                   sender:self];
     }
+    
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+    if ([userDefault boolForKey:KEY_USER_DEFAULT_FIRST_LOGIN_CLUB]) {
+        [userDefault setBool:NO
+                      forKey:KEY_USER_DEFAULT_FIRST_LOGIN_CLUB];
+        
+        UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main"
+                                                             bundle:nil];
+        UINavigationController *clubNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"MyClubsNavigationController"];
+        [[self revealViewController] pushFrontViewController:clubNavigationController
+                                                    animated:YES];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

@@ -11,4 +11,7 @@
 @interface WalletsViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
+
+@property (strong, nonatomic) NSString *segueType;
+
 @end

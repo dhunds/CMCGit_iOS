@@ -10,4 +10,6 @@
 
 @interface FavoriteLocationsViewController : UIViewController
 
+@property (strong, nonatomic) NSString *segueType;
+
 @end
