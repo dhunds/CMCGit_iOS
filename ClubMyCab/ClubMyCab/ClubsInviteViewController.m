@@ -11,8 +11,9 @@
 #import "MyClubsTableViewCell.h"
 #import "MemberOfClubsTableViewCell.h"
 #import "ToastLabel.h"
+#import "GenericContactsViewController.h"
 
-@interface ClubsInviteViewController () <UIAlertViewDelegate>
+@interface ClubsInviteViewController () <UIAlertViewDelegate, GenericContactsVCProtocol>
 
 @property (strong, nonatomic) NSString *TAG;
 
@@ -20,8 +21,9 @@
 
 @property (strong, nonatomic) NSMutableArray *arrayMyClubsSelected, *arrayMemberOfClubsSelected;
 
-@property (weak, nonatomic) IBOutlet UITableView *tableViewMyClubs;
-@property (weak, nonatomic) IBOutlet UITableView *tableViewMemberOfClubs;
+@property (weak, nonatomic) IBOutlet UITableView *tableViewClubs;
+//@property (weak, nonatomic) IBOutlet UITableView *tableViewMyClubs;
+//@property (weak, nonatomic) IBOutlet UITableView *tableViewMemberOfClubs;
 
 @property (strong, nonatomic) NSString *numberString, *nameString;
 
@@ -69,19 +71,18 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    if (tableView == [self tableViewMyClubs]) {
-        return [[self arrayMyClubs] count];
-    } else if (tableView == [self tableViewMemberOfClubs]) {
-        return [[self arrayMemberOfClubs] count];
-    }
-    
-    return 0;
+    return ([[self arrayMyClubs] count] + [[self arrayMemberOfClubs] count]);
+//    if (tableView == [self tableViewMyClubs]) {
+//        return [[self arrayMyClubs] count];
+//    } else if (tableView == [self tableViewMemberOfClubs]) {
+//        return [[self arrayMemberOfClubs] count];
+//    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (tableView == [self tableViewMyClubs]) {
+    if (indexPath.row < [[self arrayMyClubs] count]) {
         
         MyClubsTableViewCell *cell;
         
@@ -116,7 +117,9 @@
                           forControlEvents:UIControlEventTouchUpInside];
         
         return cell;
-    } else if (tableView == [self tableViewMemberOfClubs]) {
+    } else if (indexPath.row < ([[self arrayMyClubs] count] + [[self arrayMemberOfClubs] count])) {
+        
+        NSUInteger index = indexPath.row - [[self arrayMyClubs] count];
         
         MemberOfClubsTableViewCell *cell;
         
@@ -127,7 +130,7 @@
             cell = [[MemberOfClubsTableViewCell alloc] init];
         }
         
-        if ([[[[self arrayMemberOfClubs] objectAtIndex:indexPath.row] objectForKey:@"NoofMembers"] intValue] <= 10) {
+        if ([[[[self arrayMemberOfClubs] objectAtIndex:index] objectForKey:@"NoofMembers"] intValue] <= 10) {
             [[cell buttonLowMembership] setHidden:NO];
             [[cell buttonLowMembership] addTarget:self
                                            action:@selector(lowMembershipWarning)
@@ -136,17 +139,17 @@
             [[cell buttonLowMembership] setHidden:YES];
         }
         
-        [[cell labelClubNameAndMembers] setText:[NSString stringWithFormat:@"%@    (%@)", [[[self arrayMemberOfClubs] objectAtIndex:indexPath.row] objectForKey:@"PoolName"], [[[self arrayMemberOfClubs] objectAtIndex:indexPath.row] objectForKey:@"NoofMembers"]]];
-        [[cell labelOwnerName] setText:[NSString stringWithFormat:@"(%@)", [[[self arrayMemberOfClubs] objectAtIndex:indexPath.row] objectForKey:@"OwnerName"]]];
+        [[cell labelClubNameAndMembers] setText:[NSString stringWithFormat:@"%@    (%@)", [[[self arrayMemberOfClubs] objectAtIndex:index] objectForKey:@"PoolName"], [[[self arrayMemberOfClubs] objectAtIndex:index] objectForKey:@"NoofMembers"]]];
+        [[cell labelOwnerName] setText:[NSString stringWithFormat:@"(%@)", [[[self arrayMemberOfClubs] objectAtIndex:index] objectForKey:@"OwnerName"]]];
         
-        if ([[self arrayMemberOfClubsSelected] containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
+        if ([[self arrayMemberOfClubsSelected] containsObject:[NSNumber numberWithInteger:index]]) {
             [[cell buttonDeleteClub] setImage:[UIImage imageNamed:@"checkbox_checked.png"]
                                      forState:UIControlStateNormal];
         } else {
             [[cell buttonDeleteClub] setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]
                                      forState:UIControlStateNormal];
         }
-        [[cell buttonDeleteClub] setTag:indexPath.row];
+        [[cell buttonDeleteClub] setTag:index];
         [[cell buttonDeleteClub] addTarget:self
                                     action:@selector(memberOfClubSelected:)
                           forControlEvents:UIControlEventTouchUpInside];
@@ -161,7 +164,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CGRect frameTableView = [tableView frame];
-    return frameTableView.size.height / 4.0;
+    return frameTableView.size.height / 5.0;
 }
 
 #pragma mark - IBAction methods
@@ -182,7 +185,10 @@
         [[self arrayMyClubsSelected] addObject:index];
     }
     
-    [[self tableViewMyClubs] reloadData];
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" myClubSelected : %@", [[self arrayMyClubsSelected] description]]];
+    
+    [[self tableViewClubs] reloadData];
 }
 
 - (IBAction)memberOfClubSelected:(id)sender {
@@ -194,7 +200,10 @@
         [[self arrayMemberOfClubsSelected] addObject:index];
     }
     
-    [[self tableViewMemberOfClubs] reloadData];
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" memberOfClubSelected : %@", [[self arrayMemberOfClubsSelected] description]]];
+    
+    [[self tableViewClubs] reloadData];
 }
 
 - (IBAction)sendPressed:(UIButton *)sender {
@@ -258,6 +267,11 @@
     [Logger logDebug:[self TAG]
              message:[NSString stringWithFormat:@" arraySelectedNumbers : %@    arraySelectedNames : %@", [arraySelectedNumbers description], [arraySelectedNames description]]];
     
+    if ([arraySelectedNumbers count] <= 0) {
+        [self makeToastWithMessage:@"Please select group(s) to invite"];
+        return;
+    }
+    
     NSString *numbersString = @"[";
     for (NSString *number in arraySelectedNumbers) {
         numbersString = [numbersString stringByAppendingString:[NSString stringWithFormat:@"%@, ", number]];
@@ -286,6 +300,11 @@
         [self sendMembersToInvite];
     }
     
+}
+
+- (IBAction)inviteContactsPressed:(UIButton *)sender {
+    [self performSegueWithIdentifier:@"InviteClubContactSegue"
+                              sender:self];
 }
 
 #pragma mark - UIAlertViewDelegate methods
@@ -352,14 +371,32 @@
     [[self navigationController] popViewControllerAnimated:NO];
 }
 
-/*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([[segue identifier] isEqualToString:@"InviteClubContactSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[GenericContactsViewController class]]) {
+            [(GenericContactsViewController *)[segue destinationViewController] setSegueType:SEGUE_FROM_RIDE_INVITATION];
+            [(GenericContactsViewController *)[segue destinationViewController] setDelegateGenericContactsVC:self];
+        }
+    }
 }
-*/
+
+#pragma mark - GenericContactsVCProtocol methods
+
+- (void)contactsToInviteFrom:(GenericContactsViewController *)sender
+                 withNumbers:(NSString *)numbers
+                    andNames:(NSString *)names {
+    
+    [[self delegateClubsInviteVC] membersToInviteFrom:self
+                                          withNumbers:numbers
+                                             andNames:names];
+    
+    [self popVC];
+    
+}
 
 @end

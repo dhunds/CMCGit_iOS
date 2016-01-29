@@ -172,8 +172,14 @@
                 if ([self cabIDFromNotification] && [[self cabIDFromNotification] length] > 0) {
                     for (NSDictionary *dict in [self arrayMyRides]) {
                         if ([[dict objectForKey:@"CabId"] isEqualToString:[self cabIDFromNotification]]) {
-                            [self performSegueWithIdentifier:@"RideDetailsSegue"
-                                                      sender:dict];
+                            
+                            if ([[dict objectForKey:@"MobileNumber"] isEqualToString:[self mobileNumber]]) {
+                                [self performSegueWithIdentifier:@"RideDetailsSegue"
+                                                          sender:dict];
+                            } else {
+                                [self performSegueWithIdentifier:@"RideDetailsMemberSegue"
+                                                          sender:dict];
+                            }
                             
                             [self setCabIDFromNotification:nil];
                             

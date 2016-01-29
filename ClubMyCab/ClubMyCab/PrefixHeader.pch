@@ -16,31 +16,31 @@
 
 //#define SERVER_ADDRESS                                  @"http://104.155.193.222/cmc/cmcservice"     //Production
 
-//#define SERVER_ADDRESS                                  @"https://ishareryde.com/cmcservice"         //Production
-//#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //Production
-//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
-//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
-//#define SHARE_THIS_APP                                  @"http://bit.ly/1nxCdYk"                     //Production
+#define SERVER_ADDRESS                                  @"https://ishareryde.com/cmcservice"         //Production
+#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //Production
+#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
+#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
+#define SHARE_THIS_APP                                  @"https://ishareryde.com/installapp.php"     //Production
 
 //Mobikwik
-//#define MOBIKWIK_SERVER_URL                             @"https://walletapi.mobikwik.com"            //Production
-//#define MOBIKWIK_MID                                    @"MBK9572"                                   //Production
-//#define MOBIKWIK_MERCHANT_NAME                          @"iShareRyde"                                //Production
-//#define MOBIKWIK_14SECRET_KEY                           @"bToO0UJ7OaijZ9g7a1Axr3J5OpEF"              //Production
-//#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"xXgeDsLo1nliS32dlkb21JpC05"                //Production
+#define MOBIKWIK_SERVER_URL                             @"https://walletapi.mobikwik.com"            //Production
+#define MOBIKWIK_MID                                    @"MBK9572"                                   //Production
+#define MOBIKWIK_MERCHANT_NAME                          @"iShareRyde"                                //Production
+#define MOBIKWIK_14SECRET_KEY                           @"bToO0UJ7OaijZ9g7a1Axr3J5OpEF"              //Production
+#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"xXgeDsLo1nliS32dlkb21JpC05"                //Production
 
-#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //UAT
-#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //UAT
-#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //UAT
-#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //UAT
-#define SHARE_THIS_APP                                  @"http://bit.ly/1V7PZva"                       //UAT
+//#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //UAT
+//#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //UAT
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //UAT
+//#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //UAT
+//#define SHARE_THIS_APP                                  @"http://107.167.183.147/cmc/installapp.php"   //UAT
 
 //Mobikwik
-#define MOBIKWIK_SERVER_URL                             @"https://test.mobikwik.com/mobikwik"          //UAT
-#define MOBIKWIK_MID                                    @"MBK9005"                                     //UAT
-#define MOBIKWIK_MERCHANT_NAME                          @"MyMerchantName"                              //UAT
-#define MOBIKWIK_14SECRET_KEY                           @"ju6tygh7u7tdg554k098ujd5468o"                //UAT
-#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"lu6tygh7u7tdg554k098ujd5468o"                //UAT
+//#define MOBIKWIK_SERVER_URL                             @"https://test.mobikwik.com/mobikwik"          //UAT
+//#define MOBIKWIK_MID                                    @"MBK9005"                                     //UAT
+//#define MOBIKWIK_MERCHANT_NAME                          @"MyMerchantName"                              //UAT
+//#define MOBIKWIK_14SECRET_KEY                           @"ju6tygh7u7tdg554k098ujd5468o"                //UAT
+//#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"lu6tygh7u7tdg554k098ujd5468o"                //UAT
 
 #define MOBIKWIK_ENDPOINT_QUERY_WALLET                  @"/querywallet"
 #define MOBIKWIK_ENDPOINT_OTP_GENERATE                  @"/otpgenerate"
@@ -122,6 +122,7 @@
 #define ENDPOINT_JOIN_POOL                              @"/joinpool.php"
 #define ENDPOINT_GET_MY_FARE                            @"/getMyFare.php"
 #define ENDPOINT_PAY_USING_CREDITS                      @"/payUsingCredits.php"
+#define ENDPOINT_OWNER_LOCATION                         @"/updateOwnerLocation.php"
 
 #define LOGGING_ENABLED                                 1
 
@@ -145,6 +146,8 @@
 #define KEY_USER_DEFAULT_MOBIKWIK_TOKEN                 @"UserDefaultMobikwikToken"
 #define KEY_USER_DEFAULT_MOBIKWIK_COUPON                @"UserDefaultMobikwikCoupon"
 #define KEY_USER_DEFAULT_FIRST_LOGIN_CLUB               @"UserDefaultFirstLoginClub"
+#define KEY_USER_DEFAULT_CHECK_OPEN_RIDES               @"UserDefaultCheckOpenRides"
+#define KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND         @"UserDefaultIsEnteringBackground"
 
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"

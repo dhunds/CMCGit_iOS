@@ -345,14 +345,16 @@
             } else if ([endPoint isEqualToString:ENDPOINT_FETCH_CLUBS]) {
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 if (response && [response caseInsensitiveCompare:@"No Users of your Club"] == NSOrderedSame) {
-                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"No Groups"
-                                                                        message:@"You are not a member of any group yet. Would you like to create one now?"
-                                                                       delegate:self
-                                                              cancelButtonTitle:nil
-                                                              otherButtonTitles:NO_CLUBS_CREATE, NO_CLUBS_CONTACTS, nil];
-                    [alertView show];
-                    
-                    [self setAlertViewClubs:alertView];
+//                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"No Groups"
+//                                                                        message:@"You are not a member of any group yet. Would you like to create one now?"
+//                                                                       delegate:self
+//                                                              cancelButtonTitle:nil
+//                                                              otherButtonTitles:NO_CLUBS_CREATE, NO_CLUBS_CONTACTS, nil];
+//                    [alertView show];
+//                    
+//                    [self setAlertViewClubs:alertView];
+                    [self performSegueWithIdentifier:@"InviteContactsSegue"
+                                              sender:self];
                 } else {
                     NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
                     NSError *error = nil;
@@ -373,7 +375,7 @@
                 
                 UILocalNotification *localNotification = [[UILocalNotification alloc] init];
                 [localNotification setFireDate:[[self startTime] dateByAddingTimeInterval:(-1 * 60 * UPCOMING_TRIP_NOTIFICATION_TIME)]];
-                [localNotification setAlertBody:[NSString stringWithFormat:@"You have an upcoming trip from %@ to %@. Click here to book a cab", [[self addressModelFrom] shortName], [[self addressModelTo] shortName]]];
+                [localNotification setAlertBody:[NSString stringWithFormat:@"You have an upcoming trip from %@ to %@", [[self addressModelFrom] shortName], [[self addressModelTo] shortName]]];
                 [localNotification setSoundName:UILocalNotificationDefaultSoundName];
                 [localNotification setUserInfo:[NSDictionary dictionaryWithObject:[self cabID]
                                                                            forKey:@"CabID"]];
@@ -420,6 +422,9 @@
         
 //        [Logger logDebug:[self TAG]
 //                 message:[NSString stringWithFormat:@" alertViewInvite : %@", [[[self navigationController] viewControllers] description]]];
+        
+        [[NSUserDefaults standardUserDefaults] setBool:YES
+                                                forKey:KEY_USER_DEFAULT_CHECK_OPEN_RIDES];
         
         [[self navigationController] popToRootViewControllerAnimated:YES];
         

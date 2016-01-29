@@ -151,8 +151,8 @@
         ABMultiValueRef phoneRef = ABRecordCopyValue(record, kABPersonPhoneProperty);
         
         for (int i = 0; i < ABMultiValueGetCount(phoneRef); i++) {
-            [Logger logDebug:[self TAG]
-                     message:[NSString stringWithFormat:@" getContactsArray : %@ , %@ , %@", ABRecordCopyCompositeName(record), ABMultiValueCopyLabelAtIndex(phoneRef, i), ABMultiValueCopyValueAtIndex(phoneRef, i)]];
+//            [Logger logDebug:[self TAG]
+//                     message:[NSString stringWithFormat:@" getContactsArray : %@ , %@ , %@", ABRecordCopyCompositeName(record), ABMultiValueCopyLabelAtIndex(phoneRef, i), ABMultiValueCopyValueAtIndex(phoneRef, i)]];
             
             CFStringRef labelAtIndex = ABMultiValueCopyLabelAtIndex(phoneRef, i);
             NSString *valueAtIndex = (__bridge NSString *)ABMultiValueCopyValueAtIndex(phoneRef, i);
@@ -183,7 +183,14 @@
         }
     }
     
-    [self setArrayContacts:[mutableArrayContacts copy]];
+    NSArray *arraySorted = [mutableArrayContacts sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *dict1, NSDictionary *dict2) {
+        NSString *est1 = [dict1 objectForKey:KEY_DICT_NAME];
+        NSString *est2 = [dict2 objectForKey:KEY_DICT_NAME];
+        
+        return [est1 compare:est2];
+    }];
+    
+    [self setArrayContacts:arraySorted];
     [self setArrayContactsFiltered:[self arrayContacts]];
     
     [[self tableViewContacts] reloadData];

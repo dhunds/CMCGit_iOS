@@ -17,6 +17,7 @@
 #import "MyRidesTableViewCell.h"
 #import "RideDetailsViewController.h"
 #import "RideDetailsMemberViewController.h"
+#import "MyRidesViewController.h"
 
 @interface HomeCarPoolViewController () <GlobalMethodsAsyncRequestProtocol, UIAlertViewDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -54,6 +55,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationEnteredForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
     SWRevealViewController *revealViewController = [self revealViewController];
     if (revealViewController) {
         [[self barButtonItem] setTarget:revealViewController];
@@ -61,11 +67,18 @@
         [[self view] addGestureRecognizer:[[self revealViewController] panGestureRecognizer]];
     }
     
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND]) {
+        return;
+    }
+    
     [self checkNotificationSettings];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND]) {
+        return;
+    }
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
@@ -79,10 +92,17 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND]) {
+        [[NSUserDefaults standardUserDefaults] setBool:NO
+                                                forKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND];
+        return;
+    }
     
     if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
         [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
                                   sender:self];
+    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_CHECK_OPEN_RIDES]) {
+        [self fetchPools];
     }
     
     NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
@@ -95,6 +115,21 @@
         UINavigationController *clubNavigationController = [storyBoard instantiateViewControllerWithIdentifier:@"MyClubsNavigationController"];
         [[self revealViewController] pushFrontViewController:clubNavigationController
                                                     animated:YES];
+    }
+}
+
+- (void)applicationEnteredForeground:(NSNotification *)notification {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND]) {
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        
+        [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                           endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
+                                                         parameters:[NSString stringWithFormat:@"MobileNumber=%@", [userDefaults objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                                delegateForProtocol:self];
+        
+        [self fetchPools];
     }
 }
 
@@ -245,6 +280,16 @@
                                             forKey:KEY_USER_DEFAULT_APN_REG_CALLED];
 }
 
+- (void)fetchPools {
+    [self showActivityIndicatorView];
+    
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_FETCH_MY_POOLS
+                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                            delegateForProtocol:self];
+}
+
 #pragma mark - UIAlertViewDelegate methods
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
@@ -353,6 +398,42 @@
                     [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
                 }
                 
+            } else if ([endPoint isEqualToString:ENDPOINT_FETCH_MY_POOLS]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if ((response && [response caseInsensitiveCompare:@"No Pool Created Yet!!"] == NSOrderedSame) || [response length] <= 0 || [response isEqualToString:@"[]"]) {
+                    
+                } else {
+                    NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                    NSError *error = nil;
+                    NSArray *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                          options:NSJSONReadingMutableContainers
+                                                                            error:&error];
+                    if (!error) {
+                        
+                        if ([parsedJson count] > 0) {
+                            
+                            [[NSUserDefaults standardUserDefaults] setBool:NO
+                                                                    forKey:KEY_USER_DEFAULT_CHECK_OPEN_RIDES];
+                            
+                            UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main"
+                                                                                 bundle:nil];
+                            UINavigationController *ridesNavCont = [storyBoard instantiateViewControllerWithIdentifier:@"MyRidesNavigationController"];
+                            
+                            if ([parsedJson count] == 1) {
+                                [(MyRidesViewController *)[[ridesNavCont viewControllers] firstObject] setCabIDFromNotification:[[parsedJson firstObject] objectForKey:@"CabId"]];
+                                [[self revealViewController] pushFrontViewController:ridesNavCont
+                                                                            animated:YES];
+                            } else {
+                                [[self revealViewController] pushFrontViewController:ridesNavCont
+                                                                            animated:YES];
+                            }
+                        }
+                    } else {
+//                        [Logger logError:[self TAG]
+//                                 message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+//                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                    }
+                }
             }
         }
     });

@@ -45,6 +45,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelFareSplitShare;
 @property (weak, nonatomic) IBOutlet UILabel *labelDummySpace;
 @property (weak, nonatomic) IBOutlet UIButton *buttonCabInfo;
+@property (weak, nonatomic) IBOutlet UIButton *buttonLocationPicker;
 
 @property (strong, nonatomic) NSArray *arrayMembers;
 
@@ -64,6 +65,7 @@
 @property (strong, nonatomic) UIAlertView *alertViewNoWallet;
 @property (strong, nonatomic) UIAlertView *alertViewWalletToWallet;
 @property (strong, nonatomic) UIAlertView *alertViewNoWalletBalance;
+@property (strong, nonatomic) UIAlertView *alertViewLocationPermission;
 
 @property (strong, nonatomic) NSString *membersFareString, *totalFareString;
 
@@ -558,6 +560,12 @@
                                                     delegateForProtocol:self];
         }
     }
+    
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_OWNER_LOCATION
+                                                     parameters:[NSString stringWithFormat:@"cabId=%@", [[self dictionaryRideDetails] objectForKey:@"CabId"]]
+                                            delegateForProtocol:self];
 }
 
 - (void)showRideCompleteDialog {
@@ -702,6 +710,7 @@
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Cancel", @"Settings", nil];
+    [self setAlertViewLocationPermission:alertView];
     [alertView show];
 }
 
@@ -837,6 +846,9 @@
     
     [[self imageViewLocationPin] setHidden:NO];
     [[self labelLocationAddress] setHidden:NO];
+    [[self buttonLocationPicker] setHidden:NO];
+    [[self buttonLocationPicker] setTitle:@"Tap to select Pickup Location"
+                                 forState:UIControlStateNormal];
     
     [self setLocationFetched:YES];
     
@@ -940,29 +952,45 @@
         [self setLocationFetched:NO];
         [self checkLocationPermission];
     } else if ([self selectingPickupLocation]) {
-        if ([self addressPickup]) {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
-                                                                message:[[self addressPickup] longName]
-                                                               delegate:self
-                                                      cancelButtonTitle:nil
-                                                      otherButtonTitles:@"Confirm", @"Cancel", nil];
-            [self setAlertViewPickupConfirm:alertView];
-            [alertView show];
-        } else {
-            [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
-        }
+        [self showPickupAlertView];
     } else if ([self selectingDropLocation]) {
-        if ([self addressDrop]) {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
-                                                                message:[[self addressDrop] longName]
-                                                               delegate:self
-                                                      cancelButtonTitle:nil
-                                                      otherButtonTitles:@"Confirm", @"Cancel", nil];
-            [self setAlertViewDropConfirm:alertView];
-            [alertView show];
-        } else {
-            [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
-        }
+        [self showDropAlertView];
+    }
+}
+
+- (IBAction)locationPickerPressed:(UIButton *)sender {
+    if ([self selectingPickupLocation]) {
+        [self showPickupAlertView];
+    } else if ([self selectingDropLocation]) {
+        [self showDropAlertView];
+    }
+}
+
+- (void)showPickupAlertView {
+    if ([self addressPickup]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:[[self addressPickup] longName]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Confirm", @"Cancel", nil];
+        [self setAlertViewPickupConfirm:alertView];
+        [alertView show];
+    } else {
+        [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
+    }
+}
+
+- (void)showDropAlertView {
+    if ([self addressDrop]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:[[self addressDrop] longName]
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"Confirm", @"Cancel", nil];
+        [self setAlertViewDropConfirm:alertView];
+        [alertView show];
+    } else {
+        [self makeToastWithMessage:@"Could not locate the address, please try using a different address"];
     }
 }
 
@@ -992,23 +1020,9 @@
     [alertView show];
 }
 
-- (IBAction)updatePickupPressed:(UIButton *)sender {
-    
-}
-
-- (IBAction)invitePressed:(UIButton *)sender {
-//    if ([[[self dictionaryRideDetails] objectForKey:@"RemainingSeats"] intValue] <= 0) {
-//        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Ride full"
-//                                                            message:@"The ride is already full"
-//                                                           delegate:self
-//                                                  cancelButtonTitle:@"Ok"
-//                                                  otherButtonTitles:nil];
-//        [alertView show];
-//    } else {
-//        [self performSegueWithIdentifier:@"OwnerInviteContactsSegue"
-//                                  sender:self];
-//    }
-}
+//- (IBAction)updatePickupPressed:(UIButton *)sender {
+//    
+//}
 
 - (IBAction)bookCabPressed:(UIButton *)sender {
     if ([[[self dictionaryRideDetails] objectForKey:@"rideType"] isEqualToString:@"1"]) {
@@ -1084,6 +1098,8 @@
             [self setSelectingPickupLocation:NO];
             [self setSelectingDropLocation:YES];
             [[self labelJoinRideButton] setText:@"Select Drop Location"];
+            [[self buttonLocationPicker] setTitle:@"Tap to select Drop Location"
+                                         forState:UIControlStateNormal];
             
             GMSMarker *marker = [GMSMarker markerWithPosition:[[[self addressPickup] location] coordinate]];
             [marker setIcon:[GMSMarker markerImageWithColor:[UIColor orangeColor]]];
@@ -1374,6 +1390,12 @@
         if ([buttonTitle isEqualToString:@"Yes"]) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://m.mobikwik.com"]];
         }
+    } else if (alertView == [self alertViewLocationPermission]) {
+        if ([buttonTitle isEqualToString:@"Cancel"]) {
+            
+        } else if ([buttonTitle isEqualToString:@"Settings"]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
     }
 }
 
@@ -1529,6 +1551,7 @@
                 [self setLocationFetched:NO];
                 [[self labelLocationAddress] setHidden:YES];
                 [[self imageViewLocationPin] setHidden:YES];
+                [[self buttonLocationPicker] setHidden:YES];
                 [[self mapViewRideDetails] clear];
                 
                 [self checkPoolAlreadyJoined];
@@ -1874,6 +1897,29 @@
                         }
                     } else {
                         [self makeToastWithMessage:[parsedJson objectForKey:@"statusdescription"]];
+                    }
+                } else {
+                    [Logger logError:[self TAG]
+                             message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
+                    [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_OWNER_LOCATION]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                NSData *jsonData = [response dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error = nil;
+                NSDictionary *parsedJson = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingMutableContainers
+                                                                             error:&error];
+                if (!error) {
+                    if ([[parsedJson objectForKey:@"msg"] caseInsensitiveCompare:@"success"] == NSOrderedSame) {
+                        
+                        CLLocationCoordinate2D startLocation = CLLocationCoordinate2DMake([[parsedJson objectForKey:@"ownerLat"] doubleValue], [[parsedJson objectForKey:@"ownerLng"] doubleValue]);
+                        
+                        GMSMarker *markerStart = [GMSMarker markerWithPosition:startLocation];
+                        [markerStart setTitle:@"Last updated at"];
+                        [markerStart setSnippet:[parsedJson objectForKey:@"locationUpdatedAt"]];
+                        [markerStart setIcon:[UIImage imageNamed:@"owner_pin.png"]];
+                        [markerStart setMap:[self mapViewRideDetails]];
                     }
                 } else {
                     [Logger logError:[self TAG]

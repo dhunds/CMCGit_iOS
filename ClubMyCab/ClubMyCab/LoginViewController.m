@@ -14,11 +14,12 @@
 #import "OTPViewController.h"
 #import "RegistrationViewController.h"
 
-@interface LoginViewController () <GlobalMethodsAsyncRequestProtocol>
+@interface LoginViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate>
 
 @property (strong, nonatomic) NSString *TAG;
 
 @property (weak, nonatomic) IBOutlet UITextField *textFieldMobileNumber;
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @property (strong, nonatomic) ToastLabel *toastLabel;
 @property (strong, nonatomic) ActivityIndicatorView *activityIndicatorView;
@@ -61,6 +62,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - UITextFieldDelegate methods
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    [[self scrollView] setContentOffset:CGPointMake(0.0f, 100.0f)];
+    return YES;
+}
+
 #pragma mark - IBAction methods
 
 - (IBAction)loginPressed:(UIButton *)sender {
@@ -89,6 +97,7 @@
 }
 
 - (void)keyboardDonePressed {
+    [[self scrollView] setContentOffset:CGPointZero];
     [[self textFieldMobileNumber] resignFirstResponder];
 }
 

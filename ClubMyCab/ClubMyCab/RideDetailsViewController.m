@@ -487,7 +487,7 @@
         }
     } else if (alertView == [self alertViewMemberInfo]) {
         
-        if ([buttonTitle isEqualToString:@"Drop Member"]) {
+        if ([buttonTitle isEqualToString:@"Remove Member"]) {
             UIAlertView *alertViewDrop = [[UIAlertView alloc] initWithTitle:nil
                                                                 message:@"Are you sure you want to remove this person from the ride?"
                                                                delegate:self
@@ -635,7 +635,7 @@
                                                             message:[marker snippet]
                                                            delegate:self
                                                   cancelButtonTitle:nil
-                                                  otherButtonTitles:@"Drop Member", @"Dismiss", nil];
+                                                  otherButtonTitles:@"Remove Member", @"Dismiss", nil];
         
         if (index != -1) {
             [alertView setTag:index];
@@ -795,6 +795,7 @@
                                        
                                        [self checkCabStatusAndShowDialog];
                                        
+                                       [self makeToastWithMessage:@"Waiting for your friend(s) to join the ride!"];
                                    } else {
                                        [self makeToastWithMessage:GENERIC_ERROR_MESSAGE];
                                        
@@ -1111,7 +1112,11 @@
             }
         }
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"2"]) {
-        [self showRideCompleteDialog];
+        if ([[[self dictionaryRideDetails] objectForKey:@"rideType"] isEqualToString:@"1"]) {
+            [self showFareSplitDialog];
+        } else {
+            [self showRideCompleteDialog];
+        }
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"] && [status isEqualToString:@"3"]) {
         [self showPaymentsDialog];
     } else if (cabStatus && status && [cabStatus isEqualToString:@"A"]) {
@@ -1137,7 +1142,7 @@
     }
     
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Upcoming trip"
-                                                        message:@"Member(s) of your trip will receive your location updates once you start the ride"
+                                                        message:@"We will let your friend(s) know once you start the ride"
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"Start the ride now", @"Dismiss", nil];
