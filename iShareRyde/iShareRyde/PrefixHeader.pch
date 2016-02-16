@@ -1,0 +1,174 @@
+//
+//  PrefixHeader.pch
+//  ClubMyCab
+//
+//  Created by Rohit Dhundele on 20/08/15.
+//  Copyright (c) 2015 ClubMyCab. All rights reserved.
+//
+
+#ifndef ClubMyCab_PrefixHeader_pch
+#define ClubMyCab_PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+// chat IpAddress is same for both production & UAT
+
+//#define SERVER_ADDRESS                                  @"http://104.155.193.222/cmc/cmcservice"     //Production
+
+//#define SERVER_ADDRESS                                  @"https://ishareryde.com/cmcservice"         //Production
+//#define SERVER_IP_ADDRESS                               @"104.155.193.222"                           //Production
+//#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm1"                                  //Production
+//#define CMC_SECRET_KEY                                  @"ahKQMpBZmCYVwYpPMG9CVgrN9H6K9MgC"          //Production
+//#define SHARE_THIS_APP                                  @"https://ishareryde.com/installapp.php"     //Production
+
+//Mobikwik
+//#define MOBIKWIK_SERVER_URL                             @"https://walletapi.mobikwik.com"            //Production
+//#define MOBIKWIK_MID                                    @"MBK9572"                                   //Production
+//#define MOBIKWIK_MERCHANT_NAME                          @"iShareRyde"                                //Production
+//#define MOBIKWIK_14SECRET_KEY                           @"bToO0UJ7OaijZ9g7a1Axr3J5OpEF"              //Production
+//#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"xXgeDsLo1nliS32dlkb21JpC05"                //Production
+
+#define SERVER_ADDRESS                                  @"http://107.167.183.147/cmc/cmcservice"       //UAT
+#define SERVER_IP_ADDRESS                               @"107.167.183.147"                             //UAT
+#define SERVER_NAME_FOR_CHAT                            @"@p2p-vm2"                                    //UAT
+#define CMC_SECRET_KEY                                  @"NrD4LMv5xGAXdYvxvzzcxASUgWQkKcZx"            //UAT
+#define SHARE_THIS_APP                                  @"http://107.167.183.147/cmc/installapp.php"   //UAT
+
+//Mobikwik
+#define MOBIKWIK_SERVER_URL                             @"https://test.mobikwik.com/mobikwik"          //UAT
+#define MOBIKWIK_MID                                    @"MBK9005"                                     //UAT
+#define MOBIKWIK_MERCHANT_NAME                          @"MyMerchantName"                              //UAT
+#define MOBIKWIK_14SECRET_KEY                           @"ju6tygh7u7tdg554k098ujd5468o"                //UAT
+#define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"lu6tygh7u7tdg554k098ujd5468o"                //UAT
+
+#define MOBIKWIK_ENDPOINT_QUERY_WALLET                  @"/querywallet"
+#define MOBIKWIK_ENDPOINT_OTP_GENERATE                  @"/otpgenerate"
+#define MOBIKWIK_ENDPOINT_TOKEN_GENERATE                @"/tokengenerate"
+#define MOBIKWIK_ENDPOINT_CREATE_WALLET                 @"/createwalletuser"
+#define MOBIKWIK_ENDPOINT_USER_BALANCE                  @"/userbalance"
+#define MOBIKWIK_ENDPOINT_TOKEN_REGENERATE              @"/tokenregenerate"
+#define MOBIKWIK_ENDPOINT_GET_COUPONS                   @"/getCoupons.php"
+#define MOBIKWIK_ENDPOINT_CHECK_TRANSACTION_LIMIT       @"/checkTransactionLimit"
+#define MOBIKWIK_ENDPOINT_LOG_TRANSACTION               @"/logTransaction.php"
+#define MOBIKWIK_ENDPOINT_INITIATE_PEER_TRANSFER        @"/initiatePeerTransfer"
+
+#define GOOGLE_MAPS_API_KEY                             @"AIzaSyBqd05mV8c2VTIAKhYP1mFKF7TRueU2-Z0"
+
+#define FAVORITE_LOCATIONS_FILE_NAME                    @"FavoriteLocations.txt"
+#define FAVORITE_LOCATIONS_TAG_VALUE_HOME               @"Home"
+#define FAVORITE_LOCATIONS_TAG_VALUE_OFFICE             @"Office"
+
+#define HOME_SEGUE_TYPE_CAR_POOL                        @"HomeSegueTypeCarPool"
+#define HOME_SEGUE_TYPE_SHARE_CAB                       @"HomeSegueTypeShareCab"
+#define HOME_SEGUE_TYPE_BOOK_CAB                        @"HomeSegueTypeBookCab"
+
+#define ENDPOINT_LOGIN                                  @"/login.php"
+#define ENDPOINT_VERIFY_LOGIN_OTP                       @"/verifyloginotp.php"
+#define ENDPOINT_RESEND_OTP                             @"/resendotp.php"
+#define ENDPOINT_REGISTRATION                           @"/userregister.php"
+#define ENDPOINT_VERIFY_REGISTRATION_OTP                @"/verifyotp.php"
+#define ENDPOINT_CHANGE_USER_STATUS                     @"/changeuserstatus.php"
+#define ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT       @"/FetchUnreadNotificationCount.php"
+#define ENDPOINT_FETCH_ALL_NOTIFICATIONS                @"/FetchMyAllNotification.php"
+#define ENDPOINT_UPDATE_NOTIFICATION_STATUS_READ        @"/UpdateNotificationStatusToRead.php"
+#define ENDPOINT_UPDATE_ALL_NOTIFICATIONS_READ          @"/changenotificationstatusasread.php"
+#define ENDPOINT_CLEAR_ALL_NOTIFICATIONS                @"/changenotificationstatus.php"
+#define ENDPOINT_DELETE_NOTIFICATION                    @"/swipetodeletenotification.php"
+#define ENDPOINT_FETCH_CLUBS                            @"/Fetch_Club.php"
+#define ENDPOINT_DELETE_CLUB                            @"/removeclub.php"
+#define ENDPOINT_LEAVE_CLUB                             @"/Leave_Club.php"
+#define ENDPOINT_STORE_CLUB                             @"/Store_Club.php"
+#define ENDPOINT_REMOVE_USER_CLUB                       @"/removeuserfromclub.php"
+#define ENDPOINT_ADD_USERS_CLUB                         @"/addmoreuserstoclub.php"
+#define ENDPOINT_REFER_USERS_CLUB                       @"/referFriendStepOne.php"
+#define ENDPOINT_CUSTOMER_QUERY                         @"/customerQuery.php"
+#define ENDPOINT_FETCH_PROFILE                          @"/fetchmyprofile.php"
+#define ENDPOINT_UPDATE_PROFILE                         @"/updatemyprofile.php"
+#define ENDPOINT_UPDATE_PUSH_NOTIF_STATUS               @"/updatepushnotificationstatus.php"
+#define ENDPOINT_UPDATE_REG_ID                          @"/updateregid.php"
+#define ENDPOINT_OPEN_A_CAB                             @"/openacab.php"
+#define ENDPOINT_FETCH_MY_POOLS                         @"/FetchMyPools.php"
+#define ENDPOINT_FETCH_MY_POOL_HISTORY                  @"/fetchmypoolshistory.php"
+#define ENDPOINT_SHOW_MEMBERS_ON_MAP                    @"/ShowMemberOnMap.php"
+#define ENDPOINT_CANCEL_POOL_OWNER                      @"/cancelpoolbyowner.php"
+#define ENDPOINT_OWNER_INVITE_FRIENDS                   @"/ownerinvitefriends.php"
+#define ENDPOINT_UPDATE_CAB_STATUS                      @"/updateCabStatus.php"
+#define ENDPOINT_START_TRIP_NOTIFICATION                @"/startTripNotification.php"
+#define ENDPOINT_TRIP_COMPLETED                         @"/tripCompleted.php"
+#define ENDPOINT_SAVE_CALCULATED_FARE                   @"/saveCalculatedFare.php"
+#define ENDPOINT_CHECK_POOL_ALREADY_JOINED              @"/checkpoolalreadyjoined.php"
+#define ENDPOINT_GOTO_POOL                              @"/GoToPool.php"
+#define ENDPOINT_REFER_FRIEND_RIDE_STEP_ONE             @"/referFriendRideStepOne.php"
+#define ENDPOINT_DROP_A_POOL                            @"/dropapool.php"
+#define ENDPOINT_FETCH_CAB_DETAILS                      @"/fetchCabDetailsNew.php"
+#define ENDPOINT_CAB_BOOK_REQUEST_UBER                  @"/cabbookrequest.php"
+#define ENDPOINT_CAB_BOOK_REQUEST_STATUS_UBER           @"/cabbookrequeststatus.php"
+#define ENDPOINT_UBER_CONNECT                           @"/uberConnect.php"
+#define ENDPOINT_UBER_CANCEL                            @"/cancelUberBooking.php"
+#define ENDPOINT_OLA_CANCEL                             @"/olaApi.php"
+#define ENDPOINT_TAXI_FOR_SURE_API                      @"/tfs.php"
+#define ENDPOINT_MEGA_API                               @"/MegaApi.php"
+#define ENDPOINT_CMC_RECORDS                            @"/cmcRecords.php"
+#define ENDPOINT_REFER_FRIEND_RIDE_STEP_TWO             @"/referFriendRideStepTwo.php"
+#define ENDPOINT_REFER_USERS_CLUB_STEP_TWO              @"/referFriendStepTwo.php"
+#define ENDPOINT_GET_CABS_FOR_RATING                    @"/getCabs.php"
+#define ENDPOINT_CABS_RATING_CMC                        @"/cmcCabRating.php"
+#define ENDPOINT_USER_DATA                              @"/userData.php"
+#define ENDPOINT_GET_OFFERS                             @"/getOffers.php"
+#define ENDPOINT_RIDE_INVITATIONS                       @"/rideInvitations.php"
+#define ENDPOINT_RIDE_INVITATIONS_CAR_POOL              @"/rideInvitationsCarpool.php"
+#define ENDPOINT_DROP_USER_FROM_POPUP                   @"/dropuserfrompopup.php"
+#define ENDPOINT_JOIN_POOL                              @"/joinpool.php"
+#define ENDPOINT_GET_MY_FARE                            @"/getMyFare.php"
+#define ENDPOINT_PAY_USING_CREDITS                      @"/payUsingCredits.php"
+#define ENDPOINT_OWNER_LOCATION                         @"/updateOwnerLocation.php"
+#define ENDPOINT_FETCH_IMAGE_NAME                       @"/fetchimagename.php"
+#define ENDPOINT_IMAGE_UPLOAD                           @"/imageupload.php"
+
+#define LOGGING_ENABLED                                 1
+
+#define TOAST_DELAY                                     1.5
+
+#define TIMEOUT_SECONDS_NETWORK_QUERY                   30.0f
+
+#define START_TRIP_NOTIFICATION_TIME                    0
+#define UPCOMING_TRIP_NOTIFICATION_TIME                 15
+
+#define KEY_USER_DEFAULT_NAME                           @"UserDefaultName"
+#define KEY_USER_DEFAULT_MOBILE                         @"UserDefaultMobile"
+#define KEY_USER_DEFAULT_EMAIL                          @"UserDefaultEmail"
+#define KEY_USER_DEFAULT_VERIFY_OTP                     @"UserDefaultVerifyOTP"
+#define KEY_USER_DEFAULT_LAST_APP_VERSION               @"UserDefaultLastAppVersion"
+#define KEY_USER_DEFAULT_PUSH_NOTIF_STATUS              @"UserDefaultPushNotifStatus"
+#define KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL        @"UserDefaultShareLocationInterval"
+#define KEY_USER_DEFAULT_APN_DEVICE_TOKEN               @"UserDefaultAPNDeviceToken"
+#define KEY_USER_DEFAULT_APN_REG_CALLED                 @"UserDefaultAPNRegCalled"
+#define KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE       @"UserDefaultBookedOrCarPreference"
+#define KEY_USER_DEFAULT_MOBIKWIK_TOKEN                 @"UserDefaultMobikwikToken"
+#define KEY_USER_DEFAULT_MOBIKWIK_COUPON                @"UserDefaultMobikwikCoupon"
+#define KEY_USER_DEFAULT_FIRST_LOGIN_CLUB               @"UserDefaultFirstLoginClub"
+#define KEY_USER_DEFAULT_CHECK_OPEN_RIDES               @"UserDefaultCheckOpenRides"
+#define KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND         @"UserDefaultIsEnteringBackground"
+#define KEY_USER_DEFAULT_PROFILE_IMAGE_DATA             @"UserDefaultProfileImageData"
+
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
+#define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10   @"10 minutes"
+
+#define OTP_FROM_LOGIN                                  @"OTPFromLogin"
+#define OTP_FROM_REGISTRATION                           @"OTPFromRegistration"
+
+#define NO_INTERNET_ERROR_MESSAGE                       @"No internet connection. Please check and try again!"
+#define GENERIC_ERROR_MESSAGE                           @"Something went wrong, please try again!"
+#define PLEASE_WAIT_MESSAGE                             @"Please wait..."
+
+#define KEY_ERROR_ASYNC_REQUEST                         @"KeyErrorAsyncRequest"
+#define KEY_DATA_ASYNC_CONNECTION                       @"KeyDataAsyncRequest"
+#define KEY_ENDPOINT_ASYNC_CONNECTION                   @"KeyEndpointAsyncRequest"
+#define ERROR_CONNECTION_VALUE                          @"ConnectionErrorAsyncRequest"
+#define ERROR_DATA_NIL_VALUE                            @"DataNilErrorAsyncRequest"
+#define ERROR_UNAUTHORIZED_ACCESS                       @"Unauthorized Access"
+#define ERROR_MOBIKWIK_CHECKSUM                         @"Checksum Mismatch"
+
+#endif
