@@ -14,6 +14,7 @@
 #import "GlobalMethods.h"
 #import "Logger.h"
 #import "FavoriteLocationsViewController.h"
+#import "MyProfileViewController.h"
 
 @interface SettingsViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -29,6 +30,7 @@
 //@property (weak, nonatomic) IBOutlet UILabel *labelInterval;
 @property (weak, nonatomic) IBOutlet UIButton *buttonFavoriteLocations;
 
+@property (strong, nonatomic) UIAlertView *alertViewProfileImage;
 
 @end
 
@@ -90,6 +92,18 @@
                                                        endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
                                                      parameters:[NSString stringWithFormat:@"MobileNumber=%@", [self mobileNumber]]
                                             delegateForProtocol:self];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSMutableArray *barButtons = [[[self navigationItem] leftBarButtonItems] mutableCopy];
+    if ([barButtons count] < 2) {
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [barButtons addObject:[globalMethods getProfileImageBarButtonItemWithTarget:self]];
+        
+        [[self navigationItem] setLeftBarButtonItems:[barButtons copy]];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -202,6 +216,27 @@
                               sender:self];
 }
 
+- (IBAction)profileImageBarButtonItemPressed {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Profile Picture"
+                                                        message:@"Do you want to change your profile picture?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Yes", @"No", nil];
+    [self setAlertViewProfileImage:alertView];
+    [alertView show];
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if ([buttonTitle isEqualToString:@"Yes"]) {
+        [self performSegueWithIdentifier:@"SettingsProfileSegue"
+                                  sender:self];
+    }
+}
+
 #pragma mark - Private methods
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -268,6 +303,10 @@
     } else if ([[segue identifier] isEqualToString:@"FavLocSettingsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[FavoriteLocationsViewController class]]) {
             
+        }
+    } else if ([[segue identifier] isEqualToString:@"SettingsProfileSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyProfileViewController class]]) {
+            [(MyProfileViewController *)[segue destinationViewController] setChangeProfilePicture:YES];
         }
     }
 }

@@ -17,6 +17,7 @@
 #import "MemberOfClubsTableViewCell.h"
 #import "GenericContactsViewController.h"
 #import "ClubDetailsViewController.h"
+#import "MyProfileViewController.h"
 
 @interface MyClubsViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
 
@@ -33,6 +34,7 @@
 @property (strong, nonatomic) NSArray *arrayMyClubs, *arrayMemberOfClubs;
 
 @property (strong, nonatomic) UIAlertView *alertViewDeleteClub, *alertViewLeaveClub;
+@property (strong, nonatomic) UIAlertView *alertViewProfileImage;
 
 @property (strong, nonatomic) NSString *clubsSegueType;
 
@@ -74,6 +76,14 @@
                                                        endPoint:ENDPOINT_FETCH_UNREAD_NOTIFICATIONS_COUNT
                                                      parameters:[NSString stringWithFormat:@"MobileNumber=%@", [self mobileNumber]]
                                             delegateForProtocol:self];
+    
+    NSMutableArray *barButtons = [[[self navigationItem] leftBarButtonItems] mutableCopy];
+    if ([barButtons count] < 2) {
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [barButtons addObject:[globalMethods getProfileImageBarButtonItemWithTarget:self]];
+        
+        [[self navigationItem] setLeftBarButtonItems:[barButtons copy]];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -186,6 +196,10 @@
             [(ClubDetailsViewController *)[segue destinationViewController] setDictionaryClubDetails:(NSDictionary *)sender];
             [(ClubDetailsViewController *)[segue destinationViewController] setSegueType:[self clubsSegueType]];
         }
+    } else if ([[segue identifier] isEqualToString:@"ClubsProfileSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyProfileViewController class]]) {
+            [(MyProfileViewController *)[segue destinationViewController] setChangeProfilePicture:YES];
+        }
     }
 }
 
@@ -231,6 +245,16 @@
     [self makeToastWithMessage:@"Low group membership - add/refer more members to improve chances of sharing"];
 }
 
+- (IBAction)profileImageBarButtonItemPressed {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Profile Picture"
+                                                        message:@"Do you want to change your profile picture?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Yes", @"No", nil];
+    [self setAlertViewProfileImage:alertView];
+    [alertView show];
+}
+
 #pragma mark - UIAlertViewDelegate methods
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
@@ -251,6 +275,9 @@
                                                                endPoint:ENDPOINT_LEAVE_CLUB
                                                              parameters:[NSString stringWithFormat:@"poolid=%@&MemberNumber=%@", [[[self arrayMemberOfClubs] objectAtIndex:[alertView tag]] objectForKey:@"PoolId"], [self mobileNumber]]
                                                     delegateForProtocol:self];
+        } else if (alertView == [self alertViewProfileImage]) {
+            [self performSegueWithIdentifier:@"ClubsProfileSegue"
+                                      sender:self];
         }
     }
     //    else if ([buttonTitle isEqualToString:@"No"]) {

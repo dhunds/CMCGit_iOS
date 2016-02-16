@@ -18,6 +18,7 @@
 #import "RideDetailsViewController.h"
 #import "RideDetailsMemberViewController.h"
 #import "MyRidesViewController.h"
+#import "MyProfileViewController.h"
 
 @interface HomeCarPoolViewController () <GlobalMethodsAsyncRequestProtocol, UIAlertViewDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -27,6 +28,7 @@
 @property (strong, nonatomic) ActivityIndicatorView *activityIndicatorView;
 
 @property (strong, nonatomic) UIAlertView *alertViewNotifications;
+@property (strong, nonatomic) UIAlertView *alertViewProfileImage;
 
 @property (strong, nonatomic) NSArray *arrayRideInvitations;
 @property (weak, nonatomic) IBOutlet UILabel *labelRidesAvailable;
@@ -98,6 +100,14 @@
         return;
     }
     
+    NSMutableArray *barButtons = [[[self navigationItem] leftBarButtonItems] mutableCopy];
+    if ([barButtons count] < 2) {
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [barButtons addObject:[globalMethods getProfileImageBarButtonItemWithTarget:self]];
+        
+        [[self navigationItem] setLeftBarButtonItems:[barButtons copy]];
+    }
+    
     if ([self nidFromNotification] && [[self nidFromNotification] length] > 0) {
         [self performSegueWithIdentifier:@"NotificationsHomePageSegue"
                                   sender:self];
@@ -164,6 +174,10 @@
         if ([[segue destinationViewController] isKindOfClass:[RideDetailsMemberViewController class]]) {
             [(RideDetailsMemberViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
         }
+    } else if ([[segue identifier] isEqualToString:@"HomeProfileSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyProfileViewController class]]) {
+            [(MyProfileViewController *)[segue destinationViewController] setChangeProfilePicture:YES];
+        }
     }
 }
 
@@ -188,6 +202,16 @@
 - (IBAction)bookCabPressed:(UIButton *)sender {
     [self performSegueWithIdentifier:@"CarPoolToHomeSegue"
                               sender:HOME_SEGUE_TYPE_BOOK_CAB];
+}
+
+- (IBAction)profileImageBarButtonItemPressed {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Profile Picture"
+                                                        message:@"Do you want to change your profile picture?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Yes", @"No", nil];
+    [self setAlertViewProfileImage:alertView];
+    [alertView show];
 }
 
 #pragma mark - Private methods
@@ -301,6 +325,11 @@
             
         } else if ([buttonTitle isEqualToString:@"Settings"]) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
+    } else if (alertView == [self alertViewProfileImage]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [self performSegueWithIdentifier:@"HomeProfileSegue"
+                                      sender:self];
         }
     }
 }
@@ -494,7 +523,6 @@
     
     return cell;
 }
-
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     

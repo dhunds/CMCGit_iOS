@@ -374,22 +374,35 @@
                               action:@selector(selectContactPressed:)
                     forControlEvents:UIControlEventTouchUpInside];
     
-    [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
-    
-    //TODO:complete code below for displaying contact image
-//    id image = [dict objectForKey:KEY_DICT_IMAGE];
-//    if ([image isKindOfClass:[UIImage class]]) {
-//        
-//        [[cell imageViewImage] setContentMode:UIViewContentModeScaleAspectFit];
-//        [[cell imageViewImage] setClipsToBounds:YES];
-//        [[cell imageViewImage] setFrame:CGRectMake(28.0, 25.0, 50.0, 50.0)];
-//        [[cell imageViewImage] setImage:image];
-//        
-//    } else {
-//        [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
-//    }
+    id image = [dict objectForKey:KEY_DICT_IMAGE];
+    if ([image isKindOfClass:[UIImage class]]) {
+        CGRect frame = [[cell imageViewImage] frame];
+        [[[cell imageViewImage] layer] setCornerRadius:(frame.size.width / 2.0f)];
+        [[cell imageViewImage] setClipsToBounds:YES];
+        
+        UIImage *scaledImage = [self scaleImage:image
+                                         toSize:CGSizeMake(frame.size.width, frame.size.height)];
+        
+        [[cell imageViewImage] setImage:scaledImage];
+    } else {
+        [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_image_icon.png"]];
+    }
     
     return cell;
+}
+
+- (UIImage *)scaleImage:(UIImage *)originalImage
+                 toSize:(CGSize)newSize {
+    if (CGSizeEqualToSize([originalImage size], newSize)) {
+        return originalImage;
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0f);
+    [originalImage drawInRect:CGRectMake(0.0f, 0.0f, newSize.width, newSize.height)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

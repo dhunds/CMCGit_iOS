@@ -12,4 +12,6 @@
 
 @property (strong, nonatomic) NSDictionary *dictionaryRideDetails;
 
+@property (strong, nonatomic) UIImage *ownerImage;
+
 @end

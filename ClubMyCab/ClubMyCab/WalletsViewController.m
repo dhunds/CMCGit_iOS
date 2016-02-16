@@ -13,6 +13,7 @@
 #import "ToastLabel.h"
 #import "GlobalMethods.h"
 #import "FirstLoginClubsViewController.h"
+#import "MyProfileViewController.h"
 
 @interface WalletsViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate>
 
@@ -40,6 +41,8 @@
 @property (strong, nonatomic) NSString *mobileNumber, *name, *email;
 
 @property (strong, nonatomic) NSString *walletAction;
+
+@property (strong, nonatomic) UIAlertView *alertViewProfileImage;
 
 @end
 
@@ -99,6 +102,16 @@
                                                                  parameters:[NSString stringWithFormat:@"cell=%@&msgcode=500&action=existingusercheck&mid=%@&merchantname=%@", [self mobileNumber], MOBIKWIK_MID, MOBIKWIK_MERCHANT_NAME]
                                                         delegateForProtocol:self];
     }
+    
+    if (![self segueType] || ![[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
+        NSMutableArray *barButtons = [[[self navigationItem] leftBarButtonItems] mutableCopy];
+        if ([barButtons count] < 2) {
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [barButtons addObject:[globalMethods getProfileImageBarButtonItemWithTarget:self]];
+            
+            [[self navigationItem] setLeftBarButtonItems:[barButtons copy]];
+        }
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -115,6 +128,10 @@
     if ([[segue identifier] isEqualToString:@"WalletClubSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[FirstLoginClubsViewController class]]) {
             
+        }
+    } else if ([[segue identifier] isEqualToString:@"WalletProfileSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyProfileViewController class]]) {
+            [(MyProfileViewController *)[segue destinationViewController] setChangeProfilePicture:YES];
         }
     }
 }
@@ -323,6 +340,27 @@
     
     if ([self segueType] && [[self segueType] isEqualToString:OTP_FROM_REGISTRATION]) {
         [self performSegueWithIdentifier:@"WalletClubSegue"
+                                  sender:self];
+    }
+}
+
+- (IBAction)profileImageBarButtonItemPressed {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Profile Picture"
+                                                        message:@"Do you want to change your profile picture?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Yes", @"No", nil];
+    [self setAlertViewProfileImage:alertView];
+    [alertView show];
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if ([buttonTitle isEqualToString:@"Yes"]) {
+        [self performSegueWithIdentifier:@"WalletProfileSegue"
                                   sender:self];
     }
 }

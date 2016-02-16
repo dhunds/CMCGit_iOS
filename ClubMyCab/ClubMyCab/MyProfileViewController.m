@@ -12,8 +12,10 @@
 #import "ToastLabel.h"
 #import "ActivityIndicatorView.h"
 #import "GlobalMethods.h"
+#import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
 
-@interface MyProfileViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate>
+@interface MyProfileViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property (strong, nonatomic) NSString *TAG;
 
@@ -33,7 +35,6 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (weak, nonatomic) IBOutlet UIDatePicker *datePicker;
 @property (weak, nonatomic) IBOutlet UIButton *buttonUpdate;
-
 
 @end
 
@@ -171,6 +172,76 @@
     [[self datePicker] setHidden:YES];
 }
 
+- (IBAction)imageViewProfilePressed:(UITapGestureRecognizer *)sender {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Profile picture"
+                                                                             message:nil
+                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Take Photo"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                          [self checkCameraPermission];
+                                                      }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Photo Library"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                          [self checkPhotoPermission];
+                                                      }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                      }]];
+    
+    [self presentViewController:alertController
+                       animated:YES
+                     completion:^{}];
+}
+
+#pragma mark - UIImagePickerControllerDelegate methods
+
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+    
+    [self dismissViewControllerAnimated:YES
+                             completion:^{}];
+    
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    
+    CGRect frame = [[self imageViewProfile] frame];
+    UIImage *scaledImage = [self scaleImage:image
+                                     toSize:CGSizeMake(frame.size.width, frame.size.height)];
+    
+    NSString *base64 = [UIImagePNGRepresentation(scaledImage) base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+    
+    [self showActivityIndicatorView];
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_IMAGE_UPLOAD
+                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@&imagestr=%@", [self mobileNumber], base64]
+                                            delegateForProtocol:self];
+    
+    [[NSUserDefaults standardUserDefaults] setObject:UIImagePNGRepresentation(scaledImage)
+                                              forKey:KEY_USER_DEFAULT_PROFILE_IMAGE_DATA];
+    
+//    [Logger logDebug:[self TAG]
+//             message:[NSString stringWithFormat:@" didFinishPickingMediaWithInfo : (%f, %f) image : %@", frame.size.width, frame.size.height, [[[self imageViewProfile] image] description]]];
+    
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    
+    if ([buttonTitle isEqualToString:@"Cancel"]) {
+        
+    } else if ([buttonTitle isEqualToString:@"Settings"]) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    }
+}
+
 #pragma mark - GlobalMethodsAsyncRequestProtocol methods
 
 - (void)asyncRequestComplete:(GlobalMethods *)sender
@@ -210,6 +281,8 @@
                     [[self textFieldEmail] setText:[profileDictionary objectForKey:@"Email"]];
                     [[self textFieldDOB] setText:[profileDictionary objectForKey:@"DOB"]];
                     [[self textFieldGender] setText:[profileDictionary objectForKey:@"Gender"]];
+                    
+                    [self fetchImageName];
                 } else {
                     [Logger logError:[self TAG]
                              message:[NSString stringWithFormat:@" %@ parsing error : %@", endPoint, [error localizedDescription]]];
@@ -227,6 +300,31 @@
                 NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
                 [[self navigationItem] setRightBarButtonItem:[[[GlobalMethods alloc] init] getNotificationsBarButtonItemWithTarget:self
                                                                                                           unreadNotificationsCount:[response intValue]]];
+            } else if ([endPoint isEqualToString:ENDPOINT_FETCH_IMAGE_NAME]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if (response && [response length] > 0) {
+                    NSData *image = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/ProfileImages/%@", SERVER_ADDRESS, response]]];
+//                    [Logger logDebug:[self TAG]
+//                             message:[NSString stringWithFormat:@" ProfileImages : %@", [image description]]];
+                    [[self imageViewProfile] setImage:[UIImage imageWithData:image]];
+                }
+                
+                CGRect frame = [[self imageViewProfile] frame];
+                [[[self imageViewProfile] layer] setCornerRadius:(frame.size.width / 2.0f)];
+                [[self imageViewProfile] setClipsToBounds:YES];
+                
+                if ([self changeProfilePicture]) {
+                    [self setChangeProfilePicture:NO];
+                    [self imageViewProfilePressed:nil];
+                }
+            } else if ([endPoint isEqualToString:ENDPOINT_IMAGE_UPLOAD]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                if (response && [[response lowercaseString] rangeOfString:@"Error"].location == NSNotFound) {
+                    [self makeToastWithMessage:@"Image Uploaded"];
+                    [self fetchImageName];
+                } else {
+                    [self makeToastWithMessage:@"Error uploading Image, Please try again or use a different image"];
+                }
             }
         }
     });
@@ -244,6 +342,15 @@
                                             delegateForProtocol:self];
 }
 
+- (void)fetchImageName {
+    
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_FETCH_IMAGE_NAME
+                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [self mobileNumber]]
+                                            delegateForProtocol:self];
+}
+
 //- (void)keyboardWillShow:(NSNotification *)notification
 //{
 //    [Logger logDebug:[self TAG]
@@ -255,6 +362,102 @@
 //    }];
 //}
 
+- (void)checkCameraPermission {
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (status == AVAuthorizationStatusAuthorized) {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkCameraPermission AVAuthorizationStatusAuthorized"]];
+        [self showImagePickerCamera];
+    } else if (status == AVAuthorizationStatusNotDetermined) {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkCameraPermission AVAuthorizationStatusNotDetermined"]];
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+                                 completionHandler:^(BOOL granted) {
+                                     if (granted) {
+                                         [self showImagePickerCamera];
+                                     } else {
+                                         [self showCameraPermissionAlertView];
+                                     }
+                                 }];
+    } else {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkCameraPermission AVAuthorizationStatus Others"]];
+        [self showCameraPermissionAlertView];
+    }
+}
+
+- (void)showImagePickerCamera {
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    [imagePickerController setSourceType:UIImagePickerControllerSourceTypeCamera];
+    [imagePickerController setDelegate:self];
+    [self presentViewController:imagePickerController
+                       animated:YES
+                     completion:^{}];
+}
+
+- (void)showCameraPermissionAlertView {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Permission needed"
+                                                        message:@"iShareRyde cannot take your profile picture without access to the Camera. Please provide access in Settings"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Cancel", @"Settings", nil];
+    [alertView show];
+}
+
+- (void)checkPhotoPermission {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    if (status == PHAuthorizationStatusAuthorized) {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkPhotoPermission PHAuthorizationStatusAuthorized"]];
+        [self showImagePickerPhotos];
+    } else if (status == PHAuthorizationStatusNotDetermined) {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkPhotoPermission PHAuthorizationStatusNotDetermined"]];
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status) {
+                [self showImagePickerPhotos];
+            } else {
+                [self showPhotoPermissionAlertView];
+            }
+        }];
+    } else {
+        [Logger logDebug:[self TAG]
+                 message:[NSString stringWithFormat:@"checkPhotoPermission PHAuthorizationStatus Others"]];
+        [self showPhotoPermissionAlertView];
+    }
+}
+
+- (void)showImagePickerPhotos {
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    [imagePickerController setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    [imagePickerController setDelegate:self];
+    [self presentViewController:imagePickerController
+                       animated:YES
+                     completion:^{}];
+}
+
+- (void)showPhotoPermissionAlertView {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Permission needed"
+                                                        message:@"iShareRyde cannot choose a profile picture without access to your Photo Library. Please provide access in Settings"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Cancel", @"Settings", nil];
+    [alertView show];
+}
+
+- (UIImage *)scaleImage:(UIImage *)originalImage
+                 toSize:(CGSize)newSize {
+    if (CGSizeEqualToSize([originalImage size], newSize)) {
+        return originalImage;
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0f);
+    [originalImage drawInRect:CGRectMake(0.0f, 0.0f, newSize.width, newSize.height)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 
 - (void)makeToastWithMessage:(NSString *)message {
     

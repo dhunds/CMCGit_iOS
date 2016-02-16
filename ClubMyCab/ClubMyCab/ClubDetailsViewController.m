@@ -29,12 +29,22 @@
 
 @property (nonatomic) NSUInteger deleteUserIndex;
 
+@property (strong, nonatomic) NSMutableDictionary *dictionaryProfileImages;
+
 @end
 
 @implementation ClubDetailsViewController
 
 - (NSString *)TAG {
     return @"ClubDetailsViewController";
+}
+
+- (NSMutableDictionary *)dictionaryProfileImages {
+    if (!_dictionaryProfileImages) {
+        _dictionaryProfileImages = [NSMutableDictionary dictionary];
+    }
+    
+    return _dictionaryProfileImages;
 }
 
 #pragma mark - View Controller Life Cycle methods
@@ -90,7 +100,44 @@
     }
     
     [[cell labelName] setText:[[[self arrayMembers] objectAtIndex:indexPath.row] objectForKey:@"FullName"]];
-    [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_appicon.png"]];
+    
+    CGRect frame = [[cell imageViewImage] frame];
+    [[[cell imageViewImage] layer] setCornerRadius:(frame.size.width / 2.0f)];
+    [[cell imageViewImage] setClipsToBounds:YES];
+    
+    NSString *imageName = [[[self arrayMembers] objectAtIndex:indexPath.row] objectForKey:@"ImageName"];
+    if (!imageName || [imageName length] <= 0) {
+        [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_appicon.png"]];
+    } else {
+        if ([[self dictionaryProfileImages] objectForKey:imageName]) {
+            [[cell imageViewImage] setImage:[[self dictionaryProfileImages] objectForKey:imageName]];
+        } else {
+            [[cell imageViewImage] setImage:[UIImage imageNamed:@"contact_appicon.png"]];
+            
+            NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/ProfileImages/%@", SERVER_ADDRESS, imageName]];
+            NSURLSessionTask *sessionTask = [[NSURLSession sharedSession] dataTaskWithURL:url
+                                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                                            if (data) {
+                                                                                UIImage *image = [UIImage imageWithData:data];
+                                                                                if (image) {
+                                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                                        ClubDetailsTableViewCell *imageCell = [[self tableViewMembers] cellForRowAtIndexPath:indexPath];
+                                                                                        if (imageCell) {
+                                                                                            CGRect frame = [[imageCell imageViewImage] frame];
+                                                                                            UIImage *scaledImage = [self scaleImage:image
+                                                                                                                             toSize:CGSizeMake(frame.size.width, frame.size.height)];
+                                                                                            
+                                                                                            [[imageCell imageViewImage] setImage:scaledImage];
+                                                                                            [[self dictionaryProfileImages] setObject:scaledImage
+                                                                                                                               forKey:imageName];
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }];
+            [sessionTask resume];
+        }
+    }
     
     if ([[self segueType] isEqualToString:MY_CLUBS_SEGUE]) {
         [[cell buttonDelete] setTag:indexPath.row];
@@ -207,6 +254,20 @@
 }
 
 #pragma mark - Private methods
+
+- (UIImage *)scaleImage:(UIImage *)originalImage
+                 toSize:(CGSize)newSize {
+    if (CGSizeEqualToSize([originalImage size], newSize)) {
+        return originalImage;
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0f);
+    [originalImage drawInRect:CGRectMake(0.0f, 0.0f, newSize.width, newSize.height)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 
 - (void)makeToastWithMessage:(NSString *)message {
     

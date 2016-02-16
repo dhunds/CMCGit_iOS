@@ -11,4 +11,7 @@
 @interface MyProfileViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *barButtonItem;
+
+@property (nonatomic) BOOL changeProfilePicture;
+
 @end

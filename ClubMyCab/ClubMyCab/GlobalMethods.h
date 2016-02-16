@@ -41,6 +41,8 @@
 - (UIBarButtonItem *)getNotificationsBarButtonItemWithTarget:(id)target
                                     unreadNotificationsCount:(int)count;
 
+- (UIBarButtonItem *)getProfileImageBarButtonItemWithTarget:(id)target;
+
 - (NSString *)getShortNameForGMSAddress:(GMSAddress *)address;
 
 @end

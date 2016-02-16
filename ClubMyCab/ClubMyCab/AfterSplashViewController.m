@@ -105,15 +105,31 @@
                                                               otherButtonTitles:@"Update", nil];
                     [alertView show];
                 } else {
-                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                    if ([userDefaults boolForKey:KEY_USER_DEFAULT_VERIFY_OTP]) {
-                        [self performSegueWithIdentifier:@"SplashHomeSegue"
-                                                  sender:self];
-                    } else {
-                        [self performSegueWithIdentifier:@"OTPSplashSegue"
-                                                  sender:self];
-                    }
+                    [self fetchImageName];
                 }
+            } else if ([endPoint isEqualToString:ENDPOINT_FETCH_IMAGE_NAME]) {
+                NSString *response = [data valueForKey:KEY_DATA_ASYNC_CONNECTION];
+                
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                
+                if (response && [response length] > 0) {
+                    NSData *image = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/ProfileImages/%@", SERVER_ADDRESS, response]]];
+                    
+                    [userDefaults setObject:image
+                                     forKey:KEY_USER_DEFAULT_PROFILE_IMAGE_DATA];
+                } else {
+                    [userDefaults setObject:nil
+                                     forKey:KEY_USER_DEFAULT_PROFILE_IMAGE_DATA];
+                }
+                
+                if ([userDefaults boolForKey:KEY_USER_DEFAULT_VERIFY_OTP]) {
+                    [self performSegueWithIdentifier:@"SplashHomeSegue"
+                                              sender:self];
+                } else {
+                    [self performSegueWithIdentifier:@"OTPSplashSegue"
+                                              sender:self];
+                }
+                
             }
         }
     });
@@ -156,6 +172,15 @@
 }
 
 #pragma mark - Private methods
+
+- (void)fetchImageName {
+    
+    GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+    [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                       endPoint:ENDPOINT_FETCH_IMAGE_NAME
+                                                     parameters:[NSString stringWithFormat:@"MobileNumber=%@", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE]]
+                                            delegateForProtocol:self];
+}
 
 - (NSString *)currentAppVersion {
     return [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];

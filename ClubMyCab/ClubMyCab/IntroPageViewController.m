@@ -64,31 +64,31 @@
     
     id viewController = nil;
     
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 3; i++) {
         viewController = [[self storyboard] instantiateViewControllerWithIdentifier:@"IntroPageVC"];
         [Logger logDebug:[self TAG]
                  message:[NSString stringWithFormat:@" initializeDatasource viewController : %@", [viewController description]]];
         if ([viewController isKindOfClass:[IntroPageImageViewController class]]) {
             switch (i) {
                 case 0: {
-                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_1.png"]];
+                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_1.jpg"]];
                     break;
                 }
                     
                 case 1: {
-                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_2.png"]];
+                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_2.jpg"]];
                     break;
                 }
                     
                 case 2: {
-                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_3.png"]];
+                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_3.jpg"]];
                     break;
                 }
                     
-                case 3: {
-                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_4.png"]];
-                    break;
-                }
+//                case 3: {
+//                    [(IntroPageImageViewController *)viewController setImage:[UIImage imageNamed:@"help_screen_4.png"]];
+//                    break;
+//                }
             }
             
             [[self viewControllers] addObject:viewController];

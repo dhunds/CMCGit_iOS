@@ -1003,6 +1003,14 @@
             [[self labelInfoPerSeatCharge] setHidden:YES];
         }
         
+        if ([self ownerImage]) {
+            [[self imageViewInfoUserImage] setImage:[self ownerImage]];
+            
+            CGRect frame = [[self imageViewInfoUserImage] frame];
+            [[[self imageViewInfoUserImage] layer] setCornerRadius:(frame.size.width / 2.0f)];
+            [[self imageViewInfoUserImage] setClipsToBounds:YES];
+        }
+        
         [[self viewRideInfoParent] setHidden:NO];
     } else {
         [[self viewRideInfoParent] setHidden:YES];

@@ -16,6 +16,7 @@
 #import "MyRidesTableViewCell.h"
 #import "RideDetailsViewController.h"
 #import "RideDetailsMemberViewController.h"
+#import "MyProfileViewController.h"
 
 @interface MyRidesViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate>
 
@@ -33,12 +34,24 @@
 
 @property (nonatomic) BOOL isFetchingHistory, showHistoryPressed;
 
+@property (strong, nonatomic) UIAlertView *alertViewProfileImage;
+
+@property (strong, nonatomic) NSMutableDictionary *dictionaryProfileImages;
+
 @end
 
 @implementation MyRidesViewController
 
 - (NSString *)TAG {
     return @"MyRidesViewController";
+}
+
+- (NSMutableDictionary *)dictionaryProfileImages {
+    if (!_dictionaryProfileImages) {
+        _dictionaryProfileImages = [NSMutableDictionary dictionary];
+    }
+    
+    return _dictionaryProfileImages;
 }
 
 #pragma mark - View Controller Life Cycle methods
@@ -77,6 +90,18 @@
     [[self buttonShowHistory] setHidden:NO];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSMutableArray *barButtons = [[[self navigationItem] leftBarButtonItems] mutableCopy];
+    if ([barButtons count] < 2) {
+        GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+        [barButtons addObject:[globalMethods getProfileImageBarButtonItemWithTarget:self]];
+        
+        [[self navigationItem] setLeftBarButtonItems:[barButtons copy]];
+    }
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -96,10 +121,40 @@
     } else if ([[segue identifier] isEqualToString:@"RideDetailsSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[RideDetailsViewController class]]) {
             [(RideDetailsViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+            
+            NSString *imageName = [sender objectForKey:@"imagename"];
+            if (imageName && [imageName length] > 0) {
+                UIImage *image = [[self dictionaryProfileImages] objectForKey:imageName];
+                if (image) {
+                    [(RideDetailsViewController *)[segue destinationViewController] setOwnerImage:image];
+                } else {
+                    [(RideDetailsViewController *)[segue destinationViewController] setOwnerImage:nil];
+                }
+                
+            } else {
+                [(RideDetailsViewController *)[segue destinationViewController] setOwnerImage:nil];
+            }
         }
     } else if ([[segue identifier] isEqualToString:@"RideDetailsMemberSegue"]) {
         if ([[segue destinationViewController] isKindOfClass:[RideDetailsMemberViewController class]]) {
             [(RideDetailsMemberViewController *)[segue destinationViewController] setDictionaryRideDetails:sender];
+            
+            NSString *imageName = [sender objectForKey:@"imagename"];
+            if (imageName && [imageName length] > 0) {
+                UIImage *image = [[self dictionaryProfileImages] objectForKey:imageName];
+                if (image) {
+                    [(RideDetailsMemberViewController *)[segue destinationViewController] setOwnerImage:image];
+                } else {
+                    [(RideDetailsMemberViewController *)[segue destinationViewController] setOwnerImage:nil];
+                }
+                
+            } else {
+                [(RideDetailsMemberViewController *)[segue destinationViewController] setOwnerImage:nil];
+            }
+        }
+    } else if ([[segue identifier] isEqualToString:@"RidesProfileSegue"]) {
+        if ([[segue destinationViewController] isKindOfClass:[MyProfileViewController class]]) {
+            [(MyProfileViewController *)[segue destinationViewController] setChangeProfilePicture:YES];
         }
     }
 }
@@ -277,6 +332,48 @@
     [[cell labelTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %@", [array lastObject]]];
     [[cell labelAvailableSeats] setText:[NSString stringWithFormat:@"Available : %d", ([[array lastObject] intValue] - [[array firstObject] intValue])]];
     
+    NSString *imageName = [dictionaryRide objectForKey:@"imagename"];
+    if (!imageName || [imageName length] <= 0) {
+        [[cell imageViewOwnerImage] setImage:[UIImage imageNamed:@"contact_appicon.png"]];
+    } else {
+        if ([[self dictionaryProfileImages] objectForKey:imageName]) {
+            [[cell imageViewOwnerImage] setImage:[[self dictionaryProfileImages] objectForKey:imageName]];
+            CGRect frame = [[cell imageViewOwnerImage] frame];
+            [[[cell imageViewOwnerImage] layer] setCornerRadius:(frame.size.width / 2.0f)];
+            [[cell imageViewOwnerImage] setClipsToBounds:YES];
+        } else {
+            [[cell imageViewOwnerImage] setImage:[UIImage imageNamed:@"contact_appicon.png"]];
+            
+            NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/ProfileImages/%@", SERVER_ADDRESS, imageName]];
+            NSURLSessionTask *sessionTask = [[NSURLSession sharedSession] dataTaskWithURL:url
+                                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                                            if (data) {
+                                                                                UIImage *image = [UIImage imageWithData:data];
+                                                                                if (image) {
+                                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                                        MyRidesTableViewCell *imageCell = [[self tableViewMyRides] cellForRowAtIndexPath:indexPath];
+                                                                                        if (imageCell) {
+                                                                                            CGRect frame = [[imageCell imageViewOwnerImage] frame];
+                                                                                            UIImage *scaledImage = [self scaleImage:image
+                                                                                                                             toSize:CGSizeMake(frame.size.width, frame.size.height)];
+                                                                                            
+                                                                                            [[imageCell imageViewOwnerImage] setImage:scaledImage];
+                                                                                            [[self dictionaryProfileImages] setObject:scaledImage
+                                                                                                                               forKey:imageName];
+                                                                                            
+//                                                                                            CGRect frame = [[imageCell imageViewOwnerImage] frame];
+                                                                                            [[[imageCell imageViewOwnerImage] layer] setCornerRadius:(frame.size.width / 2.0f)];
+                                                                                            [[imageCell imageViewOwnerImage] setClipsToBounds:YES];
+                                                                                            
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }];
+            [sessionTask resume];
+        }
+    }
+    
     if ([self isLastRideVisible]) {
         [self fetchPoolsHistoryWithLastCabID:[[[self arrayMyRides] lastObject] objectForKey:@"CabId"]];
     }
@@ -320,6 +417,28 @@
     [self setShowHistoryPressed:YES];
     
     [self fetchPoolsHistoryWithLastCabID:@""];
+}
+
+- (IBAction)profileImageBarButtonItemPressed {
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Profile Picture"
+                                                        message:@"Do you want to change your profile picture?"
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:@"Yes", @"No", nil];
+    [self setAlertViewProfileImage:alertView];
+    [alertView show];
+}
+
+#pragma mark - UIAlertViewDelegate methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if (alertView == [self alertViewProfileImage]) {
+        if ([buttonTitle isEqualToString:@"Yes"]) {
+            [self performSegueWithIdentifier:@"RidesProfileSegue"
+                                      sender:self];
+        }
+    }
 }
 
 #pragma mark - Private methods
@@ -378,6 +497,20 @@
     
     [[NSUserDefaults standardUserDefaults] setObject:[arrayMutable copy]
                                               forKey:KEY_USER_DEFAULT_BOOKED_OR_CAR_PREFERENCE];
+}
+
+- (UIImage *)scaleImage:(UIImage *)originalImage
+                 toSize:(CGSize)newSize {
+    if (CGSizeEqualToSize([originalImage size], newSize)) {
+        return originalImage;
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0f);
+    [originalImage drawInRect:CGRectMake(0.0f, 0.0f, newSize.width, newSize.height)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 - (void)makeToastWithMessage:(NSString *)message {

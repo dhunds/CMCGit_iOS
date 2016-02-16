@@ -185,6 +185,38 @@
     //added only to suppress warnings, does nothing
 }
 
+- (UIBarButtonItem *)getProfileImageBarButtonItemWithTarget:(id)target {
+    
+    NSData *image = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_PROFILE_IMAGE_DATA];
+    
+    CGFloat dimension = 40.0f;
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    if (image) {
+        [button setImage:[UIImage imageWithData:image]
+                forState:UIControlStateNormal];
+    } else {
+        [button setImage:[UIImage imageNamed:@"appicon_whitebg.png"]
+                forState:UIControlStateNormal];
+    }
+    [button setFrame:CGRectMake(0.0f, 0.0f, dimension, dimension)];
+    [[button layer] setCornerRadius:(dimension / 2.0f)];
+    [button setClipsToBounds:YES];
+    
+    if ([target respondsToSelector:@selector(profileImageBarButtonItemPressed)]) {
+        [button addTarget:target
+                   action:@selector(profileImageBarButtonItemPressed)
+         forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:button];
+    
+    return barButton;
+}
+
+- (IBAction)profileImageBarButtonItemPressed {
+    //added only to suppress warnings, does nothing
+}
+
 - (NSString *)getShortNameForGMSAddress:(GMSAddress *)address {
     
     NSString *shortName = @"";
