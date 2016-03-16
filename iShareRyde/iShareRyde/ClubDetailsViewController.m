@@ -13,6 +13,7 @@
 #import "ClubDetailsTableViewCell.h"
 #import "GlobalMethods.h"
 #import "GenericContactsViewController.h"
+#import <Google/Analytics.h>
 
 @interface ClubDetailsViewController () <UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
 
@@ -54,6 +55,15 @@
     // Do any additional setup after loading the view.
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -73,6 +83,9 @@
     [[self labelClubName] setText:[[self dictionaryClubDetails] objectForKey:@"PoolName"]];
     
     [self setArrayMembers:[[self dictionaryClubDetails] objectForKey:@"Members"]];
+    
+    [Logger logDebug:[self TAG]
+             message:[NSString stringWithFormat:@" viewDidAppear : %@", [[self arrayMembers] description]]];
     
     [[self tableViewMembers] reloadData];
 }
@@ -203,6 +216,14 @@
     NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     
     if ([buttonTitle isEqualToString:@"Yes"]) {
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Remove member from club"
+                                                              action:@"Remove member from club"
+                                                               label:@"Remove member from club"
+                                                               value:nil] build]];
+        
         [self showActivityIndicatorView];
         
         [self setDeleteUserIndex:[alertView tag]];

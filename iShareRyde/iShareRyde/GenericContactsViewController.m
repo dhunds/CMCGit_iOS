@@ -13,6 +13,7 @@
 #import "ToastLabel.h"
 #import "ContactsTableViewCell.h"
 #import "ClubDetailsViewController.h"
+#import <Google/Analytics.h>
 
 @import AddressBook;
 
@@ -463,6 +464,14 @@
             if ([selectionArray count] <= 0) {
                 [self makeToastWithMessage:@"Please select contact(s) to create group"];
             } else {
+                
+                id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+                
+                [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Create club"
+                                                                      action:@"Create club"
+                                                                       label:@"Create club"
+                                                                       value:nil] build]];
+                
                 [self showActivityIndicatorView];
                 
                 NSString *memberNames = [self generateSelectedMemberNamesString:selectionArray];
@@ -480,6 +489,14 @@
         if ([selectionArray count] <= 0) {
             [self makeToastWithMessage:@"Please select contact(s) to add"];
         } else {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Add member to club"
+                                                                  action:@"Add member to club"
+                                                                   label:@"Add member to club"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             NSString *memberNames = [self generateSelectedMemberNamesString:selectionArray];
@@ -496,6 +513,14 @@
         if ([selectionArray count] <= 0) {
             [self makeToastWithMessage:@"Please select contact(s) to refer"];
         } else {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Refer friends to club"
+                                                                  action:@"Refer friends to club"
+                                                                   label:@"Refer friends to club"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             NSString *memberNames = [self generateSelectedMemberNamesString:selectionArray];
@@ -504,7 +529,7 @@
             GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
             [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
                                                                endPoint:ENDPOINT_REFER_USERS_CLUB
-                                                             parameters:[NSString stringWithFormat:@"ClubId=%@&MemberName=%@&MemberNumber=%@&ReferedUserName=%@&ReferedUserNumber=%@", [[self dictionaryClubDetails] objectForKey:@"PoolId"], [[self dictionaryClubDetails] objectForKey:@"OwnerName"], [[self dictionaryClubDetails] objectForKey:@"OwnerNumber"], memberNames, memberNumbers]
+                                                             parameters:[NSString stringWithFormat:@"ClubId=%@&MemberName=%@&MemberNumber=%@&ReferedUserName=%@&ReferedUserNumber=%@", [[self dictionaryClubDetails] objectForKey:@"PoolId"], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME], [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], memberNames, memberNumbers]
                                                     delegateForProtocol:self];
         }
     } else if ([[self segueType] isEqualToString:SEGUE_FROM_RIDE_INVITATION] || [[self segueType] isEqualToString:SEGUE_FROM_OWNER_RIDE_INVITATION]) {
@@ -512,6 +537,14 @@
         if ([selectionArray count] <= 0) {
             [self makeToastWithMessage:@"Please select contact(s) to invite"];
         } else {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Invite contacts to ride"
+                                                                  action:@"Invite contacts to ride"
+                                                                   label:@"Invite contacts to ride"
+                                                                   value:nil] build]];
+            
             NSString *memberNames = [self generateSelectedMemberNamesString:selectionArray];
             NSString *memberNumbers = [self generateSelectedMemberNumbersString:selectionArray];
             

@@ -14,6 +14,7 @@
 #import "GlobalMethods.h"
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
+#import <Google/Analytics.h>
 
 @interface MyProfileViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
@@ -71,6 +72,11 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
+    
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
     
     [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
@@ -112,6 +118,7 @@
         [[self buttonUpdate] setHidden:YES];
         [[self datePicker] setMaximumDate:[NSDate date]];
         [[self datePicker] setHidden:NO];
+        [[self datePicker] setBackgroundColor:[UIColor whiteColor]];
         return NO;
     } else if (textField == [self textFieldGender]) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
@@ -156,6 +163,14 @@
 }
 
 - (IBAction)updatePressed:(UIButton *)sender {
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Update Profile"
+                                                          action:@"Update Profile"
+                                                           label:@"Update Profile"
+                                                           value:nil] build]];
+    
     [self showActivityIndicatorView];
     
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
@@ -224,6 +239,12 @@
     [[NSUserDefaults standardUserDefaults] setObject:UIImagePNGRepresentation(scaledImage)
                                               forKey:KEY_USER_DEFAULT_PROFILE_IMAGE_DATA];
     
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Change Profile Image"
+                                                          action:@"Change Profile Image"
+                                                           label:@"Change Profile Image"
+                                                           value:nil] build]];
 //    [Logger logDebug:[self TAG]
 //             message:[NSString stringWithFormat:@" didFinishPickingMediaWithInfo : (%f, %f) image : %@", frame.size.width, frame.size.height, [[[self imageViewProfile] image] description]]];
     

@@ -14,6 +14,7 @@
 #import "ClubsInviteViewController.h"
 #import "MyClubsViewController.h"
 #import "GenericContactsViewController.h"
+#import <Google/Analytics.h>
 
 @interface TripDateTimeViewController () <GlobalMethodsAsyncRequestProtocol, UIAlertViewDelegate, ClubsInviteVCProtocol, GenericContactsVCProtocol>
 
@@ -30,8 +31,9 @@
 @property (weak, nonatomic) IBOutlet UIDatePicker *datePicker;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBarDatePicker;
 @property (weak, nonatomic) IBOutlet UIView *viewCoPassengers;
-@property (weak, nonatomic) IBOutlet UIView *viewChargesPerSeat;
+//@property (weak, nonatomic) IBOutlet UIView *viewChargesPerSeat;
 @property (weak, nonatomic) IBOutlet UILabel *labelChargesPerSeat;
+@property (weak, nonatomic) IBOutlet UILabel *labelChargesPerSeatDetails;
 
 @property (strong, nonatomic) NSString *tripDateTime;
 
@@ -67,19 +69,31 @@
     
     [self setTripDateTime:[dateFormatter stringFromDate:date]];
     
-    [[self labelCoPassengers] setText:@"3"];
     if ([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL]) {
-        [[self viewChargesPerSeat] setHidden:NO];
+//        [[self viewChargesPerSeat] setHidden:NO];
+        [[self labelChargesPerSeatDetails] setHidden:NO];
         [[self labelChargesPerSeat] setText:@"3"];
         [self setShouldOfferFree:NO];
+        [[self labelCoPassengers] setText:@"3"];
     } else {
-        [[self viewChargesPerSeat] setHidden:YES];
+//        [[self viewChargesPerSeat] setHidden:YES];
+        [[self labelChargesPerSeatDetails] setHidden:YES];
+        [[self labelCoPassengers] setText:@"2"];
     }
     
     [[self datePicker] setMinimumDate:[NSDate date]];
     
     [Logger logDebug:[self TAG]
              message:[NSString stringWithFormat:@" viewDidLoad from : %@ to : %@", [[self addressModelFrom] longName], [[self addressModelTo] longName]]];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -161,7 +175,8 @@
 //    [[self labelHeaderCoPassengers] setHidden:NO];
 //    [[self labelCoPassengers] setHidden:NO];
     [[self viewCoPassengers] setHidden:NO];
-    [[self viewChargesPerSeat] setHidden:([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] ? NO : YES)];
+//    [[self viewChargesPerSeat] setHidden:([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] ? NO : YES)];
+    [[self labelChargesPerSeatDetails] setHidden:([[self segueType] isEqualToString:HOME_SEGUE_TYPE_CAR_POOL] ? NO : YES)];
 }
 
 - (void)makeToastWithMessage:(NSString *)message {
@@ -457,7 +472,8 @@
 //    [[self labelHeaderCoPassengers] setHidden:YES];
 //    [[self labelCoPassengers] setHidden:YES];
     [[self viewCoPassengers] setHidden:YES];
-    [[self viewChargesPerSeat] setHidden:YES];
+//    [[self viewChargesPerSeat] setHidden:YES];
+    [[self labelChargesPerSeatDetails] setHidden:YES];
 }
 
 - (IBAction)selectDateTimePressed:(UIButton *)sender {
@@ -526,25 +542,27 @@
 
 - (IBAction)labelChargesPerSeatPressed:(UITapGestureRecognizer *)sender {
     
-    if ([self shouldOfferFree]) {
-        return;
-    }
+    //commented to hard code per seat charges to 3
     
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
-                                                                             message:@"Select charges per seat"
-                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    for (int i = 1; i <= 5; i++) {
-        [alertController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%d", i]
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction *action) {
-                                                              [[self labelChargesPerSeat] setText:[action title]];
-                                                          }]];
-    }
-    
-    [self presentViewController:alertController
-                       animated:YES
-                     completion:^{}];
+//    if ([self shouldOfferFree]) {
+//        return;
+//    }
+//    
+//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+//                                                                             message:@"Select charges per seat"
+//                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+//    
+//    for (int i = 1; i <= 5; i++) {
+//        [alertController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%d", i]
+//                                                            style:UIAlertActionStyleDefault
+//                                                          handler:^(UIAlertAction *action) {
+//                                                              [[self labelChargesPerSeat] setText:[action title]];
+//                                                          }]];
+//    }
+//    
+//    [self presentViewController:alertController
+//                       animated:YES
+//                     completion:^{}];
 }
 
 - (IBAction)chargesPerSeatPressed:(UIButton *)sender {

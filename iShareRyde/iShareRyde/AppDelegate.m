@@ -13,6 +13,7 @@
 #import "MyRidesViewController.h"
 #import "MyClubsViewController.h"
 #import "HomeCarPoolViewController.h"
+#import <Google/Analytics.h>
 
 @import GoogleMaps;
 
@@ -23,6 +24,13 @@
 @property (strong, nonatomic) NSDictionary *dictionaryNotification;
 @property (nonatomic) BOOL isNotificationAlertViewShowing;
 @property (strong, nonatomic) UIAlertView *alertViewLocalNotification, *alertViewRemoteNotification;
+
+@property (nonatomic) BOOL updateSent;
+
+@property (strong, nonatomic) NSString *sharingType, *recipientNames, *recipientNumbers, *cabID;
+@property (nonatomic) int shareForDuration;
+@property (strong, nonatomic) CLLocation *shareTillLocation;
+@property (strong, nonatomic) NSDate *startedSharing;
 
 @end
 
@@ -37,6 +45,15 @@
              message:@" didFinishLaunchingWithOptions"];
     
     [GMSServices provideAPIKey:GOOGLE_MAPS_API_KEY];
+    
+    NSError *configureError;
+    [[GGLContext sharedInstance] configureWithError:&configureError];
+    NSAssert(!configureError, @"Error configuring Google services: %@", configureError);
+    
+    // Optional: configure GAI options.
+    GAI *gai = [GAI sharedInstance];
+    gai.trackUncaughtExceptions = YES;  // report uncaught exceptions
+//    gai.logger.logLevel = kGAILogLevelVerbose;  // remove before app release
     
     UILocalNotification *localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
     if (localNotification) {
@@ -68,6 +85,13 @@
     
     [Logger logDebug:@"AppDelegate"
              message:@" applicationWillResignActive"];
+    
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    
+    
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -111,6 +135,179 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     [Logger logDebug:@"AppDelegate"
              message:@" applicationWillTerminate"];
+}
+
+#pragma mark - Location sharing methods
+
+#define DISTANCE_THRESHOLD                  100
+#define MAX_HOURS_LOC_SHARING               4
+
+- (void)startUpdatingLocation {
+//    NSLog(@"startUpdatingLocation background time: %f", [UIApplication sharedApplication].backgroundTimeRemaining);
+    
+    [Logger logDebug:@"startUpdatingLocation"
+             message:@""];
+    
+    if (![self locationManager]) {
+        [self setLocationManager:[[CLLocationManager alloc] init]];
+        [[self locationManager] setDelegate:self];
+        [[self locationManager] setAllowsBackgroundLocationUpdates:YES];
+        [[self locationManager] setDesiredAccuracy:kCLLocationAccuracyBest];
+        [[self locationManager] setDistanceFilter:kCLDistanceFilterNone];
+        [[self locationManager] setPausesLocationUpdatesAutomatically:NO];
+        [[self locationManager] setActivityType:CLActivityTypeAutomotiveNavigation];
+    }
+    
+    [self setUpdateSent:NO];
+    [[self locationManager] startUpdatingLocation];
+}
+
+- (void)stopLocationSharing {
+    [[self locationManager] stopUpdatingLocation];
+    [[self timer] invalidate];
+    [[NSUserDefaults standardUserDefaults] setBool:NO
+                                            forKey:KEY_IS_LOCATION_SHARING_ON];
+    [Logger logDebug:@"stopUpdatingLocation"
+             message:[NSString stringWithFormat:@""]];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    
+    CLLocation *userLocation = nil;
+    
+    for (CLLocation *loc in locations) {
+        [Logger logDebug:@"didUpdateLocations"
+                 message:[NSString stringWithFormat:@" loc : %@ accuracy : %f", [loc description], [loc horizontalAccuracy]]];
+        
+        if ([loc horizontalAccuracy] < DISTANCE_THRESHOLD) {
+            userLocation = loc;
+            break;
+        }
+    }
+    
+    if (userLocation && ![self updateSent]) {
+        
+        [self setUpdateSent:YES];
+        
+        if ([[self sharingType] isEqualToString:SHARE_LOCATION_TYPE_FOR_RIDE]) {
+            GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+            [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                               endPoint:ENDPOINT_UPDATE_OWNER_LOCATION
+                                                             parameters:[NSString stringWithFormat:@"cabId=%@&location=%@", [self cabID], [NSString stringWithFormat:@"%f,%f", [userLocation coordinate].latitude, [userLocation coordinate].longitude]]
+                                                    delegateForProtocol:self];
+            
+            if ([[self shareTillLocation] distanceFromLocation:userLocation] < DISTANCE_THRESHOLD) {
+                [self stopLocationSharing];
+                
+                GlobalMethods *updateCabStatus = [[GlobalMethods alloc] init];
+                [updateCabStatus makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                     endPoint:ENDPOINT_UPDATE_CAB_STATUS
+                                                                   parameters:[NSString stringWithFormat:@"cabId=%@", [self cabID]]
+                                                          delegateForProtocol:self];
+                
+            } else if ([[self startedSharing] timeIntervalSinceNow] <= (-1.0f * MAX_HOURS_LOC_SHARING * 60 * 60)) {
+                [self stopLocationSharing];
+            }
+        } else {
+            GMSGeocoder *geoCoder = [[GMSGeocoder alloc] init];
+            [geoCoder reverseGeocodeCoordinate:[userLocation coordinate]
+                             completionHandler:^(GMSReverseGeocodeResponse *response, NSError *error) {
+                                 if (!error) {
+                                     //                                 [Logger logDebug:@""
+                                     //                                          message:[NSString stringWithFormat:@" reverseGeocodeCoordinate : %@", [[response results] description]]];
+                                     
+                                     NSString *address = @"";
+                                     NSArray *addressObject = [(GMSAddress *)[[response results] firstObject] lines];
+                                     for (int i = 0; i < [addressObject count]; i++) {
+                                         address = [address stringByAppendingString:[NSString stringWithFormat:@"%@%@ ", [addressObject objectAtIndex:i], @","]];
+                                     }
+                                     address = [address substringToIndex:([address length] - 2)];
+                                     
+                                     NSString *name = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME];
+                                     
+                                     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
+                                     [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
+                                                                                        endPoint:ENDPOINT_SHARE_LOCATION_MEMBERS
+                                                                                      parameters:[NSString stringWithFormat:@"MembersNumber=%@&MembersName=%@&FullName=%@&MobileNumber=%@&Message=%@&latlongstr=%@", [self recipientNumbers], [self recipientNames], name, [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBILE], [NSString stringWithFormat:@"%@ is at - %@", name, address], [NSString stringWithFormat:@"%f,%f", [userLocation coordinate].latitude, [userLocation coordinate].longitude]]
+                                                                             delegateForProtocol:self];
+                                     
+                                     if ([[self sharingType] isEqualToString:SHARE_LOCATION_TYPE_DURATION]) {
+                                         [Logger logDebug:@"SHARE_LOCATION_TYPE_DURATION"
+                                                  message:[NSString stringWithFormat:@" %f : ", [[self startedSharing] timeIntervalSinceNow]]];
+                                         if ([[self startedSharing] timeIntervalSinceNow] <= ([self shareForDuration] * -1.0f)) {
+                                             [self stopLocationSharing];
+                                         } else if ([[self startedSharing] timeIntervalSinceNow] <= (-1.0f * MAX_HOURS_LOC_SHARING * 60 * 60)) {
+                                             [self stopLocationSharing];
+                                         }
+                                     } else if ([[self sharingType] isEqualToString:SHARE_LOCATION_TYPE_DESTINATION]) {
+                                         
+                                         [Logger logDebug:@"SHARE_LOCATION_TYPE_DESTINATION"
+                                                  message:[NSString stringWithFormat:@" %f : ", [[self shareTillLocation] distanceFromLocation:userLocation]]];
+                                         
+                                         if ([[self shareTillLocation] distanceFromLocation:userLocation] < DISTANCE_THRESHOLD) {
+                                             [self stopLocationSharing];
+                                         } else if ([[self startedSharing] timeIntervalSinceNow] <= (-1.0f * MAX_HOURS_LOC_SHARING * 60 * 60)) {
+                                             [self stopLocationSharing];
+                                         }
+                                     }
+                                     
+                                 } else {
+                                     [Logger logError:@""
+                                              message:[NSString stringWithFormat:@" reverseGeocodeCoordinate error : %@", [error localizedDescription]]];
+                                     [self setUpdateSent:NO];
+                                 }
+                             }];
+        }
+    }
+    
+}
+
+- (void)initiateLocationSharingForType:(NSString *)type
+                           forDuration:(int)duration
+                          tillLocation:(CLLocation *)location
+                       recipientsNames:(NSString *)names
+                     recipientsNumbers:(NSString *)numbers
+                                 cabID:(NSString *)cabID {
+    
+    [self setSharingType:type];
+    [self setShareForDuration:duration];
+    [self setShareTillLocation:location];
+    [self setRecipientNames:names];
+    [self setRecipientNumbers:numbers];
+    [self setCabID:cabID];
+    
+    int repeatInterval;
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *shareInterval = [userDefaults objectForKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+    if (shareInterval) {
+        repeatInterval = [[shareInterval stringByReplacingOccurrencesOfString:@" minutes"
+                                                                    withString:@""] intValue];
+    } else {
+        [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+                         forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+        shareInterval = VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5;
+        
+        repeatInterval = [[shareInterval stringByReplacingOccurrencesOfString:@" minutes"
+                                                                   withString:@""] intValue];
+    }
+    
+    [self setBackgroundTask:[[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        NSLog(@"ending background task");
+        [[UIApplication sharedApplication] endBackgroundTask:[self backgroundTask]];
+        [self setBackgroundTask:UIBackgroundTaskInvalid];
+        [[self timer] invalidate];
+    }]];
+    
+    
+    
+    [self setTimer:[NSTimer scheduledTimerWithTimeInterval:(repeatInterval * 60)
+                                                    target:self
+                                                  selector:@selector(startUpdatingLocation)
+                                                  userInfo:nil
+                                                   repeats:YES]];
+    //initiating the first share without timer else it starts at repeatInterval
+    [self startUpdatingLocation];
+    [self setStartedSharing:[NSDate date]];
 }
 
 #pragma mark - Notification methods

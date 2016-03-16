@@ -42,6 +42,8 @@
 #define MOBIKWIK_14SECRET_KEY                           @"ju6tygh7u7tdg554k098ujd5468o"                //UAT
 #define MOBIKWIK_14SECRET_KEY_TOKEN_REGENERATE          @"lu6tygh7u7tdg554k098ujd5468o"                //UAT
 
+#define LOGGING_ENABLED                                 1
+
 #define MOBIKWIK_ENDPOINT_QUERY_WALLET                  @"/querywallet"
 #define MOBIKWIK_ENDPOINT_OTP_GENERATE                  @"/otpgenerate"
 #define MOBIKWIK_ENDPOINT_TOKEN_GENERATE                @"/tokengenerate"
@@ -125,8 +127,8 @@
 #define ENDPOINT_OWNER_LOCATION                         @"/updateOwnerLocation.php"
 #define ENDPOINT_FETCH_IMAGE_NAME                       @"/fetchimagename.php"
 #define ENDPOINT_IMAGE_UPLOAD                           @"/imageupload.php"
-
-#define LOGGING_ENABLED                                 1
+#define ENDPOINT_SHARE_LOCATION_MEMBERS                 @"/sharelocationtomembers.php"
+#define ENDPOINT_UPDATE_OWNER_LOCATION                  @"/updateOwnerLocation.php"
 
 #define TOAST_DELAY                                     1.5
 
@@ -155,6 +157,15 @@
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2    @"2 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5    @"5 minutes"
 #define VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10   @"10 minutes"
+#define SHARE_LOCATION_TYPE_DURATION                    @"ShareLocationTypeDuration"
+#define SHARE_LOCATION_TYPE_DESTINATION                 @"ShareLocationTypeDestination"
+#define SHARE_LOCATION_TYPE_FOR_RIDE                    @"ShareLocationTypeForRide"
+#define KEY_IS_LOCATION_SHARING_ON                      @"IsLocationSharingOn"
+#define KEY_SHARE_LOCATION_TYPE                         @"ShareLocationType"
+#define KEY_SHARE_LOCATION_DURATION                     @"ShareLocationDuration"
+#define KEY_SHARE_LOCATION_DESTINATION                  @"ShareLocationDestination"
+#define KEY_SHARE_LOCATION_RECP_NAMES                   @"ShareLocationRecpNames"
+#define KEY_SHARE_LOCATION_RECP_NUMBERS                 @"ShareLocationRecpNumbers"
 
 #define OTP_FROM_LOGIN                                  @"OTPFromLogin"
 #define OTP_FROM_REGISTRATION                           @"OTPFromRegistration"

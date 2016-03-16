@@ -12,6 +12,7 @@
 #import "MemberOfClubsTableViewCell.h"
 #import "ToastLabel.h"
 #import "GenericContactsViewController.h"
+#import <Google/Analytics.h>
 
 @interface ClubsInviteViewController () <UIAlertViewDelegate, GenericContactsVCProtocol>
 
@@ -25,7 +26,7 @@
 //@property (weak, nonatomic) IBOutlet UITableView *tableViewMyClubs;
 //@property (weak, nonatomic) IBOutlet UITableView *tableViewMemberOfClubs;
 
-@property (strong, nonatomic) NSString *numberString, *nameString;
+@property (strong, nonatomic) NSString *numberString, *nameString, *clubNameString;
 
 @end
 
@@ -56,6 +57,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -211,10 +221,14 @@
     NSMutableArray *arraySelectedNumbers = [NSMutableArray array];
     NSMutableArray *arraySelectedNames = [NSMutableArray array];
     
+    [self setClubNameString:@""];
+    
     if ([[self arrayMyClubsSelected] count] > 0) {
         for (int i = 0; i < [[self arrayMyClubsSelected] count]; i++) {
             
             NSArray *members = [[[self arrayMyClubs] objectAtIndex:[[[self arrayMyClubsSelected] objectAtIndex:i] integerValue]] objectForKey:@"Members"];
+            
+            [self setClubNameString:[[self clubNameString] stringByAppendingString:[NSString stringWithFormat:@"%@, ", [[[self arrayMyClubs] objectAtIndex:[[[self arrayMyClubsSelected] objectAtIndex:i] integerValue]] objectForKey:@"PoolName"]]]];
             
             for (NSDictionary *memb in members) {
                 NSString *selectedNumber = [memb objectForKey:@"MemberNumber"];
@@ -237,6 +251,8 @@
         for (int i = 0; i < [[self arrayMemberOfClubsSelected] count]; i++) {
             
             NSArray *members = [[[self arrayMemberOfClubs] objectAtIndex:[[[self arrayMemberOfClubsSelected] objectAtIndex:i] integerValue]] objectForKey:@"Members"];
+            
+            [self setClubNameString:[[self clubNameString] stringByAppendingString:[NSString stringWithFormat:@"%@, ", [[[self arrayMemberOfClubs] objectAtIndex:[[[self arrayMemberOfClubsSelected] objectAtIndex:i] integerValue]] objectForKey:@"PoolName"]]]];
             
             for (NSDictionary *memb in members) {
                 NSString *selectedNumber = [memb objectForKey:@"MemberNumber"];
@@ -297,7 +313,19 @@
                                                   otherButtonTitles:@"Invite more", @"Continue Anyways", nil];
         [alertView show];
     } else {
-        [self sendMembersToInvite];
+        if ([self delegateClubsInviteVC] && [self delegateClubsInviteVCShareLocation]) {
+            
+            [self setClubNameString:[[self clubNameString] substringToIndex:([[self clubNameString] length] - 2)]];
+            
+            [[self delegateClubsInviteVCShareLocation] membersToInviteFrom:self
+                                                               withNumbers:[self numberString]
+                                                                  andNames:[self nameString]
+                                                              andClubNames:[self clubNameString]];
+            
+            [self popVC];
+        } else {
+            [self sendMembersToInvite];
+        }
     }
     
 }
@@ -323,6 +351,14 @@
 #pragma mark - Private methods
 
 - (void)sendMembersToInvite {
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Invite clubs to ride"
+                                                          action:@"Invite clubs to ride"
+                                                           label:@"Invite clubs to ride"
+                                                           value:nil] build]];
+    
     [[self delegateClubsInviteVC] membersToInviteFrom:self
                                           withNumbers:[self numberString]
                                              andNames:[self nameString]];

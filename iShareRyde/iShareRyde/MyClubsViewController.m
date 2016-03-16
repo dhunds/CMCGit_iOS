@@ -18,6 +18,7 @@
 #import "GenericContactsViewController.h"
 #import "ClubDetailsViewController.h"
 #import "MyProfileViewController.h"
+#import <Google/Analytics.h>
 
 @interface MyClubsViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
 
@@ -65,6 +66,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -266,11 +272,27 @@
         
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
         if (alertView == [self alertViewDeleteClub]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Delete club"
+                                                                  action:@"Delete club"
+                                                                   label:@"Delete club"
+                                                                   value:nil] build]];
+            
             [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
                                                                endPoint:ENDPOINT_DELETE_CLUB
                                                              parameters:[NSString stringWithFormat:@"poolid=%@", [[[self arrayMyClubs] objectAtIndex:[alertView tag]] objectForKey:@"PoolId"]]
                                                     delegateForProtocol:self];
         } else if (alertView == [self alertViewLeaveClub]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Leave club"
+                                                                  action:@"Leave club"
+                                                                   label:@"Leave club"
+                                                                   value:nil] build]];
+            
             [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
                                                                endPoint:ENDPOINT_LEAVE_CLUB
                                                              parameters:[NSString stringWithFormat:@"poolid=%@&MemberNumber=%@", [[[self arrayMemberOfClubs] objectAtIndex:[alertView tag]] objectForKey:@"PoolId"], [self mobileNumber]]

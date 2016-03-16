@@ -9,15 +9,16 @@
 #import "ShowLocationViewController.h"
 #import <GoogleMaps/GoogleMaps.h>
 
-@interface ShowLocationViewController ()
+@interface ShowLocationViewController () <GMSMapViewDelegate>
 
 @property (weak, nonatomic) IBOutlet GMSMapView *mapView;
 @property (weak, nonatomic) IBOutlet UILabel *labelAddress;
-@property (weak, nonatomic) IBOutlet UIImageView *imageViewPin;
 
 @end
 
 @implementation ShowLocationViewController
+
+#pragma mark - View Controller Life Cycle methods 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -31,16 +32,39 @@
     [[self labelAddress] setText:[array lastObject]];
     
     array = [[[self dictionaryNotification] objectForKey:@"UserLatLong"] componentsSeparatedByString:@","];
+    
+    GMSMarker *marker = [GMSMarker markerWithPosition:CLLocationCoordinate2DMake([[array firstObject] doubleValue], [[array lastObject] doubleValue])];
+    [marker setIcon:[UIImage imageNamed:@"shared_location"]];
+    [marker setMap:[self mapView]];
+    
     GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:[[array firstObject] doubleValue]
                                                             longitude:[[array lastObject] doubleValue]
                                                                  zoom:14];
     
     [[self mapView] animateToCameraPosition:camera];
+    
+    [[self mapView] setMyLocationEnabled:YES];
+    [[[self mapView] settings] setMyLocationButton:YES];
+    
+    [[self mapView] setDelegate:self];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - GMSMapViewDelegate methods
+
+- (BOOL)mapView:(GMSMapView *)mapView
+   didTapMarker:(GMSMarker *)marker {
+    
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"comgooglemaps://"]]) {
+        NSArray *array = [[[self dictionaryNotification] objectForKey:@"UserLatLong"] componentsSeparatedByString:@","];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"comgooglemaps://?center=%@,%@&zoom=14", [array firstObject], [array lastObject]]]];
+    }
+    
+    return YES;
 }
 
 /*

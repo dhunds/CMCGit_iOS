@@ -15,6 +15,7 @@
 #import "CabsWebViewController.h"
 #import "MyRidesViewController.h"
 #import "HCSStarRatingView.h"
+#import <Google/Analytics.h>
 
 @interface BookACabViewController () <UIAlertViewDelegate, GlobalMethodsAsyncRequestProtocol, CabsWebViewControllerProtocol>
 
@@ -66,6 +67,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -233,12 +239,29 @@
     //    NSArray *descriptors = [NSArray arrayWithObject:sortDescriptor];
     //    NSArray *arraySorted = [arrayToSort sortedArrayUsingDescriptors:descriptors];
     
-    NSArray *arraySorted = [arrayToSort sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *dict1, NSDictionary *dict2) {
+    NSMutableArray *arrayToSortMutable = [NSMutableArray array];
+    NSMutableArray *tempArray = [NSMutableArray array];
+    
+    for (NSDictionary *dictionary in arrayToSort) {
+        if ([dictionary objectForKey:@"timeEstimate"]) {
+            [arrayToSortMutable addObject:dictionary];
+        } else {
+            [tempArray addObject:dictionary];
+        }
+    }
+    
+    NSArray *arraySorted = [arrayToSortMutable sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *dict1, NSDictionary *dict2) {
         NSNumber *est1 = [NSNumber numberWithInteger:[[dict1 objectForKey:@"timeEstimate"] integerValue]];
         NSNumber *est2 = [NSNumber numberWithInteger:[[dict2 objectForKey:@"timeEstimate"] integerValue]];
         
         return [est1 compare:est2];
     }];
+    
+    if ([tempArray count] > 0) {
+        NSMutableArray *temp = [arraySorted mutableCopy];
+        [temp addObjectsFromArray:tempArray];
+        arraySorted = [temp copy];
+    }
     
 //    [Logger logDebug:[self TAG]
 //             message:[NSString stringWithFormat:@" sortByTime : %@", [arraySorted description]]];
@@ -1079,7 +1102,7 @@
     
     NSString *timeEstimate = [NSString stringWithFormat:@"%td", [[[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"timeEstimate"] integerValue]];
     NSString *time = @"";
-    if (!timeEstimate || [timeEstimate length] <= 0 || [timeEstimate caseInsensitiveCompare:@"null"] == NSOrderedSame) {
+    if (![[[self arrayCabDetails] objectAtIndex:indexPath.section] objectForKey:@"timeEstimate"] || !timeEstimate || [timeEstimate length] <= 0 || [timeEstimate caseInsensitiveCompare:@"null"] == NSOrderedSame) {
         time = @"Est. time: -";
     } else {
         time = [NSString stringWithFormat:@"%@ %1.0f %@", @"Est. time:", ceilf([timeEstimate doubleValue] / 60.0f), @"mins"];

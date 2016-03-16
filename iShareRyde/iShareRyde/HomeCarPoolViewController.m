@@ -19,6 +19,7 @@
 #import "RideDetailsMemberViewController.h"
 #import "MyRidesViewController.h"
 #import "MyProfileViewController.h"
+#import <Google/Analytics.h>
 
 @interface HomeCarPoolViewController () <GlobalMethodsAsyncRequestProtocol, UIAlertViewDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -78,6 +79,12 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
+    
     if ([[NSUserDefaults standardUserDefaults] boolForKey:KEY_USER_DEFAULT_IS_ENTERING_BACKGROUND]) {
         return;
     }
@@ -190,11 +197,25 @@
 }
 
 - (IBAction)tapGestureCarPool:(UITapGestureRecognizer *)sender {
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"HomeCarPoolViewController CarPool Click"
+                                                          action:@"HomeCarPoolViewController CarPool Click"
+                                                           label:@"HomeCarPoolViewController CarPool Click"
+                                                           value:nil] build]];
+    
     [self performSegueWithIdentifier:@"CarPoolToHomeSegue"
                               sender:HOME_SEGUE_TYPE_CAR_POOL];
 }
 
 - (IBAction)tapGestureCabShare:(UITapGestureRecognizer *)sender {
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"HomeCarPoolViewController CabShare Click"
+                                                          action:@"HomeCarPoolViewController CabShare Click"
+                                                           label:@"HomeCarPoolViewController CabShare Click"
+                                                           value:nil] build]];
+    
     [self performSegueWithIdentifier:@"CarPoolToHomeSegue"
                               sender:HOME_SEGUE_TYPE_SHARE_CAB];
 }
@@ -511,7 +532,7 @@
     
     NSString *seatStatus = [dictionaryRide objectForKey:@"Seat_Status"];
     NSArray *array = [seatStatus componentsSeparatedByString:@"/"];
-    [[cell labelTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %@", [array lastObject]]];
+    [[cell labelTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %d", ([[array lastObject] intValue] + 1)]];
     [[cell labelAvailableSeats] setText:[NSString stringWithFormat:@"Available : %d", ([[array lastObject] intValue] - [[array firstObject] intValue])]];
     
     if ([[dictionaryRide objectForKey:@"rideType"] isEqualToString:@"1"]) {

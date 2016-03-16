@@ -20,11 +20,23 @@
 
 @end
 
+@protocol ClubsInviteVCShareLocationProtocol <NSObject>
+
+@required
+
+- (void)membersToInviteFrom:(ClubsInviteViewController *)sender
+                withNumbers:(NSString *)numbers
+                   andNames:(NSString *)names
+               andClubNames:(NSString *)clubs;
+
+@end
+
 @interface ClubsInviteViewController : UIViewController
 
 @property (strong, nonatomic) NSArray *arrayMyClubs, *arrayMemberOfClubs;
 @property (nonatomic) int numberOfSeats;
 
 @property (weak, nonatomic) id <ClubsInviteVCProtocol> delegateClubsInviteVC;
+@property (weak, nonatomic) id <ClubsInviteVCShareLocationProtocol> delegateClubsInviteVCShareLocation;
 
 @end

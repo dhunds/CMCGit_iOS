@@ -15,6 +15,7 @@
 #import "PlacesAutoCompleteViewController.h"
 #import "TripDateTimeViewController.h"
 #import "BookACabViewController.h"
+#import <Google/Analytics.h>
 
 @import GoogleMaps;
 
@@ -75,6 +76,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
     
     [self clearHomeOfficeSelection];
     
@@ -217,6 +223,13 @@
         [[self viewOfficeToHome] setBackgroundColor:[UIColor whiteColor]];
         
         [self showButtonsView];
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Home to Office click"
+                                                              action:@"Home to Office click"
+                                                               label:@"Home to Office click"
+                                                               value:nil] build]];
     } else {
         [self showFavoriteLocationAlertView];
     }
@@ -234,6 +247,14 @@
         [[self viewHomeToOffice] setBackgroundColor:[UIColor whiteColor]];
         
         [self showButtonsView];
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Office to Home click"
+                                                              action:@"Office to Home click"
+                                                               label:@"Office to Home click"
+                                                               value:nil] build]];
+        
     } else {
         [self showFavoriteLocationAlertView];
     }
@@ -261,6 +282,13 @@
 }
 
 - (IBAction)bookCabPressed:(UIButton *)sender {
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"BookaCab click"
+                                                          action:@"BookaCab click"
+                                                           label:@"BookaCab click"
+                                                           value:nil] build]];
+    
     [[self viewClubAndCabButtons] setHidden:YES];
     
     [self performSegueWithIdentifier:@"BookACabHomeSegue"

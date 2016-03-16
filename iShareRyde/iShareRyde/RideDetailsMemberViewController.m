@@ -16,6 +16,7 @@
 #import "BookACabViewController.h"
 #import "GenericContactsViewController.h"
 #import "SWRevealViewController.h"
+#import <Google/Analytics.h>
 
 @interface RideDetailsMemberViewController () <GMSMapViewDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, GenericContactsVCProtocol, CLLocationManagerDelegate, GlobalMethodsAsyncRequestProtocol>
 
@@ -118,6 +119,15 @@
     } else {
         [[self buttonCabInfo] setHidden:YES];
     }
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -505,7 +515,7 @@
         
         NSString *seatStatus = [[self dictionaryRideDetails] objectForKey:@"Seat_Status"];
         NSArray *array = [seatStatus componentsSeparatedByString:@"/"];
-        [[self labelInfoTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %@", [array lastObject]]];
+        [[self labelInfoTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %d", ([[array lastObject] intValue] + 1)]];
         [[self labelInfoAvailableSeats] setText:[NSString stringWithFormat:@"Available : %d", ([[array lastObject] intValue] - [[array firstObject] intValue])]];
         
         if ([[self arrayMembers] count] > 0) {
@@ -804,6 +814,14 @@
                                                                                                                                                        withString:@"%20"]];
         
         if (from && to) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Book a cab ride"
+                                                                  action:@"Book a cab ride"
+                                                                   label:@"Book a cab ride"
+                                                                   value:nil] build]];
+            
             [self setAddressFrom:from];
             [self setAddressTo:to];
             [self performSegueWithIdentifier:@"BookACabMemberRideSegue"
@@ -1089,6 +1107,14 @@
     
     if (alertView == [self alertViewLeaveRide]) {
         if ([buttonTitle isEqualToString:@"Yes"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Leave Ride"
+                                                                  action:@"Leave Ride"
+                                                                   label:@"Leave Ride"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             NSString *message = [NSString stringWithFormat:@"%@ left your ride from %@ to %@", [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_NAME], [[self dictionaryRideDetails] objectForKey:@"FromShortName"], [[self dictionaryRideDetails] objectForKey:@"ToShortName"]];
@@ -1134,14 +1160,38 @@
         }
     } else if (alertView == [self alertViewRideComplete]) {
         if ([buttonTitle isEqualToString:@"I paid, calculate fare split"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare calculate"
+                                                                  action:@"Fare calculate"
+                                                                   label:@"Fare calculate"
+                                                                   value:nil] build]];
+            
             [self showFareSplitDialog];
         } else if ([buttonTitle isEqualToString:@"Someone else paid"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare paid by other"
+                                                                  action:@"Fare paid by other"
+                                                                   label:@"Fare paid by other"
+                                                                   value:nil] build]];
+            
             [self makeToastWithMessage:@"We will let you know when your friend shares the fare details & the amount you owe"];
             
             [self performSelector:@selector(popVC)
                        withObject:nil
                        afterDelay:5];
         } else if ([buttonTitle isEqualToString:@"Already settled"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare already settled"
+                                                                  action:@"Fare already settled"
+                                                                   label:@"Fare already settled"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
@@ -1161,6 +1211,13 @@
         }
         
         if ([buttonTitle isEqualToString:@"Split by distance"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare Split by distance"
+                                                                  action:@"Fare Split by distance"
+                                                                   label:@"Fare Split by distance"
+                                                                   value:nil] build]];
             
             [Logger logDebug:[self TAG]
                      message:[NSString stringWithFormat:@" fareSplitMobileNumbers : %@ fareSplitPickUpLocation : %@ fareSplitDropLocation : %@ fareSplitRouteDistance : %@ fareSplitRouteLocation : %@", [[self fareSplitMobileNumbers] description], [[self fareSplitPickUpLocation] description], [[self fareSplitDropLocation] description], [[self fareSplitRouteDistance] description], [[self fareSplitRouteLocation] description]]];
@@ -1247,6 +1304,14 @@
             [self setAlertViewFareSplitSendToMembers:alertView];
             
         } else if ([buttonTitle isEqualToString:@"Split equally"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare Split equal"
+                                                                  action:@"Fare Split equal"
+                                                                   label:@"Fare Split equal"
+                                                                   value:nil] build]];
+            
             NSString *fareSplit = [NSString stringWithFormat:@"%1.0f", ([fare doubleValue] / ([[self arrayMembers] count] + 1))];
             
             NSString *membersFare = @"";
@@ -1337,6 +1402,14 @@
         GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
         
         if ([buttonTitle isEqualToString:@"Already settled/Will pay cash"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare settled in cash"
+                                                                  action:@"Fare settled in cash"
+                                                                   label:@"Fare settled in cash"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS
@@ -1347,6 +1420,13 @@
         } else if ([buttonTitle isEqualToString:@"Wallet-to-Wallet transfer"]) {
             NSString *token = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_USER_DEFAULT_MOBIKWIK_TOKEN];
             if (token && [token length] > 0) {
+                
+                id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+                
+                [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare settled by wallet"
+                                                                      action:@"Fare settled by wallet"
+                                                                       label:@"Fare settled by wallet"
+                                                                       value:nil] build]];
                 
                 [self setGetMyFareType:MY_FARE_WALLET_TO_WALLET];
                 GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
@@ -1365,6 +1445,14 @@
                 [alertView show];
             }
         } else if ([buttonTitle isEqualToString:@"Settle using Reward points"]) {
+            
+            id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+            
+            [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Fare settled in Credits"
+                                                                  action:@"Fare settled in Credits"
+                                                                   label:@"Fare settled in Credits"
+                                                                   value:nil] build]];
+            
             [self showActivityIndicatorView];
             
             [globalMethods makeURLConnectionAsynchronousRequestToServer:SERVER_ADDRESS

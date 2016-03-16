@@ -17,6 +17,7 @@
 #import "RideDetailsViewController.h"
 #import "RideDetailsMemberViewController.h"
 #import "MyProfileViewController.h"
+#import <Google/Analytics.h>
 
 @interface MyRidesViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate>
 
@@ -75,6 +76,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
     
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
     
@@ -329,7 +335,7 @@
     
     NSString *seatStatus = [dictionaryRide objectForKey:@"Seat_Status"];
     NSArray *array = [seatStatus componentsSeparatedByString:@"/"];
-    [[cell labelTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %@", [array lastObject]]];
+    [[cell labelTotalSeats] setText:[NSString stringWithFormat:@"Total seats : %d", ([[array lastObject] intValue] + 1)]];
     [[cell labelAvailableSeats] setText:[NSString stringWithFormat:@"Available : %d", ([[array lastObject] intValue] - [[array firstObject] intValue])]];
     
     NSString *imageName = [dictionaryRide objectForKey:@"imagename"];

@@ -17,6 +17,7 @@
 #import "MyClubsViewController.h"
 #import "CabRatingViewController.h"
 #import "ShowLocationViewController.h"
+#import <Google/Analytics.h>
 
 @interface NotificationsListViewController () <GlobalMethodsAsyncRequestProtocol, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIAlertViewDelegate, CabRatingViewControllerProtocol>
 
@@ -84,6 +85,15 @@
 //    [Logger logDebug:[self TAG]
 //             message:[NSString stringWithFormat:@" viewDidAppear : (%1.4f, %1.4f)", frame.size.width, frame.size.height]];
     
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -442,6 +452,13 @@
         [self performSegueWithIdentifier:@"CabRatingSegue"
                                   sender:[NSString stringWithFormat:@"%@-%@", [dictionaryNotification objectForKey:@"CabId"], [dictionaryNotification objectForKey:@"NotificationId"]]];
     }
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Notification Opened"
+                                                          action:@"Notification Opened"
+                                                           label:@"Notification Opened"
+                                                           value:nil] build]];
     
 }
 

@@ -14,6 +14,7 @@
 #import "GlobalMethods.h"
 #import "FirstLoginClubsViewController.h"
 #import "MyProfileViewController.h"
+#import <Google/Analytics.h>
 
 @interface WalletsViewController () <GlobalMethodsAsyncRequestProtocol, UITextFieldDelegate>
 
@@ -81,6 +82,15 @@
     } else {
         [[self buttonSkip] setHidden:YES];
     }
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -298,6 +308,13 @@
             return;
         }
         
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"LinkExistingWallet"
+                                                              action:@"LinkExistingWallet"
+                                                               label:@"LinkExistingWallet"
+                                                               value:nil] build]];
+        
         [self showActivityIndicatorView];
         
         [globalMethods makeMobikwikURLConnectionAsynchronousRequestToServer:MOBIKWIK_SERVER_URL
@@ -313,6 +330,13 @@
             [self makeToastWithMessage:@"Please enter the OTP"];
             return;
         }
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"CreateNewWallet"
+                                                              action:@"CreateNewWallet"
+                                                               label:@"CreateNewWallet"
+                                                               value:nil] build]];
         
         [self showActivityIndicatorView];
         

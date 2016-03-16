@@ -15,6 +15,7 @@
 #import "Logger.h"
 #import "FavoriteLocationsViewController.h"
 #import "MyProfileViewController.h"
+#import <Google/Analytics.h>
 
 @interface SettingsViewController () <GlobalMethodsAsyncRequestProtocol>
 
@@ -26,8 +27,8 @@
 @property (strong, nonatomic) NSString *mobileNumber;
 
 @property (weak, nonatomic) IBOutlet UISwitch *switchNotification;
-//@property (weak, nonatomic) IBOutlet UIButton *buttonHereIAm;
-//@property (weak, nonatomic) IBOutlet UILabel *labelInterval;
+@property (weak, nonatomic) IBOutlet UIButton *buttonHereIAm;
+@property (weak, nonatomic) IBOutlet UILabel *labelInterval;
 @property (weak, nonatomic) IBOutlet UIButton *buttonFavoriteLocations;
 
 @property (strong, nonatomic) UIAlertView *alertViewProfileImage;
@@ -73,18 +74,23 @@
         [[self switchNotification] setOn:YES];
     }
     
-//    NSString *shareInterval = [userDefaults objectForKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-//    if (shareInterval) {
-//        [[self labelInterval] setText:shareInterval];
-//    } else {
-//        [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-//                         forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-//        [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
-//    }
+    NSString *shareInterval = [userDefaults objectForKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+    if (shareInterval) {
+        [[self labelInterval] setText:shareInterval];
+    } else {
+        [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+                         forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+        [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName
+           value:[self TAG]];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
     
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
     
@@ -150,40 +156,40 @@
 }
 
 - (IBAction)hereIAmPressed:(UIButton *)sender {
-//    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
-//                                                                             message:@"Please select an interval"
-//                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
-//    
-//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
-//                                                        style:UIAlertActionStyleDefault
-//                                                      handler:^(UIAlertAction *action) {
-//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2];
-//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
-//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-//                                                      }]];
-//    
-//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-//                                                        style:UIAlertActionStyleDefault
-//                                                      handler:^(UIAlertAction *action) {
-//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
-//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
-//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-//                                                      }]];
-//    
-//    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
-//                                                        style:UIAlertActionStyleDefault
-//                                                      handler:^(UIAlertAction *action) {
-//                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10];
-//                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-//                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
-//                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
-//                                                      }]];
-//    
-//    [self presentViewController:alertController
-//                       animated:YES
-//                     completion:^{}];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+                                                                             message:@"Please select an interval"
+                                                                      preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2];
+                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_2
+                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+                                                      }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5];
+                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_5
+                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+                                                      }]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction *action) {
+                                                          [[self labelInterval] setText:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10];
+                                                          NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                                                          [userDefaults setObject:VALUE_USER_DEFAULT_SHARE_LOCATION_INTERVAL_10
+                                                                           forKey:KEY_USER_DEFAULT_SHARE_LOCATION_INTERVAL];
+                                                      }]];
+    
+    [self presentViewController:alertController
+                       animated:YES
+                     completion:^{}];
 }
 
 - (IBAction)notificationsSwitchValueChanged:(UISwitch *)sender {
@@ -193,6 +199,14 @@
     GlobalMethods *globalMethods = [[GlobalMethods alloc] init];
     
     if ([sender isOn]) {
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Set Push Notifications On"
+                                                              action:@"Set Push Notifications On"
+                                                               label:@"Set Push Notifications On"
+                                                               value:nil] build]];
+        
         [userDefaults setObject:NOTIFICATION_STATUS_ON
                          forKey:KEY_USER_DEFAULT_PUSH_NOTIF_STATUS];
         
@@ -201,6 +215,14 @@
                                                          parameters:[NSString stringWithFormat:@"MobileNumber=%@&PushStatus=%@", [self mobileNumber], NOTIFICATION_STATUS_ON]
                                                 delegateForProtocol:self];
     } else {
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"Set Push Notifications Off"
+                                                              action:@"Set Push Notifications Off"
+                                                               label:@"Set Push Notifications Off"
+                                                               value:nil] build]];
+        
         [userDefaults setObject:NOTIFICATION_STATUS_OFF
                          forKey:KEY_USER_DEFAULT_PUSH_NOTIF_STATUS];
         
